@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "lib": [
+      "ESNext",
+      "WebWorker",
+      "DOM"
+    ],
+    "baseUrl": ".",
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react"
+  },
+  "exclude": [
+    "src/react-worker/host/handlers/reconciler.ts",
+    "src/react-worker/worker/createElement.ts",
+    "src/react-worker/worker/jsdom",
+    "src/react-worker/worker/jsdom-v1",
+    "src/react-worker/worker/jsdom-v2"
+  ],
+  "include": [
+    "src/typings"
+  ]
+}
