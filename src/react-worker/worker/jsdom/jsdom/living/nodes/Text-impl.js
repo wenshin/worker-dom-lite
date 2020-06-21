@@ -19,7 +19,6 @@ class TextImpl extends CharacterDataImpl {
     this._initSlotableMixin();
 
     this.nodeType = NODE_TYPE.TEXT_NODE;
-    console.log('TextNode constructor', args, privateData);
     // ywx:
     this.$hostCreated = false;
     this.$cargo.type = 'TextNode';

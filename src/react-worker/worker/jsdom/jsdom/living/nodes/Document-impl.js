@@ -124,7 +124,6 @@ const eventInterfaceTable = {
 
 class DocumentImpl extends NodeImpl {
   constructor(globalObject, args, privateData) {
-    console.log('DocumentImpl.constructor', privateData);
     super(globalObject, args, privateData);
 
     this._initGlobalEvents();
@@ -721,7 +720,6 @@ class DocumentImpl extends NodeImpl {
 
   // https://dom.spec.whatwg.org/#dom-document-createelement
   createElement(localName, options) {
-    console.log('createElement', localName, options);
     validateName(this._globalObject, localName);
 
     if (this._parsingMode === 'html') {

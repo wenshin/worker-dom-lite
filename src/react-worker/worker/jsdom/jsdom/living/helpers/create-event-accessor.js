@@ -159,7 +159,6 @@ exports.createEventAccessor = function createEventAccessor(obj, event) {
     },
     set(val) {
       if (event === 'click' && this.$bridge) {
-        console.debug('Worker: set react noop onclick');
         this.$bridge.publish('EventTarget:reactClickNoop', this.$cargo);
       } else {
         throw new Error(`Worker: on${event} is not support`);

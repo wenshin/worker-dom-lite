@@ -1,27 +1,14 @@
 import { Bridge } from '../../interface';
 import { IPCObjectManager, IPCCargo } from '../../ipc-object';
+import { BridgeElementEvents, BridgeCommonEvents } from '../../worker/jsdom/jsdom/living/events/consts';
+import { assertBridgeEventData, createEventDataError } from './assert';
 
 export function registerElementHandlers(bridge: Bridge, ipcObjectManager: IPCObjectManager) {
   bridge.registerInvokeHandlers('document', {
     createElement(elemCargo?: IPCCargo, tagName?: string, ...args: any[]) {
-      console.debug('Host createElement', tagName, elemCargo);
       const elem = elemCargo && ipcObjectManager.getObject(elemCargo);
       if (!elem && tagName && elemCargo) {
-        let mirror: Element;
-        switch (tagName) {
-          case 'html':
-            mirror = document.documentElement;
-            break;
-          case 'head':
-            mirror = document.head;
-            break;
-          case 'body':
-            mirror = document.body;
-            break;
-          default:
-            mirror = document.createElement(tagName, ...args);
-            break;
-        }
+        const mirror = document.createElement(tagName, ...args);
         ipcObjectManager.addMirror(elemCargo, mirror);
       } else if (!elem && !tagName) {
         throw new Error(`document:createElement arguments [${elemCargo}, ${tagName}, ${args}] are invalid!`);
@@ -34,17 +21,6 @@ export function registerElementHandlers(bridge: Bridge, ipcObjectManager: IPCObj
         ipcObjectManager.addMirror(elemCargo, mirror);
       } else {
         throw new Error(`document:createTextNode arguments [${elemCargo}, ${data}] are invalid!`);
-      }
-    }
-  });
-
-  bridge.registerInvokeHandlers('Element', {
-    setAttributes(elemCargo?: IPCCargo, name?: string, value?: string) {
-      const elem = elemCargo && (ipcObjectManager.getObject(elemCargo) as Element);
-      if (elem && name && value) {
-        elem.setAttribute(name, value);
-      } else {
-        throw new Error(`Element:setAttributes arguments [${elemCargo}, ${name}, ${value}]  are invalid!`);
       }
     }
   });
@@ -62,8 +38,79 @@ export function registerElementHandlers(bridge: Bridge, ipcObjectManager: IPCObj
       if (!elem || !node) {
         throw new Error(`Node:insertBefore arguments [${elemCargo}, ${nodeCargo}]  are invalid!`);
       }
-
       elem.insertBefore(node, child);
+    }
+  });
+
+  bridge.subscribe(
+    BridgeElementEvents.setAttribute,
+    (data?: { elemCargo?: IPCCargo; name?: string; value?: string }) => {
+      assertBridgeEventData(BridgeElementEvents.setAttribute, data);
+      const elem = data.elemCargo && (ipcObjectManager.getObject(data.elemCargo) as Element);
+      if (elem) {
+        elem.setAttribute(data.name, data.value);
+      } else {
+        throw createEventDataError(BridgeElementEvents.setAttributes, `element is not exist!`);
+      }
+    }
+  );
+
+  bridge.subscribe(
+    BridgeElementEvents.setAttributeNS,
+    (data?: { elemCargo?: IPCCargo; namespace?: string; name?: string; value?: string }) => {
+      assertBridgeEventData(BridgeElementEvents.setAttributeNS, data);
+      const elem = data.elemCargo && (ipcObjectManager.getObject(data.elemCargo) as HTMLElement);
+      if (elem) {
+        elem.setAttributeNS(data.namespace, data.name, data.value);
+      } else {
+        throw createEventDataError(BridgeElementEvents.setAttributeNS, `element is not exist!`);
+      }
+    }
+  );
+
+  bridge.subscribe(BridgeElementEvents.removeAttribute, (data?: { elemCargo?: IPCCargo; name?: string }) => {
+    assertBridgeEventData(BridgeElementEvents.removeAttribute, data);
+    const elem = data.elemCargo && (ipcObjectManager.getObject(data.elemCargo) as HTMLElement);
+    if (elem) {
+      elem.removeAttribute(data.name);
+    } else {
+      throw createEventDataError(BridgeElementEvents.removeAttribute, `element is not exist!`);
+    }
+  });
+
+  bridge.subscribe(
+    BridgeElementEvents.removeAttributeNS,
+    (data?: { elemCargo?: IPCCargo; namespace?: string; name?: string }) => {
+      assertBridgeEventData(BridgeElementEvents.removeAttributeNS, data);
+      const elem = data.elemCargo && (ipcObjectManager.getObject(data.elemCargo) as HTMLElement);
+      if (elem) {
+        elem.removeAttributeNS(data.namespace, data.name);
+      } else {
+        throw createEventDataError(BridgeElementEvents.removeAttributeNS, `element is not exist!`);
+      }
+    }
+  );
+
+  bridge.subscribe(
+    BridgeElementEvents.toggleAttribute,
+    (data?: { elemCargo?: IPCCargo; name?: string; force?: boolean }) => {
+      assertBridgeEventData(BridgeElementEvents.toggleAttribute, data);
+      const elem = data.elemCargo && (ipcObjectManager.getObject(data.elemCargo) as HTMLElement);
+      if (elem) {
+        elem.toggleAttribute(data.name, data.force);
+      } else {
+        throw createEventDataError(BridgeElementEvents.toggleAttribute, `element is not exist!`);
+      }
+    }
+  );
+
+  bridge.subscribe(BridgeCommonEvents.setProperty, (data?: { elemCargo: IPCCargo; prop: string; value: any }) => {
+    assertBridgeEventData(BridgeCommonEvents.setProperty, data);
+    const elem = data.elemCargo && (ipcObjectManager.getObject(data.elemCargo) as Element);
+    if (elem && data.prop) {
+      elem[data.prop] = data.value;
+    } else {
+      throw createEventDataError(BridgeCommonEvents.setProperty, `element or data.prop is not exist!`);
     }
   });
 }

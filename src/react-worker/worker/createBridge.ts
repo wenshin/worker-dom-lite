@@ -1,6 +1,6 @@
 import { BridgePayload } from '../interface';
 import Bridge from '../Bridge';
-import { getTime } from '../utils';
+// import { getTime } from '../utils';
 
 const webworker = (self as unknown) as Worker; // eslint-disable-line no-restricted-globals
 
@@ -8,7 +8,7 @@ function createBridge(name?: string) {
   const transport = {
     name: name || 'bridge-transport',
     postMessage(payload: any, transfer?: Transferable[]) {
-      console.debug(getTime(), 'BridgeDebugWorkerSend ', payload.id, payload);
+      // console.debug(getTime(), 'BridgeDebugWorkerSend ', payload.id, payload);
       webworker.postMessage(
         {
           $channel: transport.name,
@@ -23,7 +23,7 @@ function createBridge(name?: string) {
         if (evt.data) {
           const { $channel, payload } = evt.data;
           if ($channel === transport.name) {
-            console.debug(getTime(), 'BridgeDebugWorkerReceive: ', payload.id, payload);
+            // console.debug(getTime(), 'BridgeDebugWorkerReceive: ', payload.id, payload);
             cb(payload);
           }
         }
@@ -36,7 +36,7 @@ function createBridge(name?: string) {
     }
   };
 
-  return new Bridge({ transport });
+  return new Bridge({ name: 'BridgeWorker', transport });
 }
 
 export default createBridge;

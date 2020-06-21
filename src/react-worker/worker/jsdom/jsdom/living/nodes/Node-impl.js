@@ -27,6 +27,7 @@ const {
   shadowIncludingInclusiveDescendantsIterator,
   shadowIncludingDescendantsIterator
 } = require('../helpers/shadow-dom');
+const { BridgeCommonEvents } = require('../events/consts');
 
 function isObsoleteNodeType(node) {
   return (
@@ -541,6 +542,12 @@ class NodeImpl extends EventTargetImpl {
       value = '';
     }
 
+    this.$bridge.publish(BridgeCommonEvents.setProperty, {
+      elemCargo: this.$cargo,
+      prop: 'nodeValue',
+      value
+    });
+
     switch (this.nodeType) {
       case NODE_TYPE.ATTRIBUTE_NODE: {
         setAnExistingAttributeValue(this, value);
@@ -591,6 +598,12 @@ class NodeImpl extends EventTargetImpl {
       value = '';
     }
 
+    this.$bridge.publish(BridgeCommonEvents.setProperty, {
+      elemCargo: this.$cargo,
+      prop: 'textContent',
+      value
+    });
+
     switch (this.nodeType) {
       case NODE_TYPE.DOCUMENT_FRAGMENT_NODE:
       case NODE_TYPE.ELEMENT_NODE: {
@@ -627,7 +640,6 @@ class NodeImpl extends EventTargetImpl {
 
   // https://dom.spec.whatwg.org/#dom-node-appendchild
   appendChild(nodeImpl) {
-    console.log('Worker: appendChild', nodeImpl);
     return this._append(nodeImpl);
   }
 

@@ -75,7 +75,7 @@ class BridgeImpl extends events.EventEmitter implements Bridge {
   }
 
   invoke(method: string, args: any[], cb?: InvokeCallback): Promise<any> | undefined {
-    console.debug(this.name, 'Invoke', method, args);
+    // console.debug(this.name, 'Invoke', method, args);
     const name = getInvokeName(method);
     const payload = newPayload({ name, args });
     this.transport.postMessage(payload);
@@ -121,7 +121,7 @@ class BridgeImpl extends events.EventEmitter implements Bridge {
   }
 
   publish(name: string, data?: any): this {
-    console.debug(this.name, 'Publish', name, data);
+    // console.debug(this.name, 'Publish', name, data);
     if (name === BRIDGE_READY_EVENT) {
       this.isReady = true;
     }

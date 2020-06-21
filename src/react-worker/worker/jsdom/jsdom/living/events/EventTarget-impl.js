@@ -26,6 +26,18 @@ function getIPCMethod(method: string) {
   return `EventTarget:${method}`;
 }
 
+function isUseBridge(elem, callback) {
+  // react dev will create a custom element react just used internal
+  return (
+    callback &&
+    elem.$cargo &&
+    elem.$cargo.type !== 'EventTarget' &&
+    elem.$cargo.type !== 'Window' &&
+    elem.nodeName &&
+    elem.nodeName.toLowerCase() !== 'react'
+  );
+}
+
 class EventTargetImpl {
   constructor(globalObject) {
     this._globalObject = globalObject;
@@ -38,25 +50,79 @@ class EventTargetImpl {
   }
 
   addEventListener(type, callback, ...args) {
-    // setTimeout(() => {
-    //   console.log(this, type);
-    //   callback(new window.Event('click'));
-    // }, 500);
-    const cb = this.$ipcObjectManager.addSource('Event_Callback', callback);
-    console.debug('Worker addEventListener', type, cb);
-    this.$bridge.invoke(getIPCMethod('addEventListener'), [ this.$cargo, type, cb, ...args ], (err) => {
-      if (err) {
-        this.$ipcObjectManager.removeByObject(callback);
+    // webidl2js currently can't handle neither optional arguments nor callback interfaces
+    if (callback === undefined || callback === null) {
+      callback = null;
+    } else if (typeof callback !== 'object' && typeof callback !== 'function') {
+      throw new TypeError('Only undefined, null, an object, or a function are allowed for the callback parameter');
+    }
+
+    if (isUseBridge(this, callback)) {
+      const cb = this.$ipcObjectManager.addSource('Event_Callback', callback);
+      console.debug('Worker addEventListener', type, cb);
+      this.$bridge.invoke(getIPCMethod('addEventListener'), [ this.$cargo, type, cb, ...args ], (err) => {
+        if (err) {
+          this.$ipcObjectManager.removeByObject(callback);
+        }
+      });
+    }
+
+    const options = normalizeEventHandlerOptions(args[0], [ 'capture', 'once', 'passive' ]);
+
+    if (callback === null) {
+      return;
+    }
+
+    if (!this._eventListeners[type]) {
+      this._eventListeners[type] = [];
+    }
+
+    for (let i = 0; i < this._eventListeners[type].length; ++i) {
+      const listener = this._eventListeners[type][i];
+      if (listener.options.capture === options.capture && listener.callback === callback) {
+        return;
       }
+    }
+
+    this._eventListeners[type].push({
+      callback,
+      options
     });
   }
 
   removeEventListener(type, callback, ...args) {
-    const cb = this.$ipcObjectManager.removeByObject(callback);
-    this.$bridge.invoke(getIPCMethod('removeEventListener'), [ this.$cargo, type, cb, ...args ]).then(() => {
-      // 保证删除远端的缓存
-      this.$ipcObjectManager.removeRemote(cb);
-    });
+    if (isUseBridge(this, callback)) {
+      const cb = this.$ipcObjectManager.removeByObject(callback);
+      this.$bridge.invoke(getIPCMethod('removeEventListener'), [ this.$cargo, type, cb, ...args ]).then(() => {
+        // 保证删除远端的缓存
+        this.$ipcObjectManager.removeRemote(cb);
+      });
+    }
+
+    if (callback === undefined || callback === null) {
+      callback = null;
+    } else if (typeof callback !== 'object' && typeof callback !== 'function') {
+      throw new TypeError('Only undefined, null, an object, or a function are allowed for the callback parameter');
+    }
+
+    const options = normalizeEventHandlerOptions(args[0], [ 'capture' ]);
+
+    if (callback === null) {
+      // Optimization, not in the spec.
+      return;
+    }
+
+    if (!this._eventListeners[type]) {
+      return;
+    }
+
+    for (let i = 0; i < this._eventListeners[type].length; ++i) {
+      const listener = this._eventListeners[type][i];
+      if (listener.callback === callback && listener.options.capture === options.capture) {
+        this._eventListeners[type].splice(i, 1);
+        break;
+      }
+    }
   }
 
   dispatchEvent(eventImpl) {

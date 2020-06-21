@@ -28,6 +28,7 @@ const ShadowRoot = require('../generated/ShadowRoot');
 const Text = require('../generated/Text');
 const { isValidHostElementName } = require('../helpers/shadow-dom');
 const { isValidCustomElementName, lookupCEDefinition } = require('../helpers/custom-elements');
+const { BridgeElementEvents, BridgeDocumentMethods } = require('../events/consts');
 
 function attachId(id, elm, doc) {
   if (id && elm && doc) {
@@ -88,7 +89,7 @@ class ElementImpl extends NodeImpl {
     if ([ 'html', 'head', 'body' ].indexOf(privateData.localName.toLowerCase()) < 0) {
       this.$hostCreated = false;
       this.$bridge
-        .invoke('document:createElement', [ this.$cargo, privateData.localName ])
+        .invoke(BridgeDocumentMethods.createElement, [ this.$cargo, privateData.localName ])
         .then(() => (this.$hostCreated = true));
     } else {
       this.$hostCreated = true;
@@ -252,6 +253,9 @@ class ElementImpl extends NodeImpl {
   }
 
   setAttribute(name, value) {
+    if (name) {
+      this.$bridge.publish(BridgeElementEvents.setAttribute, { elemCargo: this.$cargo, name, value });
+    }
     validateNames.name(this._globalObject, name);
 
     if (this._namespaceURI === HTML_NS && this._ownerDocument._parsingMode === 'html') {
@@ -273,6 +277,9 @@ class ElementImpl extends NodeImpl {
   }
 
   setAttributeNS(namespace, name, value) {
+    if (name) {
+      this.$bridge.publish(BridgeElementEvents.setAttributeNS, { elemCargo: this.$cargo, namespace, name, value });
+    }
     const extracted = validateNames.validateAndExtract(this._globalObject, namespace, name);
 
     // Because of widespread use of this method internally, e.g. to manually implement attribute/content reflection, we
@@ -283,14 +290,27 @@ class ElementImpl extends NodeImpl {
   }
 
   removeAttribute(name) {
+    if (name) {
+      this.$bridge.publish(BridgeElementEvents.removeAttribute, { elemCargo: this.$cargo, name });
+    }
     attributes.removeAttributeByName(this, name);
   }
 
   removeAttributeNS(namespace, localName) {
+    if (localName) {
+      this.$bridge.publish(BridgeElementEvents.removeAttributeNS, { elemCargo: this.$cargo, namespace, localName });
+    }
     attributes.removeAttributeByNameNS(this, namespace, localName);
   }
 
   toggleAttribute(qualifiedName, force) {
+    if (qualifiedName) {
+      this.$bridge.publish(BridgeElementEvents.removeAttributeNS, {
+        elemCargo: this.$cargo,
+        name: qualifiedName,
+        force
+      });
+    }
     validateNames.name(this._globalObject, qualifiedName);
 
     if (this._namespaceURI === HTML_NS && this._ownerDocument._parsingMode === 'html') {

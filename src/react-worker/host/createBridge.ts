@@ -1,12 +1,12 @@
 import { BridgePayload } from '../interface';
 import Bridge from '../Bridge';
-import { getTime } from '../utils';
+// import { getTime } from '../utils';
 
 function createBridge(worker: Worker, name?: string) {
   const transport = {
     name: name || 'bridge-transport',
     postMessage(payload: any, transfer?: Transferable[]) {
-      console.debug(getTime(), 'BridgeDebugHostSend ', payload.id, payload);
+      // console.debug(getTime(), 'BridgeDebugHostSend ', payload.id, payload);
       worker.postMessage(
         {
           $channel: transport.name,
@@ -20,7 +20,7 @@ function createBridge(worker: Worker, name?: string) {
         if (evt.data) {
           const { $channel, payload } = evt.data;
           if ($channel === transport.name) {
-            console.debug(getTime(), 'BridgeDebugHostReceive: ', payload.id, payload);
+            // console.debug(getTime(), 'BridgeDebugHostReceive: ', payload.id, payload);
             cb(payload);
           }
         }
@@ -31,7 +31,7 @@ function createBridge(worker: Worker, name?: string) {
       };
     }
   };
-  return new Bridge({ transport });
+  return new Bridge({ name: 'BridgeHost', transport });
 }
 
 export default createBridge;

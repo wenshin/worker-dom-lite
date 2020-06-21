@@ -1,26 +1,26 @@
-"use strict";
-const DOMException = require("domexception/webidl2js-wrapper");
+'use strict';
+const DOMException = require('domexception/webidl2js-wrapper');
 
-const { HTML_NS } = require("./helpers/namespaces");
-const { asciiLowercase } = require("./helpers/strings");
-const { queueAttributeMutationRecord } = require("./helpers/mutation-observers");
-const { enqueueCECallbackReaction } = require("./helpers/custom-elements");
+const { HTML_NS } = require('./helpers/namespaces');
+const { asciiLowercase } = require('./helpers/strings');
+const { queueAttributeMutationRecord } = require('./helpers/mutation-observers');
+const { enqueueCECallbackReaction } = require('./helpers/custom-elements');
 
 // The following three are for https://dom.spec.whatwg.org/#concept-element-attribute-has. We don't just have a
 // predicate tester since removing that kind of flexibility gives us the potential for better future optimizations.
 
 /* eslint-disable no-restricted-properties */
 
-exports.hasAttribute = function (element, A) {
+exports.hasAttribute = function(element, A) {
   return element._attributeList.includes(A);
 };
 
-exports.hasAttributeByName = function (element, name) {
+exports.hasAttributeByName = function(element, name) {
   return element._attributesByNameMap.has(name);
 };
 
-exports.hasAttributeByNameNS = function (element, namespace, localName) {
-  return element._attributeList.some(attribute => {
+exports.hasAttributeByNameNS = function(element, namespace, localName) {
+  return element._attributeList.some((attribute) => {
     return attribute._localName === localName && attribute._namespace === namespace;
   });
 };
@@ -31,13 +31,8 @@ exports.changeAttribute = (element, attribute, value) => {
 
   queueAttributeMutationRecord(element, _localName, _namespace, _value);
 
-  if (element._ceState === "custom") {
-    enqueueCECallbackReaction(element, "attributeChangedCallback", [
-      _localName,
-      _value,
-      value,
-      _namespace
-    ]);
+  if (element._ceState === 'custom') {
+    enqueueCECallbackReaction(element, 'attributeChangedCallback', [ _localName, _value, value, _namespace ]);
   }
 
   attribute._value = value;
@@ -47,17 +42,12 @@ exports.changeAttribute = (element, attribute, value) => {
 };
 
 // https://dom.spec.whatwg.org/#concept-element-attributes-append
-exports.appendAttribute = function (element, attribute) {
+exports.appendAttribute = function(element, attribute) {
   const { _localName, _namespace, _value } = attribute;
   queueAttributeMutationRecord(element, _localName, _namespace, null);
 
-  if (element._ceState === "custom") {
-    enqueueCECallbackReaction(element, "attributeChangedCallback", [
-      _localName,
-      null,
-      _value,
-      _namespace
-    ]);
+  if (element._ceState === 'custom') {
+    enqueueCECallbackReaction(element, 'attributeChangedCallback', [ _localName, null, _value, _namespace ]);
   }
 
   const attributeList = element._attributeList;
@@ -79,20 +69,15 @@ exports.appendAttribute = function (element, attribute) {
   element._attrModified(name, _value, null);
 };
 
-exports.removeAttribute = function (element, attribute) {
+exports.removeAttribute = function(element, attribute) {
   // https://dom.spec.whatwg.org/#concept-element-attributes-remove
 
   const { _localName, _namespace, _value } = attribute;
 
   queueAttributeMutationRecord(element, _localName, _namespace, _value);
 
-  if (element._ceState === "custom") {
-    enqueueCECallbackReaction(element, "attributeChangedCallback", [
-      _localName,
-      _value,
-      null,
-      _namespace
-    ]);
+  if (element._ceState === 'custom') {
+    enqueueCECallbackReaction(element, 'attributeChangedCallback', [ _localName, _value, null, _namespace ]);
   }
 
   const attributeList = element._attributeList;
@@ -119,20 +104,15 @@ exports.removeAttribute = function (element, attribute) {
   }
 };
 
-exports.replaceAttribute = function (element, oldAttr, newAttr) {
+exports.replaceAttribute = function(element, oldAttr, newAttr) {
   // https://dom.spec.whatwg.org/#concept-element-attributes-replace
 
   const { _localName, _namespace, _value } = oldAttr;
 
   queueAttributeMutationRecord(element, _localName, _namespace, _value);
 
-  if (element._ceState === "custom") {
-    enqueueCECallbackReaction(element, "attributeChangedCallback", [
-      _localName,
-      _value,
-      newAttr._value,
-      _namespace
-    ]);
+  if (element._ceState === 'custom') {
+    enqueueCECallbackReaction(element, 'attributeChangedCallback', [ _localName, _value, newAttr._value, _namespace ]);
   }
 
   const attributeList = element._attributeList;
@@ -161,11 +141,10 @@ exports.replaceAttribute = function (element, oldAttr, newAttr) {
   }
 };
 
-exports.getAttributeByName = function (element, name) {
+exports.getAttributeByName = function(element, name) {
   // https://dom.spec.whatwg.org/#concept-element-attributes-get-by-name
 
-  if (element._namespaceURI === HTML_NS &&
-      element._ownerDocument._parsingMode === "html") {
+  if (element._namespaceURI === HTML_NS && element._ownerDocument._parsingMode === 'html') {
     name = asciiLowercase(name);
   }
 
@@ -178,10 +157,10 @@ exports.getAttributeByName = function (element, name) {
   return entry[0];
 };
 
-exports.getAttributeByNameNS = function (element, namespace, localName) {
+exports.getAttributeByNameNS = function(element, namespace, localName) {
   // https://dom.spec.whatwg.org/#concept-element-attributes-get-by-namespace
 
-  if (namespace === "") {
+  if (namespace === '') {
     namespace = null;
   }
 
@@ -198,31 +177,31 @@ exports.getAttributeByNameNS = function (element, namespace, localName) {
 
 // Both of the following functions implement https://dom.spec.whatwg.org/#concept-element-attributes-get-value.
 // Separated them into two to keep symmetry with other functions.
-exports.getAttributeValue = function (element, localName) {
+exports.getAttributeValue = function(element, localName) {
   const attr = exports.getAttributeByNameNS(element, null, localName);
 
   if (!attr) {
-    return "";
+    return '';
   }
 
   return attr._value;
 };
 
-exports.getAttributeValueNS = function (element, namespace, localName) {
+exports.getAttributeValueNS = function(element, namespace, localName) {
   const attr = exports.getAttributeByNameNS(element, namespace, localName);
 
   if (!attr) {
-    return "";
+    return '';
   }
 
   return attr._value;
 };
 
-exports.setAttribute = function (element, attr) {
+exports.setAttribute = function(element, attr) {
   // https://dom.spec.whatwg.org/#concept-element-attributes-set
 
   if (attr._element !== null && attr._element !== element) {
-    throw DOMException.create(element._globalObject, ["The attribute is in use.", "InUseAttributeError"]);
+    throw DOMException.create(element._globalObject, [ 'The attribute is in use.', 'InUseAttributeError' ]);
   }
 
   const oldAttr = exports.getAttributeByNameNS(element, attr._namespace, attr._localName);
@@ -239,7 +218,7 @@ exports.setAttribute = function (element, attr) {
   return oldAttr;
 };
 
-exports.setAttributeValue = function (element, localName, value, prefix, namespace) {
+exports.setAttributeValue = function(element, localName, value, prefix, namespace) {
   // https://dom.spec.whatwg.org/#concept-element-attributes-set-value
 
   if (prefix === undefined) {
@@ -275,7 +254,7 @@ exports.setAnExistingAttributeValue = (attribute, value) => {
   }
 };
 
-exports.removeAttributeByName = function (element, name) {
+exports.removeAttributeByName = function(element, name) {
   // https://dom.spec.whatwg.org/#concept-element-attributes-remove-by-name
 
   const attr = exports.getAttributeByName(element, name);
@@ -287,7 +266,7 @@ exports.removeAttributeByName = function (element, name) {
   return attr;
 };
 
-exports.removeAttributeByNameNS = function (element, namespace, localName) {
+exports.removeAttributeByNameNS = function(element, namespace, localName) {
   // https://dom.spec.whatwg.org/#concept-element-attributes-remove-by-namespace
 
   const attr = exports.getAttributeByNameNS(element, namespace, localName);
@@ -299,13 +278,13 @@ exports.removeAttributeByNameNS = function (element, namespace, localName) {
   return attr;
 };
 
-exports.attributeNames = function (element) {
+exports.attributeNames = function(element) {
   // Needed by https://dom.spec.whatwg.org/#dom-element-getattributenames
 
-  return element._attributeList.map(a => a._qualifiedName);
+  return element._attributeList.map((a) => a._qualifiedName);
 };
 
-exports.hasAttributes = function (element) {
+exports.hasAttributes = function(element) {
   // Needed by https://dom.spec.whatwg.org/#dom-element-hasattributes
 
   return element._attributeList.length > 0;

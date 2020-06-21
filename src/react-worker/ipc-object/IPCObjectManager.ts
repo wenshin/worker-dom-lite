@@ -47,7 +47,7 @@ export class IPCObjectManager {
     if (!mirror) {
       const creator = MirrorCreatorMap[cargo.type];
       if (!creator) {
-        throw new Error(`IPCObjectManager: have no mirror creator for ${cargo}`);
+        return;
       }
       const packer = PackerMap[cargo.type];
       mirror = MirrorCreatorMap[cargo.type](this, cargo, packer && packer.pack) as IPCObject;
