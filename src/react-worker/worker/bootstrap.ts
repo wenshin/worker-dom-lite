@@ -1,34 +1,39 @@
 import { JSDOM } from './jsdom';
-import { IPCObjectManager, IPCCargoType } from '../ipc-object';
-import { Bridge } from '../interface';
-import { BRIDGE_READY_EVENT } from '../Bridge';
+import { IPCObjectManager, IPCCargo } from '../ipc-object';
+import { BRIDGE_READY_EVENT, TRANSPORT_READY_EVENT } from '../Bridge';
+import { BridgeCommonEvents } from './jsdom/jsdom/living/events/consts';
 import utils from './jsdom/jsdom/living/generated/utils';
+import createBridge from './createBridge';
 
-export default function bootstrap(bridge: Bridge, ipcObjectManager: IPCObjectManager) {
-  (self as any).bridge = bridge; // eslint-disable-line no-restricted-globals
-  (self as any).ipcObjectManager = ipcObjectManager; // eslint-disable-line no-restricted-globals
+const bridge = createBridge('BridgeWorker');
+const ipcObjectManager = new IPCObjectManager(bridge);
 
-  const { window } = new JSDOM(`<!DOCTYPE html><html><head></head><body></body></html>`, {
-    windowOptions: {
-      bridge,
-      ipcObjectManager
-    }
-  });
-  window.$bridge = bridge;
-  window.$ipcObjectManager = ipcObjectManager;
-  window.$cargo = ipcObjectManager.addSource(IPCCargoType.WINDOW, window);
+const worker = self as any; // eslint-disable-line no-restricted-globals
+const { window } = new JSDOM(`<!DOCTYPE html><html><head></head><body></body></html>`, {
+  windowOptions: {
+    bridge,
+    ipcObjectManager
+  }
+});
 
-  (self as any).window = window; // eslint-disable-line no-restricted-globals
-  (self as any).document = window.document; // eslint-disable-line no-restricted-globals
-  // (self as any).document = createImpl(self, { bridge, ipcObjectManager });
+worker.window = window;
+worker.document = window.document;
 
-  const cargos = {
-    window: window.$cargo,
-    document: document[utils.implSymbol].$cargo,
-    html: document.documentElement[utils.implSymbol].$cargo,
-    head: document.head[utils.implSymbol].$cargo,
-    body: document.body[utils.implSymbol].$cargo
-  };
+const cargos: {
+  [key: string]: IPCCargo;
+} = {
+  window: window.$cargo,
+  document: (document as any)[utils.implSymbol].$cargo,
+  html: (document.documentElement as any)[utils.implSymbol].$cargo,
+  head: (document.head as any)[utils.implSymbol].$cargo,
+  body: (document.body as any)[utils.implSymbol].$cargo
+};
 
+bridge.publish(BridgeCommonEvents.initRuntime, { cargos });
+
+function handleTransportReady() {
   bridge.publish(BRIDGE_READY_EVENT, { cargos });
+  bridge.unsubscribe(TRANSPORT_READY_EVENT, handleTransportReady);
 }
+
+bridge.subscribe(TRANSPORT_READY_EVENT, handleTransportReady);

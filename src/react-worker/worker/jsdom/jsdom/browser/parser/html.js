@@ -1,48 +1,21 @@
-"use strict";
+'use strict';
 
-const parse5 = require("parse5");
+const { createElement } = require('../../living/helpers/create-element');
 
-const { createElement } = require("../../living/helpers/create-element");
+const DocumentType = require('../../living/generated/DocumentType');
+const DocumentFragment = require('../../living/generated/DocumentFragment');
+const Text = require('../../living/generated/Text');
+const Comment = require('../../living/generated/Comment');
+const { HTML_NS } = require('../../living/helpers/namespaces');
 
-const DocumentType = require("../../living/generated/DocumentType");
-const DocumentFragment = require("../../living/generated/DocumentFragment");
-const Text = require("../../living/generated/Text");
-const Comment = require("../../living/generated/Comment");
+const attributes = require('../../living/attributes');
+const nodeTypes = require('../../living/node-type');
 
-const attributes = require("../../living/attributes");
-const nodeTypes = require("../../living/node-type");
-
-const serializationAdapter = require("../../living/domparsing/parse5-adapter-serialization");
 const {
-  customElementReactionsStack, invokeCEReactions, lookupCEDefinition
-} = require("../../living/helpers/custom-elements");
-
-// Horrible monkey-patch to implement https://github.com/inikulin/parse5/issues/237 and
-// https://github.com/inikulin/parse5/issues/285.
-const OpenElementStack = require("parse5/lib/parser/open-element-stack");
-
-const openElementStackOriginalPush = OpenElementStack.prototype.push;
-OpenElementStack.prototype.push = function (...args) {
-  openElementStackOriginalPush.apply(this, args);
-  this.treeAdapter._currentElement = this.current;
-
-  const after = this.items[this.stackTop];
-  if (after._pushedOnStackOfOpenElements) {
-    after._pushedOnStackOfOpenElements();
-  }
-};
-
-const openElementStackOriginalPop = OpenElementStack.prototype.pop;
-OpenElementStack.prototype.pop = function (...args) {
-  const before = this.items[this.stackTop];
-
-  openElementStackOriginalPop.apply(this, args);
-  this.treeAdapter._currentElement = this.current;
-
-  if (before._poppedOffStackOfOpenElements) {
-    before._poppedOffStackOfOpenElements();
-  }
-};
+  customElementReactionsStack,
+  invokeCEReactions,
+  lookupCEDefinition
+} = require('../../living/helpers/custom-elements');
 
 class JSDOMParse5Adapter {
   constructor(documentImpl, options = {}) {
@@ -60,9 +33,9 @@ class JSDOMParse5Adapter {
 
     // The _currentElement is undefined when parsing elements at the root of the document.
     if (_currentElement) {
-      return _currentElement.localName === "template" ?
-        _currentElement.content._ownerDocument :
-        _currentElement._ownerDocument;
+      return _currentElement.localName === 'template'
+        ? _currentElement.content._ownerDocument
+        : _currentElement._ownerDocument;
     }
 
     return this._documentImpl;
@@ -85,7 +58,7 @@ class JSDOMParse5Adapter {
   createElement(localName, namespace, attrs) {
     const ownerDocument = this._ownerDocument();
 
-    const isAttribute = attrs.find(attr => attr.name === "is");
+    const isAttribute = attrs.find((attr) => attr.name === 'is');
     const isValue = isAttribute ? isAttribute.value : null;
 
     const definition = lookupCEDefinition(ownerDocument, namespace, localName);
@@ -109,7 +82,7 @@ class JSDOMParse5Adapter {
       ownerDocument._throwOnDynamicMarkupInsertionCounter--;
     }
 
-    if ("_parserInserted" in element) {
+    if ('_parserInserted' in element) {
       element._parserInserted = true;
     }
 
@@ -185,38 +158,23 @@ class JSDOMParse5Adapter {
 
   adoptAttributes(element, attrs) {
     for (const attr of attrs) {
-      const prefix = attr.prefix === "" ? null : attr.prefix;
+      const prefix = attr.prefix === '' ? null : attr.prefix;
       attributes.setAttributeValue(element, attr.name, attr.value, prefix, attr.namespace);
     }
   }
 }
 
-// Assign shared adapters with serializer.
-Object.assign(JSDOMParse5Adapter.prototype, serializationAdapter);
-
-function parseFragment(markup, contextElement) {
-  const ownerDocument = contextElement.localName === "template" ?
-    contextElement.content._ownerDocument :
-    contextElement._ownerDocument;
-
-  const config = Object.assign({}, ownerDocument._parseOptions, {
-    treeAdapter: new JSDOMParse5Adapter(ownerDocument, {
-      fragment: true
-    })
-  });
-
-  return parse5.parseFragment(contextElement, markup, config);
-}
-
 function parseIntoDocument(markup, ownerDocument) {
-  const config = Object.assign({}, ownerDocument._parseOptions, {
-    treeAdapter: new JSDOMParse5Adapter(ownerDocument)
-  });
-
-  return parse5.parse(markup, config);
+  const adapter = new JSDOMParse5Adapter(ownerDocument);
+  const html = adapter.createElement('html', HTML_NS, []);
+  const head = adapter.createElement('head', HTML_NS, []);
+  const body = adapter.createElement('body', HTML_NS, []);
+  html.appendChild(head);
+  html.appendChild(body);
+  ownerDocument.appendChild(html);
+  return ownerDocument;
 }
 
 module.exports = {
-  parseFragment,
   parseIntoDocument
 };

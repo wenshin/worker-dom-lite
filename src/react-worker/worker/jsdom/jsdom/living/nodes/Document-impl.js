@@ -6,23 +6,15 @@ const NodeImpl = require('./Node-impl').implementation;
 const idlUtils = require('../generated/utils');
 const NODE_TYPE = require('../node-type');
 const { mixin, memoizeQuery } = require('../../utils');
-const {
-  firstChildWithLocalName,
-  firstChildWithLocalNames,
-  firstDescendantWithLocalName
-} = require('../helpers/traversal');
-const whatwgURL = require('whatwg-url');
-const StyleSheetList = require('../generated/StyleSheetList.js');
+const { firstChildWithLocalName, firstChildWithLocalNames } = require('../helpers/traversal');
 const { domSymbolTree } = require('../helpers/internal-constants');
 const eventAccessors = require('../helpers/create-event-accessor');
 const { asciiLowercase, stripAndCollapseASCIIWhitespace } = require('../helpers/strings');
-const { childTextContent } = require('../helpers/text');
 const { HTML_NS, SVG_NS } = require('../helpers/namespaces');
 const DOMException = require('domexception/webidl2js-wrapper');
-const { parseIntoDocument } = require('../../browser/parser');
-const History = require('../generated/History');
-const Location = require('../generated/Location');
-const HTMLCollection = require('../generated/HTMLCollection');
+// const History = require('../generated/History');
+// const Location = require('../generated/Location');
+// const HTMLCollection = require('../generated/HTMLCollection');
 const NodeList = require('../generated/NodeList');
 const validateName = require('../helpers/validate-names').name;
 const { validateAndExtract } = require('../helpers/validate-names');
@@ -31,7 +23,6 @@ const { shadowIncludingInclusiveDescendantsIterator } = require('../helpers/shad
 const { enqueueCECallbackReaction } = require('../helpers/custom-elements');
 const { createElement, internalCreateElementNSSteps } = require('../helpers/create-element');
 
-const DocumentOrShadowRootImpl = require('./DocumentOrShadowRoot-impl').implementation;
 const GlobalEventHandlersImpl = require('./GlobalEventHandlers-impl').implementation;
 const NonElementParentNodeImpl = require('./NonElementParentNode-impl').implementation;
 const ParentNodeImpl = require('./ParentNode-impl').implementation;
@@ -51,7 +42,6 @@ const DocumentFragment = require('../generated/DocumentFragment');
 const DOMImplementation = require('../generated/DOMImplementation');
 const TreeWalker = require('../generated/TreeWalker');
 const NodeIterator = require('../generated/NodeIterator');
-const ShadowRoot = require('../generated/ShadowRoot');
 const Range = require('../generated/Range');
 const documents = require('../documents.js');
 
@@ -71,13 +61,7 @@ const UIEvent = require('../generated/UIEvent');
 const RequestManager = require('../../browser/resources/request-manager');
 const AsyncResourceQueue = require('../../browser/resources/async-resource-queue');
 const ResourceQueue = require('../../browser/resources/resource-queue');
-const PerDocumentResourceLoader = require('../../browser/resources/per-document-resource-loader');
-
-function clearChildNodes(node) {
-  for (let child = domSymbolTree.firstChild(node); child; child = domSymbolTree.firstChild(node)) {
-    node.removeChild(child);
-  }
-}
+// const PerDocumentResourceLoader = require('../../browser/resources/per-document-resource-loader');
 
 function pad(number) {
   if (number < 10) {
@@ -166,20 +150,20 @@ class DocumentImpl extends NodeImpl {
     this._encoding = privateData.options.encoding;
 
     const urlOption = privateData.options.url === undefined ? 'about:blank' : privateData.options.url;
-    const parsed = whatwgURL.parseURL(urlOption);
-    if (parsed === null) {
-      throw new TypeError(`Could not parse "${urlOption}" as a URL`);
-    }
+    // const parsed = whatwgURL.parseURL(urlOption);
+    // if (parsed === null) {
+    //   throw new TypeError(`Could not parse "${urlOption}" as a URL`);
+    // }
 
-    this._URL = parsed;
-    this._origin = whatwgURL.serializeURLOrigin(parsed);
+    // this._URL = parsed;
+    // this._origin = whatwgURL.serializeURLOrigin(parsed);
 
-    this._location = Location.createImpl(this._globalObject, [], { relevantDocument: this });
-    this._history = History.createImpl(this._globalObject, [], {
-      window: this._defaultView,
-      document: this,
-      actAsIfLocationReloadCalled: () => this._location.reload()
-    });
+    // this._location = Location.createImpl(this._globalObject, [], { relevantDocument: this });
+    // this._history = History.createImpl(this._globalObject, [], {
+    //   window: this._defaultView,
+    //   document: this,
+    //   actAsIfLocationReloadCalled: () => this._location.reload()
+    // });
 
     this._workingNodeIterators = [];
     this._workingNodeIteratorsMax =
@@ -205,7 +189,7 @@ class DocumentImpl extends NodeImpl {
 
     this._lastFocusedElement = null;
 
-    this._resourceLoader = new PerDocumentResourceLoader(this);
+    // this._resourceLoader = new PerDocumentResourceLoader(this);
 
     // Each Document in a browsing context can also have a latest entry. This is the entry for that Document
     // to which the browsing context's session history was most recently traversed. When a Document is created,
@@ -247,12 +231,6 @@ class DocumentImpl extends NodeImpl {
       }
     }
     return null;
-  }
-  get URL() {
-    return whatwgURL.serializeURL(this._URL);
-  }
-  get documentURI() {
-    return whatwgURL.serializeURL(this._URL);
   }
   get location() {
     return this._defaultView ? this._location : null;
@@ -305,69 +283,6 @@ class DocumentImpl extends NodeImpl {
     super._descendantRemoved.apply(this, arguments);
   }
 
-  write() {
-    let text = '';
-    for (let i = 0; i < arguments.length; ++i) {
-      text += String(arguments[i]);
-    }
-
-    if (this._parsingMode === 'xml') {
-      throw DOMException.create(this._globalObject, [
-        'Cannot use document.write on XML documents',
-        'InvalidStateError'
-      ]);
-    }
-
-    if (this._throwOnDynamicMarkupInsertionCounter > 0) {
-      throw DOMException.create(this._globalObject, [
-        'Cannot use document.write while a custom element upgrades',
-        'InvalidStateError'
-      ]);
-    }
-
-    if (this._writeAfterElement) {
-      // If called from an script element directly (during the first tick),
-      // the new elements are inserted right after that element.
-      const tempDiv = this.createElement('div');
-      tempDiv.innerHTML = text;
-
-      let child = tempDiv.firstChild;
-      let previous = this._writeAfterElement;
-      const parent = this._writeAfterElement.parentNode;
-
-      while (child) {
-        const node = child;
-        child = child.nextSibling;
-
-        node._isMovingDueToDocumentWrite = true; // hack for script execution
-        parent.insertBefore(node, previous.nextSibling);
-        node._isMovingDueToDocumentWrite = false;
-
-        previous = node;
-      }
-    } else if (this.readyState === 'loading') {
-      // During page loading, document.write appends to the current element
-      // Find the last child that has been added to the document.
-      if (this.lastChild) {
-        let node = this;
-        while (node.lastChild && node.lastChild.nodeType === NODE_TYPE.ELEMENT_NODE) {
-          node = node.lastChild;
-        }
-        node.innerHTML = text;
-      } else {
-        clearChildNodes(this);
-        parseIntoDocument(text, this);
-      }
-    } else if (text) {
-      clearChildNodes(this);
-      parseIntoDocument(text, this);
-    }
-  }
-
-  writeln() {
-    this.write(...arguments, '\n');
-  }
-
   // This is implemented separately for Document (which has a _ids cache) and DocumentFragment (which does not).
   getElementById(id) {
     if (!this._ids[id]) {
@@ -385,61 +300,6 @@ class DocumentImpl extends NodeImpl {
     });
 
     return matchElement || null;
-  }
-
-  get referrer() {
-    return this._referrer || '';
-  }
-  get lastModified() {
-    return this._lastModified;
-  }
-  get images() {
-    return this.getElementsByTagName('IMG');
-  }
-  get embeds() {
-    return this.getElementsByTagName('EMBED');
-  }
-  get plugins() {
-    return this.embeds;
-  }
-  get links() {
-    return HTMLCollection.createImpl(this._globalObject, [], {
-      element: this,
-      query: () =>
-        domSymbolTree.treeToArray(this, {
-          filter: (node) =>
-            (node._localName === 'a' || node._localName === 'area') &&
-            node.hasAttributeNS(null, 'href') &&
-            node._namespaceURI === HTML_NS
-        })
-    });
-  }
-  get forms() {
-    return this.getElementsByTagName('FORM');
-  }
-  get scripts() {
-    return this.getElementsByTagName('SCRIPT');
-  }
-  get anchors() {
-    return HTMLCollection.createImpl(this._globalObject, [], {
-      element: this,
-      query: () =>
-        domSymbolTree.treeToArray(this, {
-          filter: (node) =>
-            node._localName === 'a' && node.hasAttributeNS(null, 'name') && node._namespaceURI === HTML_NS
-        })
-    });
-  }
-
-  // The applets attribute must return an
-  // HTMLCollection rooted at the Document node,
-  // whose filter matches nothing.
-  // (It exists for historical reasons.)
-  get applets() {
-    return HTMLCollection.createImpl(this._globalObject, [], {
-      element: this,
-      query: () => []
-    });
   }
 
   open() {
@@ -523,71 +383,6 @@ class DocumentImpl extends NodeImpl {
           filter: (node) => node.getAttributeNS && node.getAttributeNS(null, 'name') === elementName
         })
     });
-  }
-
-  get title() {
-    const { documentElement } = this;
-    let value = '';
-
-    if (documentElement && documentElement._localName === 'svg') {
-      const svgTitleElement = firstChildWithLocalName(documentElement, 'title', SVG_NS);
-
-      if (svgTitleElement) {
-        value = childTextContent(svgTitleElement);
-      }
-    } else {
-      const titleElement = firstDescendantWithLocalName(this, 'title');
-
-      if (titleElement) {
-        value = childTextContent(titleElement);
-      }
-    }
-
-    value = stripAndCollapseASCIIWhitespace(value);
-
-    return value;
-  }
-
-  set title(value) {
-    const { documentElement } = this;
-    let element;
-
-    if (documentElement && documentElement._localName === 'svg') {
-      element = firstChildWithLocalName(documentElement, 'title', SVG_NS);
-
-      if (!element) {
-        element = this.createElementNS(SVG_NS, 'title');
-
-        this._insert(element, documentElement.firstChild);
-      }
-
-      element.textContent = value;
-    } else if (documentElement && documentElement._namespaceURI === HTML_NS) {
-      const titleElement = firstDescendantWithLocalName(this, 'title');
-      const headElement = this.head;
-
-      if (titleElement === null && headElement === null) {
-        return;
-      }
-
-      if (titleElement !== null) {
-        element = titleElement;
-      } else {
-        element = this.createElement('title');
-        headElement._append(element);
-      }
-
-      element.textContent = value;
-    }
-  }
-
-  get dir() {
-    return this.documentElement ? this.documentElement.dir : '';
-  }
-  set dir(value) {
-    if (this.documentElement) {
-      this.documentElement.dir = value;
-    }
   }
 
   get head() {
@@ -801,8 +596,6 @@ class DocumentImpl extends NodeImpl {
   importNode(node, deep) {
     if (node.nodeType === NODE_TYPE.DOCUMENT_NODE) {
       throw DOMException.create(this._globalObject, [ 'Cannot import a document node', 'NotSupportedError' ]);
-    } else if (ShadowRoot.isImpl(node)) {
-      throw DOMException.create(this._globalObject, [ 'Cannot adopt a shadow root', 'NotSupportedError' ]);
     }
 
     return clone(node, this, deep);
@@ -812,8 +605,6 @@ class DocumentImpl extends NodeImpl {
   adoptNode(node) {
     if (node.nodeType === NODE_TYPE.DOCUMENT_NODE) {
       throw DOMException.create(this._globalObject, [ 'Cannot adopt a document node', 'NotSupportedError' ]);
-    } else if (ShadowRoot.isImpl(node)) {
-      throw DOMException.create(this._globalObject, [ 'Cannot adopt a shadow root', 'HierarchyRequestError' ]);
     }
 
     this._adoptNode(node);
@@ -852,34 +643,12 @@ class DocumentImpl extends NodeImpl {
       }
     }
   }
-
-  get cookie() {
-    return this._cookieJar.getCookieStringSync(this.URL, { http: false });
-  }
-  set cookie(cookieStr) {
-    cookieStr = String(cookieStr);
-    this._cookieJar.setCookieSync(cookieStr, this.URL, {
-      http: false,
-      ignoreError: true
-    });
-  }
-
   // The clear(), captureEvents(), and releaseEvents() methods must do nothing
   clear() {}
 
   captureEvents() {}
 
   releaseEvents() {}
-
-  get styleSheets() {
-    if (!this._styleSheets) {
-      this._styleSheets = StyleSheetList.createImpl(this._globalObject);
-    }
-
-    // TODO: each style and link element should register its sheet on creation
-    // and remove it on removal.
-    return this._styleSheets;
-  }
 
   get hidden() {
     if (this._defaultView && this._defaultView._pretendToBeVisual) {
@@ -918,7 +687,6 @@ class DocumentImpl extends NodeImpl {
 }
 
 eventAccessors.createEventAccessor(DocumentImpl.prototype, 'readystatechange');
-mixin(DocumentImpl.prototype, DocumentOrShadowRootImpl.prototype);
 mixin(DocumentImpl.prototype, GlobalEventHandlersImpl.prototype);
 mixin(DocumentImpl.prototype, NonElementParentNodeImpl.prototype);
 mixin(DocumentImpl.prototype, ParentNodeImpl.prototype);

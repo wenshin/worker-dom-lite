@@ -32,6 +32,8 @@ const getClientEnvironment = require('./env');
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
 const ForkTsCheckerWebpackPlugin = require('react-dev-utils/ForkTsCheckerWebpackPlugin');
 const typescriptFormatter = require('react-dev-utils/typescriptFormatter');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const WorkerPlugin = require('worker-plugin');
 // @remove-on-eject-begin
 const getCacheIdentifier = require('react-dev-utils/getCacheIdentifier');
 // @remove-on-eject-end
@@ -524,6 +526,7 @@ module.exports = function(webpackEnv) {
       ]
     },
     plugins: [
+      new BundleAnalyzerPlugin(),
       // Generates an `index.html` file with the <script> injected.
       new HtmlWebpackPlugin(
         Object.assign(
@@ -635,6 +638,10 @@ module.exports = function(webpackEnv) {
             new RegExp('/[^/?]+\\.[^/]+$')
           ]
         }),
+      // new WorkerPlugin({
+      //   globalObject: 'self',
+      //   plugins: [ 'MiniCssExtractPlugin', 'IgnorePlugin', 'DefinePlugin', 'ModuleNotFoundPlugin' ]
+      // }),
       // TypeScript type checking
       useTypeScript &&
         new ForkTsCheckerWebpackPlugin({

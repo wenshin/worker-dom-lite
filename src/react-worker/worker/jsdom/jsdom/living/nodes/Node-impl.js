@@ -149,6 +149,8 @@ class NodeImpl extends EventTargetImpl {
     this._registeredObserverList = [];
     this._referencedRanges = new Set();
 
+    // by worker dom
+    this._$nodeProps = {};
     this.$cargo.type = 'Node';
   }
 

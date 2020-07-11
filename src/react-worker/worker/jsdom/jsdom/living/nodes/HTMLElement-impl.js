@@ -1,13 +1,13 @@
-"use strict";
-const { mixin } = require("../../utils");
-const ElementImpl = require("./Element-impl").implementation;
-const MouseEvent = require("../generated/MouseEvent");
-const ElementCSSInlineStyleImpl = require("./ElementCSSInlineStyle-impl").implementation;
-const GlobalEventHandlersImpl = require("./GlobalEventHandlers-impl").implementation;
-const HTMLOrSVGElementImpl = require("./HTMLOrSVGElement-impl").implementation;
-const { firstChildWithLocalName } = require("../helpers/traversal");
-const { isDisabled } = require("../helpers/form-controls");
-const { fireAnEvent } = require("../helpers/events");
+'use strict';
+const { mixin } = require('../../utils');
+const ElementImpl = require('./Element-impl').implementation;
+const MouseEvent = require('../generated/MouseEvent');
+const ElementCSSInlineStyleImpl = require('./ElementCSSInlineStyle-impl').implementation;
+const GlobalEventHandlersImpl = require('./GlobalEventHandlers-impl').implementation;
+const HTMLOrSVGElementImpl = require('./HTMLOrSVGElement-impl').implementation;
+const { firstChildWithLocalName } = require('../helpers/traversal');
+const { isDisabled } = require('../helpers/form-controls');
+const { fireAnEvent } = require('../helpers/events');
 
 class HTMLElementImpl extends ElementImpl {
   constructor(globalObject, args, privateData) {
@@ -19,28 +19,27 @@ class HTMLElementImpl extends ElementImpl {
     this._clickInProgress = false;
 
     // <summary> uses HTMLElement and has activation behavior
-    this._hasActivationBehavior = this._localName === "summary";
+    this._hasActivationBehavior = this._localName === 'summary';
   }
 
   _activationBehavior() {
     const parent = this.parentNode;
-    if (parent && parent._localName === "details" &&
-        this === firstChildWithLocalName(parent, "summary")) {
-      if (parent.hasAttributeNS(null, "open")) {
-        parent.removeAttributeNS(null, "open");
+    if (parent && parent._localName === 'details' && this === firstChildWithLocalName(parent, 'summary')) {
+      if (parent.hasAttributeNS(null, 'open')) {
+        parent.removeAttributeNS(null, 'open');
       } else {
-        parent.setAttributeNS(null, "open", "");
+        parent.setAttributeNS(null, 'open', '');
       }
     }
   }
 
   // https://html.spec.whatwg.org/multipage/dom.html#the-translate-attribute
   get translate() {
-    const translateAttr = this.getAttributeNS(null, "translate");
+    const translateAttr = this.getAttributeNS(null, 'translate');
 
-    if (translateAttr === "yes" || translateAttr === "") {
+    if (translateAttr === 'yes' || translateAttr === '') {
       return true;
-    } else if (translateAttr === "no") {
+    } else if (translateAttr === 'no') {
       return false;
     }
 
@@ -52,9 +51,9 @@ class HTMLElementImpl extends ElementImpl {
   }
   set translate(value) {
     if (value === true) {
-      this.setAttributeNS(null, "translate", "yes");
+      this.setAttributeNS(null, 'translate', 'yes');
     } else {
-      this.setAttributeNS(null, "translate", "no");
+      this.setAttributeNS(null, 'translate', 'no');
     }
   }
 
@@ -74,7 +73,7 @@ class HTMLElementImpl extends ElementImpl {
 
     // https://github.com/whatwg/html/issues/4451
     // https://github.com/whatwg/html/issues/4452
-    fireAnEvent("click", this, MouseEvent, {
+    fireAnEvent('click', this, MouseEvent, {
       bubbles: true,
       cancelable: true,
       composed: true,
@@ -86,42 +85,42 @@ class HTMLElementImpl extends ElementImpl {
   }
 
   get draggable() {
-    const attributeValue = this.getAttributeNS(null, "draggable");
+    const attributeValue = this.getAttributeNS(null, 'draggable');
 
-    if (attributeValue === "true") {
+    if (attributeValue === 'true') {
       return true;
-    } else if (attributeValue === "false") {
+    } else if (attributeValue === 'false') {
       return false;
     }
 
-    return this._localName === "img" || (this._localName === "a" && this.hasAttributeNS(null, "href"));
+    return this._localName === 'img' || (this._localName === 'a' && this.hasAttributeNS(null, 'href'));
   }
   set draggable(value) {
-    this.setAttributeNS(null, "draggable", String(value));
+    this.setAttributeNS(null, 'draggable', String(value));
   }
 
   get dir() {
-    let dirValue = this.getAttributeNS(null, "dir");
+    let dirValue = this.getAttributeNS(null, 'dir');
     if (dirValue !== null) {
       dirValue = dirValue.toLowerCase();
 
-      if (["ltr", "rtl", "auto"].includes(dirValue)) {
+      if ([ 'ltr', 'rtl', 'auto' ].includes(dirValue)) {
         return dirValue;
       }
     }
-    return "";
+    return '';
   }
   set dir(value) {
-    this.setAttributeNS(null, "dir", value);
+    this.setAttributeNS(null, 'dir', value);
   }
 
   // Keep in sync with SVGElement. https://github.com/jsdom/jsdom/issues/2599
   _attrModified(name, value, oldValue) {
-    if (name === "style" && value !== oldValue && !this._settingCssText) {
+    if (name === 'style' && value !== oldValue && !this._settingCssText) {
       this._settingCssText = true;
       this._style.cssText = value;
       this._settingCssText = false;
-    } else if (name.startsWith("on")) {
+    } else if (name.startsWith('on')) {
       this._globalEventChanged(name.substring(2));
     }
 

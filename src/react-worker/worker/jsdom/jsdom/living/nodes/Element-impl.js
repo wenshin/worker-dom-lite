@@ -9,9 +9,6 @@ const ChildNodeImpl = require('./ChildNode-impl').implementation;
 const attributes = require('../attributes');
 const namedPropertiesWindow = require('../named-properties-window');
 const NODE_TYPE = require('../node-type');
-const { parseFragment } = require('../../browser/parser');
-const { fragmentSerialization } = require('../domparsing/serialization');
-const { domSymbolTree } = require('../helpers/internal-constants');
 const DOMException = require('domexception/webidl2js-wrapper');
 const DOMTokenList = require('../generated/DOMTokenList');
 const NamedNodeMap = require('../generated/NamedNodeMap');
@@ -24,10 +21,7 @@ const {
 } = require('../node');
 const SlotableMixinImpl = require('./Slotable-impl').implementation;
 const NonDocumentTypeChildNode = require('./NonDocumentTypeChildNode-impl').implementation;
-const ShadowRoot = require('../generated/ShadowRoot');
 const Text = require('../generated/Text');
-const { isValidHostElementName } = require('../helpers/shadow-dom');
-const { isValidCustomElementName, lookupCEDefinition } = require('../helpers/custom-elements');
 const { BridgeElementEvents, BridgeDocumentMethods } = require('../events/consts');
 
 function attachId(id, elm, doc) {
@@ -73,8 +67,6 @@ class ElementImpl extends NodeImpl {
     this._ceReactionQueue = [];
 
     this.nodeType = NODE_TYPE.ELEMENT_NODE;
-    this.scrollTop = 0;
-    this.scrollLeft = 0;
 
     this._attributeList = [];
     // Used for caching.
@@ -94,6 +86,28 @@ class ElementImpl extends NodeImpl {
     } else {
       this.$hostCreated = true;
     }
+
+    // these props may copy from host
+    [
+      'scrollTop',
+      'scrollLeft',
+      'scrollWidth',
+      'scrollHeight',
+      'clientTop',
+      'clientLeft',
+      'clientWidth',
+      'clientHeight',
+      'offsetWidth',
+      'offsetHeight',
+      'offsetLeft',
+      'offsetTop'
+    ].forEach((prop) => {
+      Object.defineProperty(this, prop, {
+        get() {
+          return this._$nodeProps[prop] || 0;
+        }
+      });
+    });
   }
 
   _attach() {
@@ -167,55 +181,52 @@ class ElementImpl extends NodeImpl {
     // Alternatively, if we can create a virtual node in domSymbolTree, that'd also work.
     // It's currently prevented by the fact that a node can't be duplicated in the same tree.
     // Then we could get rid of all the code for childNodesForSerializing.
-    return fragmentSerialization(
-      { childNodesForSerializing: [ this ], _ownerDocument: this._ownerDocument },
-      {
-        requireWellFormed: true,
-        globalObject: this._globalObject
-      }
-    );
+    // return fragmentSerialization(
+    //   { childNodesForSerializing: [ this ], _ownerDocument: this._ownerDocument },
+    //   {
+    //     requireWellFormed: true,
+    //     globalObject: this._globalObject
+    //   }
+    // );
+    return '';
   }
   set outerHTML(markup) {
-    let parent = domSymbolTree.parent(this);
-    const document = this._ownerDocument;
-
-    if (!parent) {
-      return;
-    }
-
-    if (parent.nodeType === NODE_TYPE.DOCUMENT_NODE) {
-      throw DOMException.create(this._globalObject, [
-        'Modifications are not allowed for this document',
-        'NoModificationAllowedError'
-      ]);
-    }
-
-    if (parent.nodeType === NODE_TYPE.DOCUMENT_FRAGMENT_NODE) {
-      parent = document.createElementNS(HTML_NS, 'body');
-    }
-
-    const fragment = parseFragment(markup, parent);
-
-    const contextObjectParent = domSymbolTree.parent(this);
-    contextObjectParent._replace(fragment, this);
+    // let parent = domSymbolTree.parent(this);
+    // const document = this._ownerDocument;
+    // if (!parent) {
+    //   return;
+    // }
+    // if (parent.nodeType === NODE_TYPE.DOCUMENT_NODE) {
+    //   throw DOMException.create(this._globalObject, [
+    //     'Modifications are not allowed for this document',
+    //     'NoModificationAllowedError'
+    //   ]);
+    // }
+    // if (parent.nodeType === NODE_TYPE.DOCUMENT_FRAGMENT_NODE) {
+    //   parent = document.createElementNS(HTML_NS, 'body');
+    // }
+    // const fragment = parseFragment(markup, parent);
+    // const contextObjectParent = domSymbolTree.parent(this);
+    // contextObjectParent._replace(fragment, this);
+    throw new Error('Do not set outerHTML');
   }
 
   // https://w3c.github.io/DOM-Parsing/#dfn-innerhtml
   get innerHTML() {
-    return fragmentSerialization(this, {
-      requireWellFormed: true,
-      globalObject: this._globalObject
-    });
+    // return fragmentSerialization(this, {
+    //   requireWellFormed: true,
+    //   globalObject: this._globalObject
+    // });
+    return '';
   }
   set innerHTML(markup) {
-    const fragment = parseFragment(markup, this);
-
-    let contextObject = this;
-    if (this.localName === 'template' && this.namespaceURI === HTML_NS) {
-      contextObject = contextObject._templateContents;
-    }
-
-    contextObject._replaceAll(fragment);
+    throw new Error('Do not set innerHTML');
+    // const fragment = parseFragment(markup, this);
+    // let contextObject = this;
+    // if (this.localName === 'template' && this.namespaceURI === HTML_NS) {
+    //   contextObject = contextObject._templateContents;
+    // }
+    // contextObject._replaceAll(fragment);
   }
 
   get classList() {
@@ -389,89 +400,20 @@ class ElementImpl extends NodeImpl {
   }
 
   getBoundingClientRect() {
-    return {
-      bottom: 0,
-      height: 0,
-      left: 0,
-      right: 0,
-      top: 0,
-      width: 0
-    };
+    return (
+      this._$nodeProps.boundingClientRect || {
+        bottom: 0,
+        height: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+        width: 0
+      }
+    );
   }
 
   getClientRects() {
     return [];
-  }
-
-  get scrollWidth() {
-    return 0;
-  }
-
-  get scrollHeight() {
-    return 0;
-  }
-
-  get clientTop() {
-    return 0;
-  }
-
-  get clientLeft() {
-    return 0;
-  }
-
-  get clientWidth() {
-    return 0;
-  }
-
-  get clientHeight() {
-    return 0;
-  }
-
-  // https://dom.spec.whatwg.org/#dom-element-attachshadow
-  attachShadow(init) {
-    const { _ownerDocument, _namespaceURI, _localName, _isValue } = this;
-
-    if (this.namespaceURI !== HTML_NS) {
-      throw DOMException.create(this._globalObject, [
-        'This element does not support attachShadow. This element is not part of the HTML namespace.',
-        'NotSupportedError'
-      ]);
-    }
-
-    if (!isValidHostElementName(_localName) && !isValidCustomElementName(_localName)) {
-      const message =
-        'This element does not support attachShadow. This element is not a custom element nor ' +
-        'a standard element supporting a shadow root.';
-      throw DOMException.create(this._globalObject, [ message, 'NotSupportedError' ]);
-    }
-
-    if (isValidCustomElementName(_localName) || _isValue) {
-      const definition = lookupCEDefinition(_ownerDocument, _namespaceURI, _localName, _isValue);
-
-      if (definition && definition.disableShadow) {
-        throw DOMException.create(this._globalObject, [
-          'Shadow root cannot be create on a custom element with disabled shadow',
-          'NotSupportedError'
-        ]);
-      }
-    }
-
-    if (this._shadowRoot !== null) {
-      throw DOMException.create(this._globalObject, [
-        'Shadow root cannot be created on a host which already hosts a shadow tree.',
-        'NotSupportedError'
-      ]);
-    }
-
-    const shadow = ShadowRoot.createImpl(this._globalObject, [], {
-      ownerDocument: this.ownerDocument,
-      mode: init.mode,
-      host: this
-    });
-
-    this._shadowRoot = shadow;
-
-    return shadow;
   }
 
   // https://dom.spec.whatwg.org/#dom-element-shadowroot
@@ -522,67 +464,6 @@ class ElementImpl extends NodeImpl {
     const text = Text.createImpl(this._globalObject, [], { data, ownerDocument: this._ownerDocument });
 
     this._insertAdjacent(this, where, text);
-  }
-
-  // https://w3c.github.io/DOM-Parsing/#dom-element-insertadjacenthtml
-  insertAdjacentHTML(position, text) {
-    position = asciiLowercase(position);
-
-    let context;
-    switch (position) {
-      case 'beforebegin':
-      case 'afterend': {
-        context = this.parentNode;
-        if (context === null || context.nodeType === NODE_TYPE.DOCUMENT_NODE) {
-          throw DOMException.create(this._globalObject, [
-            'Cannot insert HTML adjacent to parent-less nodes or children of document nodes.',
-            'NoModificationAllowedError'
-          ]);
-        }
-        break;
-      }
-      case 'afterbegin':
-      case 'beforeend': {
-        context = this;
-        break;
-      }
-      default: {
-        throw DOMException.create(this._globalObject, [
-          'Must provide one of "beforebegin", "afterbegin", "beforeend", or "afterend".',
-          'SyntaxError'
-        ]);
-      }
-    }
-
-    if (
-      context.nodeType !== NODE_TYPE.ELEMENT_NODE ||
-      (context._ownerDocument._parsingMode === 'html' &&
-        context._localName === 'html' &&
-        context._namespaceURI === HTML_NS)
-    ) {
-      context = context._ownerDocument.createElement('body');
-    }
-
-    const fragment = parseFragment(text, context);
-
-    switch (position) {
-      case 'beforebegin': {
-        this.parentNode._insert(fragment, this);
-        break;
-      }
-      case 'afterbegin': {
-        this._insert(fragment, this.firstChild);
-        break;
-      }
-      case 'beforeend': {
-        this._append(fragment);
-        break;
-      }
-      case 'afterend': {
-        this.parentNode._insert(fragment, this.nextSibling);
-        break;
-      }
-    }
   }
 
   closest(selectors) {

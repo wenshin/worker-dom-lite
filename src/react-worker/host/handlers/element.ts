@@ -29,7 +29,7 @@ export function registerElementHandlers(bridge: Bridge, ipcObjectManager: IPCObj
     /**
      * @param elemCargo
      * @param node
-     * @param child 可选，不存在是功能同 appendChild
+     * @param child 可选，不存在时功能同 appendChild
      */
     insertBefore(elemCargo?: IPCCargo, nodeCargo?: IPCCargo, childCargo?: IPCCargo) {
       const elem = elemCargo && (ipcObjectManager.getObject(elemCargo) as Element);
@@ -46,11 +46,12 @@ export function registerElementHandlers(bridge: Bridge, ipcObjectManager: IPCObj
     BridgeElementEvents.setAttribute,
     (data?: { elemCargo?: IPCCargo; name?: string; value?: string }) => {
       assertBridgeEventData(BridgeElementEvents.setAttribute, data);
+      if (!data || !data.elemCargo || !data.name) return;
       const elem = data.elemCargo && (ipcObjectManager.getObject(data.elemCargo) as Element);
       if (elem) {
-        elem.setAttribute(data.name, data.value);
+        elem.setAttribute(data.name, data.value || '');
       } else {
-        throw createEventDataError(BridgeElementEvents.setAttributes, `element is not exist!`);
+        throw createEventDataError(BridgeElementEvents.setAttribute, `element is not exist!`);
       }
     }
   );
@@ -59,9 +60,10 @@ export function registerElementHandlers(bridge: Bridge, ipcObjectManager: IPCObj
     BridgeElementEvents.setAttributeNS,
     (data?: { elemCargo?: IPCCargo; namespace?: string; name?: string; value?: string }) => {
       assertBridgeEventData(BridgeElementEvents.setAttributeNS, data);
+      if (!data || !data.elemCargo || !data.name) return;
       const elem = data.elemCargo && (ipcObjectManager.getObject(data.elemCargo) as HTMLElement);
       if (elem) {
-        elem.setAttributeNS(data.namespace, data.name, data.value);
+        elem.setAttributeNS(data.namespace || null, data.name, data.value || '');
       } else {
         throw createEventDataError(BridgeElementEvents.setAttributeNS, `element is not exist!`);
       }
@@ -70,6 +72,7 @@ export function registerElementHandlers(bridge: Bridge, ipcObjectManager: IPCObj
 
   bridge.subscribe(BridgeElementEvents.removeAttribute, (data?: { elemCargo?: IPCCargo; name?: string }) => {
     assertBridgeEventData(BridgeElementEvents.removeAttribute, data);
+    if (!data || !data.elemCargo || !data.name) return;
     const elem = data.elemCargo && (ipcObjectManager.getObject(data.elemCargo) as HTMLElement);
     if (elem) {
       elem.removeAttribute(data.name);
@@ -82,9 +85,10 @@ export function registerElementHandlers(bridge: Bridge, ipcObjectManager: IPCObj
     BridgeElementEvents.removeAttributeNS,
     (data?: { elemCargo?: IPCCargo; namespace?: string; name?: string }) => {
       assertBridgeEventData(BridgeElementEvents.removeAttributeNS, data);
+      if (!data || !data.elemCargo || !data.name) return;
       const elem = data.elemCargo && (ipcObjectManager.getObject(data.elemCargo) as HTMLElement);
       if (elem) {
-        elem.removeAttributeNS(data.namespace, data.name);
+        elem.removeAttributeNS(data.namespace || null, data.name);
       } else {
         throw createEventDataError(BridgeElementEvents.removeAttributeNS, `element is not exist!`);
       }
@@ -95,6 +99,7 @@ export function registerElementHandlers(bridge: Bridge, ipcObjectManager: IPCObj
     BridgeElementEvents.toggleAttribute,
     (data?: { elemCargo?: IPCCargo; name?: string; force?: boolean }) => {
       assertBridgeEventData(BridgeElementEvents.toggleAttribute, data);
+      if (!data || !data.elemCargo || !data.name) return;
       const elem = data.elemCargo && (ipcObjectManager.getObject(data.elemCargo) as HTMLElement);
       if (elem) {
         elem.toggleAttribute(data.name, data.force);
@@ -106,9 +111,13 @@ export function registerElementHandlers(bridge: Bridge, ipcObjectManager: IPCObj
 
   bridge.subscribe(BridgeCommonEvents.setProperty, (data?: { elemCargo: IPCCargo; prop: string; value: any }) => {
     assertBridgeEventData(BridgeCommonEvents.setProperty, data);
+    if (!data || !data.elemCargo) return;
+    if (![ 'nodeValue', 'textContent' ].includes(data.prop)) {
+      throw createEventDataError(BridgeCommonEvents.setProperty, `prop ${data.prop} is not supported!`);
+    }
     const elem = data.elemCargo && (ipcObjectManager.getObject(data.elemCargo) as Element);
     if (elem && data.prop) {
-      elem[data.prop] = data.value;
+      (elem as any)[data.prop] = data.value;
     } else {
       throw createEventDataError(BridgeCommonEvents.setProperty, `element or data.prop is not exist!`);
     }

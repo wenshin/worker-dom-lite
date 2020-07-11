@@ -1,13 +1,13 @@
-"use strict";
+'use strict';
 
-const { domSymbolTree } = require("../helpers/internal-constants");
-const { SVG_NS } = require("../helpers/namespaces");
-const { mixin } = require("../../utils");
-const SVGAnimatedString = require("../generated/SVGAnimatedString");
-const ElementImpl = require("./Element-impl").implementation;
-const ElementCSSInlineStyleImpl = require("./ElementCSSInlineStyle-impl").implementation;
-const GlobalEventHandlersImpl = require("./GlobalEventHandlers-impl").implementation;
-const HTMLOrSVGElementImpl = require("./HTMLOrSVGElement-impl").implementation;
+const { domSymbolTree } = require('../helpers/internal-constants');
+const { SVG_NS } = require('../helpers/namespaces');
+const { mixin } = require('../../utils');
+const SVGAnimatedString = require('../generated/SVGAnimatedString');
+const ElementImpl = require('./Element-impl').implementation;
+const ElementCSSInlineStyleImpl = require('./ElementCSSInlineStyle-impl').implementation;
+const GlobalEventHandlersImpl = require('./GlobalEventHandlers-impl').implementation;
+const HTMLOrSVGElementImpl = require('./HTMLOrSVGElement-impl').implementation;
 
 class SVGElementImpl extends ElementImpl {
   constructor(globalObject, args, privateData) {
@@ -19,11 +19,11 @@ class SVGElementImpl extends ElementImpl {
 
   // Keep in sync with HTMLElement. https://github.com/jsdom/jsdom/issues/2599
   _attrModified(name, value, oldValue) {
-    if (name === "style" && value !== oldValue && !this._settingCssText) {
+    if (name === 'style' && value !== oldValue && !this._settingCssText) {
       this._settingCssText = true;
       this._style.cssText = value;
       this._settingCssText = false;
-    } else if (name.startsWith("on")) {
+    } else if (name.startsWith('on')) {
       this._globalEventChanged(name.substring(2));
     }
 
@@ -33,14 +33,14 @@ class SVGElementImpl extends ElementImpl {
   get className() {
     return SVGAnimatedString.createImpl(this._globalObject, [], {
       element: this,
-      attribute: "class"
+      attribute: 'class'
     });
   }
 
   get ownerSVGElement() {
     let e = domSymbolTree.parent(this);
     while (e && e.namespaceURI === SVG_NS) {
-      if (e.localName === "svg") {
+      if (e.localName === 'svg') {
         return e;
       }
       e = domSymbolTree.parent(e);

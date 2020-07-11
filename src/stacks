@@ -273,3 +273,447 @@ __proto__: Class
 
 updateValueIfChanged
 getTargetInstForInputOrChangeEvent
+
+
+
+
+import utils from './utils';
+import getOffsetParent from './getOffsetParent';
+import isAncestorFixed from './isAncestorFixed';
+
+/**
+ * 获得元素的显示部分的区域
+ */
+function getVisibleRectForElement(element, alwaysByViewport) {
+  const visibleRect = {
+    left: 0,
+    right: Infinity,
+    top: 0,
+    bottom: Infinity,
+  };
+  let el = getOffsetParent(element);
+  const doc = utils.getDocument(element);
+  const win = doc.defaultView || doc.parentWindow;
+  const body = doc.body;
+  const documentElement = doc.documentElement;
+
+  // Determine the size of the visible rect by climbing the dom accounting for
+  // all scrollable containers.
+  while (el) {
+    // clientWidth is zero for inline block elements in ie.
+    if (
+      (navigator.userAgent.indexOf('MSIE') === -1 || el.clientWidth !== 0) &&
+      // body may have overflow set on it, yet we still get the entire
+      // viewport. In some browsers, el.offsetParent may be
+      // document.documentElement, so check for that too.
+      (el !== body &&
+        el !== documentElement &&
+        utils.css(el, 'overflow') !== 'visible')
+    ) {
+      const pos = utils.offset(el);
+      // add border
+      pos.left += el.clientLeft;
+      pos.top += el.clientTop;
+      visibleRect.top = Math.max(visibleRect.top, pos.top);
+      visibleRect.right = Math.min(
+        visibleRect.right,
+        // consider area without scrollBar
+        pos.left + el.clientWidth,
+      );
+      visibleRect.bottom = Math.min(
+        visibleRect.bottom,
+        pos.top + el.clientHeight,
+      );
+      visibleRect.left = Math.max(visibleRect.left, pos.left);
+    } else if (el === body || el === documentElement) {
+      break;
+    }
+    el = getOffsetParent(el);
+  }
+
+  // Set element position to fixed
+  // make sure absolute element itself don't affect it's visible area
+  // https://github.com/ant-design/ant-design/issues/7601
+  let originalPosition = null;
+  if (!utils.isWindow(element) && element.nodeType !== 9) {
+    originalPosition = element.style.position;
+    const position = utils.css(element, 'position');
+    if (position === 'absolute') {
+      element.style.position = 'fixed';
+    }
+  }
+
+  const scrollX = utils.getWindowScrollLeft(win);
+  const scrollY = utils.getWindowScrollTop(win);
+  const viewportWidth = utils.viewportWidth(win);
+  const viewportHeight = utils.viewportHeight(win);
+  let documentWidth = documentElement.scrollWidth;
+  let documentHeight = documentElement.scrollHeight;
+
+  // scrollXXX on html is sync with body which means overflow: hidden on body gets wrong scrollXXX.
+  // We should cut this ourself.
+  const bodyStyle = window.getComputedStyle(body);
+  if (bodyStyle.overflowX === 'hidden') {
+    documentWidth = win.innerWidth;
+  }
+  if (bodyStyle.overflowY === 'hidden') {
+    documentHeight = win.innerHeight;
+  }
+
+  // Reset element position after calculate the visible area
+  if (element.style) {
+    element.style.position = originalPosition;
+  }
+
+  if (alwaysByViewport || isAncestorFixed(element)) {
+    // Clip by viewport's size.
+    visibleRect.left = Math.max(visibleRect.left, scrollX);
+    visibleRect.top = Math.max(visibleRect.top, scrollY);
+    visibleRect.right = Math.min(visibleRect.right, scrollX + viewportWidth);
+    visibleRect.bottom = Math.min(visibleRect.bottom, scrollY + viewportHeight);
+  } else {
+    // Clip by document's size.
+    const maxVisibleWidth = Math.max(documentWidth, scrollX + viewportWidth);
+    visibleRect.right = Math.min(visibleRect.right, maxVisibleWidth);
+
+    const maxVisibleHeight = Math.max(documentHeight, scrollY + viewportHeight);
+    visibleRect.bottom = Math.min(visibleRect.bottom, maxVisibleHeight);
+  }
+
+  return visibleRect.top >= 0 &&
+    visibleRect.left >= 0 &&
+    visibleRect.bottom > visibleRect.top &&
+    visibleRect.right > visibleRect.left
+    ? visibleRect
+    : null;
+}
+
+export default getVisibleRectForElement;
+
+
+TypeError: window.getComputedStyle is not a function
+    at getVisibleRectForElement (getVisibleRectForElement.js:76)
+    at isOutOfVisibleRect (alignElement.js:7)
+    at alignElement (alignElement.js:23)
+    at Align.js:62
+    at trigger (useBuffer.js:12)
+    at Align.js:102
+    at commitHookEffectListMount (react-dom.development.js:19731)
+    at commitPassiveHookEffects (react-dom.development.js:19769)
+    at HTMLUnknownElement.callCallback (react-dom.development.js:188)
+    at innerInvokeEventListeners (EventTarget-impl.js:366)
+
+
+    innerInvokeEventListeners (EventTarget-impl.js:382)
+invokeEventListeners (EventTarget-impl.js:320)
+_dispatch (EventTarget-impl.js:267)
+dispatchEvent (EventTarget-impl.js:141)
+dispatchEvent (EventTarget.js:207)
+invokeGuardedCallbackDev (react-dom.development.js:237)
+invokeGuardedCallback (react-dom.development.js:292)
+flushPassiveEffectsImpl (react-dom.development.js:22853)
+unstable_runWithPriority (scheduler.development.js:653)
+runWithPriority$1 (react-dom.development.js:11039)
+flushPassiveEffects (react-dom.development.js:22820)
+(anonymous) (react-dom.development.js:22699)
+workLoop (scheduler.development.js:597)
+flushWork (scheduler.development.js:552)
+performWorkUntilDeadline (scheduler.development.js:164)
+postMessage (async)
+requestHostCallback (scheduler.development.js:194)
+unstable_scheduleCallback (scheduler.development.js:785)
+scheduleSyncCallback (react-dom.development.js:11051)
+ensureRootIsScheduled (react-dom.development.js:21393)
+scheduleUpdateOnFiber (react-dom.development.js:21190)
+enqueueSetState (react-dom.development.js:12639)
+./node_modules/react/cjs/react.development.js.Component.setState (react.development.js:471)
+(anonymous) (Popup.js:100)
+requestAnimationFrame (async)
+./node_modules/raf/index.js.module.exports (index.js:64)
+Popup._this.setStateOnNextFrame (Popup.js:95)
+componentDidUpdate (Popup.js:292)
+componentDidMount (Popup.js:275)
+commitLifeCycles (react-dom.development.js:19814)
+commitLayoutEffects (react-dom.development.js:22803)
+callCallback (react-dom.development.js:188)
+innerInvokeEventListeners (EventTarget-impl.js:366)
+invokeEventListeners (EventTarget-impl.js:320)
+_dispatch (EventTarget-impl.js:267)
+dispatchEvent (EventTarget-impl.js:141)
+dispatchEvent (EventTarget.js:207)
+invokeGuardedCallbackDev (react-dom.development.js:237)
+invokeGuardedCallback (react-dom.development.js:292)
+commitRootImpl (react-dom.development.js:22541)
+unstable_runWithPriority (scheduler.development.js:653)
+runWithPriority$1 (react-dom.development.js:11039)
+commitRoot (react-dom.development.js:22381)
+finishSyncRender (react-dom.development.js:21807)
+performSyncWorkOnRoot (react-dom.development.js:21793)
+(anonymous) (react-dom.development.js:11089)
+unstable_runWithPriority (scheduler.development.js:653)
+runWithPriority$1 (react-dom.development.js:11039)
+flushSyncCallbackQueueImpl (react-dom.development.js:11084)
+flushSyncCallbackQueue (react-dom.development.js:11072)
+scheduleUpdateOnFiber (react-dom.development.js:21199)
+dispatchAction (react-dom.development.js:15660)
+onVisibleChange (index.js:107)
+setPopupVisible (index.js:459)
+(anonymous) (index.js:481)
+setTimeout (async)
+delaySetPopupVisible (index.js:480)
+Trigger._this.onMouseEnter (index.js:64)
+callCallback (react-dom.development.js:188)
+innerInvokeEventListeners (EventTarget-impl.js:366)
+invokeEventListeners (EventTarget-impl.js:320)
+_dispatch (EventTarget-impl.js:267)
+dispatchEvent (EventTarget-impl.js:141)
+dispatchEvent (EventTarget.js:207)
+invokeGuardedCallbackDev (react-dom.development.js:237)
+invokeGuardedCallback (react-dom.development.js:292)
+invokeGuardedCallbackAndCatchFirstError (react-dom.development.js:306)
+executeDispatch (react-dom.development.js:389)
+executeDispatchesInOrder (react-dom.development.js:414)
+executeDispatchesAndRelease (react-dom.development.js:3278)
+executeDispatchesAndReleaseTopLevel (react-dom.development.js:3287)
+forEachAccumulated (react-dom.development.js:3257)
+runEventsInBatch (react-dom.development.js:3304)
+runExtractedPluginEventsInBatch (react-dom.development.js:3514)
+handleTopLevel (react-dom.development.js:3558)
+batchedEventUpdates$1 (react-dom.development.js:21871)
+batchedEventUpdates (react-dom.development.js:795)
+dispatchEventForLegacyPluginEventSystem (react-dom.development.js:3568)
+attemptToDispatchEvent (react-dom.development.js:4267)
+dispatchEvent (react-dom.development.js:4189)
+unstable_runWithPriority (scheduler.development.js:653)
+dispatchUserBlockingUpdate (react-dom.development.js:4172)
+(anonymous) (IPCObjectManager.ts:39)
+emit (events.js:152)
+emit (Bridge.ts:174)
+(anonymous) (Bridge.ts:75)
+webworker.onmessage (createBridge.ts:46)
+Worker.postMessage (async)
+postMessage (createBridge.ts:12)
+publish (Bridge.ts:134)
+ipcFunctionMirror (IPCFunction.ts:21)
+
+
+
+
+
+getBoundingClientRect (Element-impl.js:403)
+getBoundingClientRect (Element.js:769)
+getClientPosition (utils.js:49)
+getOffset (utils.js:111)
+offset (utils.js:584)
+getVisibleRectForElement (getVisibleRectForElement.js:34)
+doAlign (align.js:92)
+alignElement (alignElement.js:28)
+(anonymous) (Align.js:62)
+trigger (useBuffer.js:12)
+(anonymous) (Align.js:102)
+commitHookEffectListMount (react-dom.development.js:19731)
+commitPassiveHookEffects (react-dom.development.js:19769)
+callCallback (react-dom.development.js:188)
+innerInvokeEventListeners (EventTarget-impl.js:366)
+invokeEventListeners (EventTarget-impl.js:320)
+_dispatch (EventTarget-impl.js:267)
+dispatchEvent (EventTarget-impl.js:141)
+dispatchEvent (EventTarget.js:207)
+invokeGuardedCallbackDev (react-dom.development.js:237)
+invokeGuardedCallback (react-dom.development.js:292)
+flushPassiveEffectsImpl (react-dom.development.js:22853)
+unstable_runWithPriority (scheduler.development.js:653)
+runWithPriority$1 (react-dom.development.js:11039)
+flushPassiveEffects (react-dom.development.js:22820)
+(anonymous) (react-dom.development.js:22699)
+workLoop (scheduler.development.js:597)
+flushWork (scheduler.development.js:552)
+performWorkUntilDeadline (scheduler.development.js:164)
+postMessage (async)
+requestHostCallback (scheduler.development.js:194)
+unstable_scheduleCallback (scheduler.development.js:785)
+scheduleSyncCallback (react-dom.development.js:11051)
+ensureRootIsScheduled (react-dom.development.js:21393)
+scheduleUpdateOnFiber (react-dom.development.js:21190)
+enqueueSetState (react-dom.development.js:12639)
+./node_modules/react/cjs/react.development.js.Component.setState (react.development.js:471)
+(anonymous) (Popup.js:100)
+requestAnimationFrame (async)
+./node_modules/raf/index.js.module.exports (index.js:64)
+Popup._this.setStateOnNextFrame (Popup.js:95)
+componentDidUpdate (Popup.js:292)
+componentDidMount (Popup.js:275)
+commitLifeCycles (react-dom.development.js:19814)
+commitLayoutEffects (react-dom.development.js:22803)
+callCallback (react-dom.development.js:188)
+innerInvokeEventListeners (EventTarget-impl.js:366)
+invokeEventListeners (EventTarget-impl.js:320)
+_dispatch (EventTarget-impl.js:267)
+dispatchEvent (EventTarget-impl.js:141)
+dispatchEvent (EventTarget.js:207)
+invokeGuardedCallbackDev (react-dom.development.js:237)
+invokeGuardedCallback (react-dom.development.js:292)
+commitRootImpl (react-dom.development.js:22541)
+unstable_runWithPriority (scheduler.development.js:653)
+runWithPriority$1 (react-dom.development.js:11039)
+commitRoot (react-dom.development.js:22381)
+finishSyncRender (react-dom.development.js:21807)
+performSyncWorkOnRoot (react-dom.development.js:21793)
+(anonymous) (react-dom.development.js:11089)
+unstable_runWithPriority (scheduler.development.js:653)
+runWithPriority$1 (react-dom.development.js:11039)
+flushSyncCallbackQueueImpl (react-dom.development.js:11084)
+flushSyncCallbackQueue (react-dom.development.js:11072)
+scheduleUpdateOnFiber (react-dom.development.js:21199)
+dispatchAction (react-dom.development.js:15660)
+onVisibleChange (index.js:107)
+setPopupVisible (index.js:459)
+(anonymous) (index.js:481)
+setTimeout (async)
+delaySetPopupVisible (index.js:480)
+Trigger._this.onMouseEnter (index.js:64)
+callCallback (react-dom.development.js:188)
+innerInvokeEventListeners (EventTarget-impl.js:366)
+invokeEventListeners (EventTarget-impl.js:320)
+_dispatch (EventTarget-impl.js:267)
+dispatchEvent (EventTarget-impl.js:141)
+dispatchEvent (EventTarget.js:207)
+invokeGuardedCallbackDev (react-dom.development.js:237)
+invokeGuardedCallback (react-dom.development.js:292)
+invokeGuardedCallbackAndCatchFirstError (react-dom.development.js:306)
+executeDispatch (react-dom.development.js:389)
+executeDispatchesInOrder (react-dom.development.js:414)
+executeDispatchesAndRelease (react-dom.development.js:3278)
+executeDispatchesAndReleaseTopLevel (react-dom.development.js:3287)
+forEachAccumulated (react-dom.development.js:3257)
+runEventsInBatch (react-dom.development.js:3304)
+runExtractedPluginEventsInBatch (react-dom.development.js:3514)
+handleTopLevel (react-dom.development.js:3558)
+batchedEventUpdates$1 (react-dom.development.js:21871)
+batchedEventUpdates (react-dom.development.js:795)
+dispatchEventForLegacyPluginEventSystem (react-dom.development.js:3568)
+attemptToDispatchEvent (react-dom.development.js:4267)
+dispatchEvent (react-dom.development.js:4189)
+unstable_runWithPriority (scheduler.development.js:653)
+dispatchUserBlockingUpdate (react-dom.development.js:4172)
+(anonymous) (IPCObjectManager.ts:39)
+emit (events.js:152)
+emit (Bridge.ts:174)
+(anonymous) (Bridge.ts:75)
+webworker.onmessage (createBridge.ts:46)
+Worker.postMessage (async)
+postMessage (createBridge.ts:12)
+publish (Bridge.ts:134)
+ipcFunctionMirror (IPCFunction.ts:21)
+
+alignElement (alignElement.js:21)
+(anonymous) (Align.js:62)
+trigger (useBuffer.js:12)
+forceAlign (Align.js:145)
+(anonymous) (Popup.js:67)
+callCallback (react-dom.development.js:12490)
+commitUpdateQueue (react-dom.development.js:12511)
+commitLifeCycles (react-dom.development.js:19858)
+commitLayoutEffects (react-dom.development.js:22803)
+callCallback (react-dom.development.js:188)
+innerInvokeEventListeners (EventTarget-impl.js:366)
+invokeEventListeners (EventTarget-impl.js:320)
+_dispatch (EventTarget-impl.js:267)
+dispatchEvent (EventTarget-impl.js:141)
+dispatchEvent (EventTarget.js:207)
+invokeGuardedCallbackDev (react-dom.development.js:237)
+invokeGuardedCallback (react-dom.development.js:292)
+commitRootImpl (react-dom.development.js:22541)
+unstable_runWithPriority (scheduler.development.js:653)
+runWithPriority$1 (react-dom.development.js:11039)
+commitRoot (react-dom.development.js:22381)
+finishSyncRender (react-dom.development.js:21807)
+performSyncWorkOnRoot (react-dom.development.js:21793)
+(anonymous) (react-dom.development.js:11089)
+unstable_runWithPriority (scheduler.development.js:653)
+runWithPriority$1 (react-dom.development.js:11039)
+flushSyncCallbackQueueImpl (react-dom.development.js:11084)
+flushSyncCallbackQueue (react-dom.development.js:11072)
+flushPassiveEffectsImpl (react-dom.development.js:22883)
+unstable_runWithPriority (scheduler.development.js:653)
+runWithPriority$1 (react-dom.development.js:11039)
+flushPassiveEffects (react-dom.development.js:22820)
+(anonymous) (react-dom.development.js:22699)
+workLoop (scheduler.development.js:597)
+flushWork (scheduler.development.js:552)
+performWorkUntilDeadline (scheduler.development.js:164)
+postMessage (async)
+requestHostCallback (scheduler.development.js:194)
+unstable_scheduleCallback (scheduler.development.js:785)
+scheduleSyncCallback (react-dom.development.js:11051)
+ensureRootIsScheduled (react-dom.development.js:21393)
+scheduleUpdateOnFiber (react-dom.development.js:21190)
+enqueueSetState (react-dom.development.js:12639)
+./node_modules/react/cjs/react.development.js.Component.setState (react.development.js:471)
+(anonymous) (Popup.js:100)
+requestAnimationFrame (async)
+./node_modules/raf/index.js.module.exports (index.js:64)
+Popup._this.setStateOnNextFrame (Popup.js:95)
+componentDidUpdate (Popup.js:292)
+commitLifeCycles (react-dom.development.js:19835)
+commitLayoutEffects (react-dom.development.js:22803)
+callCallback (react-dom.development.js:188)
+innerInvokeEventListeners (EventTarget-impl.js:366)
+invokeEventListeners (EventTarget-impl.js:320)
+_dispatch (EventTarget-impl.js:267)
+dispatchEvent (EventTarget-impl.js:141)
+dispatchEvent (EventTarget.js:207)
+invokeGuardedCallbackDev (react-dom.development.js:237)
+invokeGuardedCallback (react-dom.development.js:292)
+commitRootImpl (react-dom.development.js:22541)
+unstable_runWithPriority (scheduler.development.js:653)
+runWithPriority$1 (react-dom.development.js:11039)
+commitRoot (react-dom.development.js:22381)
+finishSyncRender (react-dom.development.js:21807)
+performSyncWorkOnRoot (react-dom.development.js:21793)
+(anonymous) (react-dom.development.js:11089)
+unstable_runWithPriority (scheduler.development.js:653)
+runWithPriority$1 (react-dom.development.js:11039)
+flushSyncCallbackQueueImpl (react-dom.development.js:11084)
+flushSyncCallbackQueue (react-dom.development.js:11072)
+scheduleUpdateOnFiber (react-dom.development.js:21199)
+dispatchAction (react-dom.development.js:15660)
+onVisibleChange (index.js:107)
+setPopupVisible (index.js:459)
+(anonymous) (index.js:481)
+setTimeout (async)
+delaySetPopupVisible (index.js:480)
+Trigger._this.onMouseEnter (index.js:64)
+callCallback (react-dom.development.js:188)
+innerInvokeEventListeners (EventTarget-impl.js:366)
+invokeEventListeners (EventTarget-impl.js:320)
+_dispatch (EventTarget-impl.js:267)
+dispatchEvent (EventTarget-impl.js:141)
+dispatchEvent (EventTarget.js:207)
+invokeGuardedCallbackDev (react-dom.development.js:237)
+invokeGuardedCallback (react-dom.development.js:292)
+invokeGuardedCallbackAndCatchFirstError (react-dom.development.js:306)
+executeDispatch (react-dom.development.js:389)
+executeDispatchesInOrder (react-dom.development.js:414)
+executeDispatchesAndRelease (react-dom.development.js:3278)
+executeDispatchesAndReleaseTopLevel (react-dom.development.js:3287)
+forEachAccumulated (react-dom.development.js:3257)
+runEventsInBatch (react-dom.development.js:3304)
+runExtractedPluginEventsInBatch (react-dom.development.js:3514)
+handleTopLevel (react-dom.development.js:3558)
+batchedEventUpdates$1 (react-dom.development.js:21871)
+batchedEventUpdates (react-dom.development.js:795)
+dispatchEventForLegacyPluginEventSystem (react-dom.development.js:3568)
+attemptToDispatchEvent (react-dom.development.js:4267)
+dispatchEvent (react-dom.development.js:4189)
+unstable_runWithPriority (scheduler.development.js:653)
+dispatchUserBlockingUpdate (react-dom.development.js:4172)
+(anonymous) (IPCObjectManager.ts:39)
+emit (events.js:152)
+emit (Bridge.ts:174)
+(anonymous) (Bridge.ts:75)
+webworker.onmessage (createBridge.ts:46)
+Worker.postMessage (async)
+postMessage (createBridge.ts:12)
+publish (Bridge.ts:134)
+ipcFunctionMirror (IPCFunction.ts:21)

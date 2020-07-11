@@ -1,9 +1,9 @@
 'use strict';
 const cssstyle = require('cssstyle');
-const { BridgeCommonEvents } = require('../events/consts');
 
 class ElementCSSInlineStyle {
   _initElementCSSInlineStyle() {
+    this._$computedStyles = new cssstyle.CSSStyleDeclaration();
     this._settingCssText = false;
     this._style = new cssstyle.CSSStyleDeclaration((newCssText) => {
       if (!this._settingCssText) {
@@ -17,11 +17,6 @@ class ElementCSSInlineStyle {
     return this._style;
   }
   set style(value) {
-    this.$bridge.publish(BridgeCommonEvents.setProperty, {
-      elemCargo: this.$cargo,
-      prop: 'style',
-      value
-    });
     this._style.cssText = value;
   }
 }

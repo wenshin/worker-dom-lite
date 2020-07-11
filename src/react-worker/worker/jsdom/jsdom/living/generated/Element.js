@@ -1,17 +1,16 @@
-"use strict";
+'use strict';
 
-const conversions = require("webidl-conversions");
-const utils = require("./utils.js");
+const conversions = require('webidl-conversions');
+const utils = require('./utils.js');
 
-const ceReactionsPreSteps_helpers_custom_elements = require("../helpers/custom-elements.js").ceReactionsPreSteps;
-const ceReactionsPostSteps_helpers_custom_elements = require("../helpers/custom-elements.js").ceReactionsPostSteps;
-const Attr = require("./Attr.js");
-const ShadowRootInit = require("./ShadowRootInit.js");
-const Node = require("./Node.js");
+const ceReactionsPreSteps_helpers_custom_elements = require('../helpers/custom-elements.js').ceReactionsPreSteps;
+const ceReactionsPostSteps_helpers_custom_elements = require('../helpers/custom-elements.js').ceReactionsPostSteps;
+const Attr = require('./Attr.js');
+const Node = require('./Node.js');
 const implSymbol = utils.implSymbol;
 const ctorRegistrySymbol = utils.ctorRegistrySymbol;
 
-const interfaceName = "Element";
+const interfaceName = 'Element';
 
 exports.is = function is(obj) {
   return utils.isObject(obj) && utils.hasOwn(obj, implSymbol) && obj[implSymbol] instanceof Impl.implementation;
@@ -19,7 +18,7 @@ exports.is = function is(obj) {
 exports.isImpl = function isImpl(obj) {
   return utils.isObject(obj) && obj instanceof Impl.implementation;
 };
-exports.convert = function convert(obj, { context = "The provided value" } = {}) {
+exports.convert = function convert(obj, { context = 'The provided value' } = {}) {
   if (exports.is(obj)) {
     return utils.implForWrapper(obj);
   }
@@ -28,12 +27,12 @@ exports.convert = function convert(obj, { context = "The provided value" } = {})
 
 exports.create = function create(globalObject, constructorArgs, privateData) {
   if (globalObject[ctorRegistrySymbol] === undefined) {
-    throw new Error("Internal error: invalid global object");
+    throw new Error('Internal error: invalid global object');
   }
 
-  const ctor = globalObject[ctorRegistrySymbol]["Element"];
+  const ctor = globalObject[ctorRegistrySymbol]['Element'];
   if (ctor === undefined) {
-    throw new Error("Internal error: constructor Element is not installed on the passed global object");
+    throw new Error('Internal error: constructor Element is not installed on the passed global object');
   }
 
   let obj = Object.create(ctor.prototype);
@@ -65,17 +64,17 @@ exports.setup = function setup(obj, globalObject, constructorArgs = [], privateD
 
 exports.install = function install(globalObject) {
   if (globalObject.Node === undefined) {
-    throw new Error("Internal error: attempting to evaluate Element before Node");
+    throw new Error('Internal error: attempting to evaluate Element before Node');
   }
   class Element extends globalObject.Node {
     constructor() {
-      throw new TypeError("Illegal constructor");
+      throw new TypeError('Illegal constructor');
     }
 
     hasAttributes() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       return esValue[implSymbol].hasAttributes();
@@ -84,7 +83,7 @@ exports.install = function install(globalObject) {
     getAttributeNames() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       return utils.tryWrapperForImpl(esValue[implSymbol].getAttributeNames());
@@ -93,20 +92,20 @@ exports.install = function install(globalObject) {
     getAttribute(qualifiedName) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 1) {
         throw new TypeError(
           "Failed to execute 'getAttribute' on 'Element': 1 argument required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
       {
         let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'getAttribute' on 'Element': parameter 1"
         });
         args.push(curArg);
@@ -117,14 +116,14 @@ exports.install = function install(globalObject) {
     getAttributeNS(namespace, localName) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 2) {
         throw new TypeError(
           "Failed to execute 'getAttributeNS' on 'Element': 2 arguments required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
@@ -133,7 +132,7 @@ exports.install = function install(globalObject) {
         if (curArg === null || curArg === undefined) {
           curArg = null;
         } else {
-          curArg = conversions["DOMString"](curArg, {
+          curArg = conversions['DOMString'](curArg, {
             context: "Failed to execute 'getAttributeNS' on 'Element': parameter 1"
           });
         }
@@ -141,7 +140,7 @@ exports.install = function install(globalObject) {
       }
       {
         let curArg = arguments[1];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'getAttributeNS' on 'Element': parameter 2"
         });
         args.push(curArg);
@@ -152,27 +151,27 @@ exports.install = function install(globalObject) {
     setAttribute(qualifiedName, value) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 2) {
         throw new TypeError(
           "Failed to execute 'setAttribute' on 'Element': 2 arguments required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
       {
         let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'setAttribute' on 'Element': parameter 1"
         });
         args.push(curArg);
       }
       {
         let curArg = arguments[1];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'setAttribute' on 'Element': parameter 2"
         });
         args.push(curArg);
@@ -188,14 +187,14 @@ exports.install = function install(globalObject) {
     setAttributeNS(namespace, qualifiedName, value) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 3) {
         throw new TypeError(
           "Failed to execute 'setAttributeNS' on 'Element': 3 arguments required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
@@ -204,7 +203,7 @@ exports.install = function install(globalObject) {
         if (curArg === null || curArg === undefined) {
           curArg = null;
         } else {
-          curArg = conversions["DOMString"](curArg, {
+          curArg = conversions['DOMString'](curArg, {
             context: "Failed to execute 'setAttributeNS' on 'Element': parameter 1"
           });
         }
@@ -212,14 +211,14 @@ exports.install = function install(globalObject) {
       }
       {
         let curArg = arguments[1];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'setAttributeNS' on 'Element': parameter 2"
         });
         args.push(curArg);
       }
       {
         let curArg = arguments[2];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'setAttributeNS' on 'Element': parameter 3"
         });
         args.push(curArg);
@@ -235,20 +234,20 @@ exports.install = function install(globalObject) {
     removeAttribute(qualifiedName) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 1) {
         throw new TypeError(
           "Failed to execute 'removeAttribute' on 'Element': 1 argument required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
       {
         let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'removeAttribute' on 'Element': parameter 1"
         });
         args.push(curArg);
@@ -264,14 +263,14 @@ exports.install = function install(globalObject) {
     removeAttributeNS(namespace, localName) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 2) {
         throw new TypeError(
           "Failed to execute 'removeAttributeNS' on 'Element': 2 arguments required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
@@ -280,7 +279,7 @@ exports.install = function install(globalObject) {
         if (curArg === null || curArg === undefined) {
           curArg = null;
         } else {
-          curArg = conversions["DOMString"](curArg, {
+          curArg = conversions['DOMString'](curArg, {
             context: "Failed to execute 'removeAttributeNS' on 'Element': parameter 1"
           });
         }
@@ -288,7 +287,7 @@ exports.install = function install(globalObject) {
       }
       {
         let curArg = arguments[1];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'removeAttributeNS' on 'Element': parameter 2"
         });
         args.push(curArg);
@@ -304,20 +303,20 @@ exports.install = function install(globalObject) {
     toggleAttribute(qualifiedName) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 1) {
         throw new TypeError(
           "Failed to execute 'toggleAttribute' on 'Element': 1 argument required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
       {
         let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'toggleAttribute' on 'Element': parameter 1"
         });
         args.push(curArg);
@@ -325,7 +324,7 @@ exports.install = function install(globalObject) {
       {
         let curArg = arguments[1];
         if (curArg !== undefined) {
-          curArg = conversions["boolean"](curArg, {
+          curArg = conversions['boolean'](curArg, {
             context: "Failed to execute 'toggleAttribute' on 'Element': parameter 2"
           });
         }
@@ -342,20 +341,20 @@ exports.install = function install(globalObject) {
     hasAttribute(qualifiedName) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 1) {
         throw new TypeError(
           "Failed to execute 'hasAttribute' on 'Element': 1 argument required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
       {
         let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'hasAttribute' on 'Element': parameter 1"
         });
         args.push(curArg);
@@ -366,14 +365,14 @@ exports.install = function install(globalObject) {
     hasAttributeNS(namespace, localName) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 2) {
         throw new TypeError(
           "Failed to execute 'hasAttributeNS' on 'Element': 2 arguments required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
@@ -382,7 +381,7 @@ exports.install = function install(globalObject) {
         if (curArg === null || curArg === undefined) {
           curArg = null;
         } else {
-          curArg = conversions["DOMString"](curArg, {
+          curArg = conversions['DOMString'](curArg, {
             context: "Failed to execute 'hasAttributeNS' on 'Element': parameter 1"
           });
         }
@@ -390,7 +389,7 @@ exports.install = function install(globalObject) {
       }
       {
         let curArg = arguments[1];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'hasAttributeNS' on 'Element': parameter 2"
         });
         args.push(curArg);
@@ -401,20 +400,20 @@ exports.install = function install(globalObject) {
     getAttributeNode(qualifiedName) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 1) {
         throw new TypeError(
           "Failed to execute 'getAttributeNode' on 'Element': 1 argument required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
       {
         let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'getAttributeNode' on 'Element': parameter 1"
         });
         args.push(curArg);
@@ -425,14 +424,14 @@ exports.install = function install(globalObject) {
     getAttributeNodeNS(namespace, localName) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 2) {
         throw new TypeError(
           "Failed to execute 'getAttributeNodeNS' on 'Element': 2 arguments required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
@@ -441,7 +440,7 @@ exports.install = function install(globalObject) {
         if (curArg === null || curArg === undefined) {
           curArg = null;
         } else {
-          curArg = conversions["DOMString"](curArg, {
+          curArg = conversions['DOMString'](curArg, {
             context: "Failed to execute 'getAttributeNodeNS' on 'Element': parameter 1"
           });
         }
@@ -449,7 +448,7 @@ exports.install = function install(globalObject) {
       }
       {
         let curArg = arguments[1];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'getAttributeNodeNS' on 'Element': parameter 2"
         });
         args.push(curArg);
@@ -460,14 +459,14 @@ exports.install = function install(globalObject) {
     setAttributeNode(attr) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 1) {
         throw new TypeError(
           "Failed to execute 'setAttributeNode' on 'Element': 1 argument required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
@@ -487,14 +486,14 @@ exports.install = function install(globalObject) {
     setAttributeNodeNS(attr) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 1) {
         throw new TypeError(
           "Failed to execute 'setAttributeNodeNS' on 'Element': 1 argument required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
@@ -514,14 +513,14 @@ exports.install = function install(globalObject) {
     removeAttributeNode(attr) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 1) {
         throw new TypeError(
           "Failed to execute 'removeAttributeNode' on 'Element': 1 argument required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
@@ -538,45 +537,21 @@ exports.install = function install(globalObject) {
       }
     }
 
-    attachShadow(init) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'attachShadow' on 'Element': 1 argument required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = ShadowRootInit.convert(curArg, {
-          context: "Failed to execute 'attachShadow' on 'Element': parameter 1"
-        });
-        args.push(curArg);
-      }
-      return utils.tryWrapperForImpl(esValue[implSymbol].attachShadow(...args));
-    }
-
     closest(selectors) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 1) {
         throw new TypeError(
-          "Failed to execute 'closest' on 'Element': 1 argument required, but only " + arguments.length + " present."
+          "Failed to execute 'closest' on 'Element': 1 argument required, but only " + arguments.length + ' present.'
         );
       }
       const args = [];
       {
         let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, { context: "Failed to execute 'closest' on 'Element': parameter 1" });
+        curArg = conversions['DOMString'](curArg, { context: "Failed to execute 'closest' on 'Element': parameter 1" });
         args.push(curArg);
       }
       return utils.tryWrapperForImpl(esValue[implSymbol].closest(...args));
@@ -585,18 +560,18 @@ exports.install = function install(globalObject) {
     matches(selectors) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 1) {
         throw new TypeError(
-          "Failed to execute 'matches' on 'Element': 1 argument required, but only " + arguments.length + " present."
+          "Failed to execute 'matches' on 'Element': 1 argument required, but only " + arguments.length + ' present.'
         );
       }
       const args = [];
       {
         let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, { context: "Failed to execute 'matches' on 'Element': parameter 1" });
+        curArg = conversions['DOMString'](curArg, { context: "Failed to execute 'matches' on 'Element': parameter 1" });
         args.push(curArg);
       }
       return esValue[implSymbol].matches(...args);
@@ -605,20 +580,20 @@ exports.install = function install(globalObject) {
     webkitMatchesSelector(selectors) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 1) {
         throw new TypeError(
           "Failed to execute 'webkitMatchesSelector' on 'Element': 1 argument required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
       {
         let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'webkitMatchesSelector' on 'Element': parameter 1"
         });
         args.push(curArg);
@@ -629,20 +604,20 @@ exports.install = function install(globalObject) {
     getElementsByTagName(qualifiedName) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 1) {
         throw new TypeError(
           "Failed to execute 'getElementsByTagName' on 'Element': 1 argument required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
       {
         let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'getElementsByTagName' on 'Element': parameter 1"
         });
         args.push(curArg);
@@ -653,14 +628,14 @@ exports.install = function install(globalObject) {
     getElementsByTagNameNS(namespace, localName) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 2) {
         throw new TypeError(
           "Failed to execute 'getElementsByTagNameNS' on 'Element': 2 arguments required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
@@ -669,7 +644,7 @@ exports.install = function install(globalObject) {
         if (curArg === null || curArg === undefined) {
           curArg = null;
         } else {
-          curArg = conversions["DOMString"](curArg, {
+          curArg = conversions['DOMString'](curArg, {
             context: "Failed to execute 'getElementsByTagNameNS' on 'Element': parameter 1"
           });
         }
@@ -677,7 +652,7 @@ exports.install = function install(globalObject) {
       }
       {
         let curArg = arguments[1];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'getElementsByTagNameNS' on 'Element': parameter 2"
         });
         args.push(curArg);
@@ -688,20 +663,20 @@ exports.install = function install(globalObject) {
     getElementsByClassName(classNames) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 1) {
         throw new TypeError(
           "Failed to execute 'getElementsByClassName' on 'Element': 1 argument required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
       {
         let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'getElementsByClassName' on 'Element': parameter 1"
         });
         args.push(curArg);
@@ -712,20 +687,20 @@ exports.install = function install(globalObject) {
     insertAdjacentElement(where, element) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 2) {
         throw new TypeError(
           "Failed to execute 'insertAdjacentElement' on 'Element': 2 arguments required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
       {
         let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'insertAdjacentElement' on 'Element': parameter 1"
         });
         args.push(curArg);
@@ -748,27 +723,27 @@ exports.install = function install(globalObject) {
     insertAdjacentText(where, data) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 2) {
         throw new TypeError(
           "Failed to execute 'insertAdjacentText' on 'Element': 2 arguments required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
       {
         let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'insertAdjacentText' on 'Element': parameter 1"
         });
         args.push(curArg);
       }
       {
         let curArg = arguments[1];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'insertAdjacentText' on 'Element': parameter 2"
         });
         args.push(curArg);
@@ -776,46 +751,10 @@ exports.install = function install(globalObject) {
       return esValue[implSymbol].insertAdjacentText(...args);
     }
 
-    insertAdjacentHTML(position, text) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      if (arguments.length < 2) {
-        throw new TypeError(
-          "Failed to execute 'insertAdjacentHTML' on 'Element': 2 arguments required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
-          context: "Failed to execute 'insertAdjacentHTML' on 'Element': parameter 1"
-        });
-        args.push(curArg);
-      }
-      {
-        let curArg = arguments[1];
-        curArg = conversions["DOMString"](curArg, {
-          context: "Failed to execute 'insertAdjacentHTML' on 'Element': parameter 2"
-        });
-        args.push(curArg);
-      }
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol].insertAdjacentHTML(...args);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
-    }
-
     getClientRects() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       return utils.tryWrapperForImpl(esValue[implSymbol].getClientRects());
@@ -824,7 +763,7 @@ exports.install = function install(globalObject) {
     getBoundingClientRect() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       return utils.tryWrapperForImpl(esValue[implSymbol].getBoundingClientRect());
@@ -833,7 +772,7 @@ exports.install = function install(globalObject) {
     before() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
       const args = [];
       for (let i = 0; i < arguments.length; i++) {
@@ -841,7 +780,7 @@ exports.install = function install(globalObject) {
         if (Node.is(curArg)) {
           curArg = utils.implForWrapper(curArg);
         } else {
-          curArg = conversions["DOMString"](curArg, {
+          curArg = conversions['DOMString'](curArg, {
             context: "Failed to execute 'before' on 'Element': parameter " + (i + 1)
           });
         }
@@ -858,7 +797,7 @@ exports.install = function install(globalObject) {
     after() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
       const args = [];
       for (let i = 0; i < arguments.length; i++) {
@@ -866,7 +805,7 @@ exports.install = function install(globalObject) {
         if (Node.is(curArg)) {
           curArg = utils.implForWrapper(curArg);
         } else {
-          curArg = conversions["DOMString"](curArg, {
+          curArg = conversions['DOMString'](curArg, {
             context: "Failed to execute 'after' on 'Element': parameter " + (i + 1)
           });
         }
@@ -883,7 +822,7 @@ exports.install = function install(globalObject) {
     replaceWith() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
       const args = [];
       for (let i = 0; i < arguments.length; i++) {
@@ -891,7 +830,7 @@ exports.install = function install(globalObject) {
         if (Node.is(curArg)) {
           curArg = utils.implForWrapper(curArg);
         } else {
-          curArg = conversions["DOMString"](curArg, {
+          curArg = conversions['DOMString'](curArg, {
             context: "Failed to execute 'replaceWith' on 'Element': parameter " + (i + 1)
           });
         }
@@ -908,7 +847,7 @@ exports.install = function install(globalObject) {
     remove() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       ceReactionsPreSteps_helpers_custom_elements(globalObject);
@@ -922,7 +861,7 @@ exports.install = function install(globalObject) {
     prepend() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
       const args = [];
       for (let i = 0; i < arguments.length; i++) {
@@ -930,7 +869,7 @@ exports.install = function install(globalObject) {
         if (Node.is(curArg)) {
           curArg = utils.implForWrapper(curArg);
         } else {
-          curArg = conversions["DOMString"](curArg, {
+          curArg = conversions['DOMString'](curArg, {
             context: "Failed to execute 'prepend' on 'Element': parameter " + (i + 1)
           });
         }
@@ -947,7 +886,7 @@ exports.install = function install(globalObject) {
     append() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
       const args = [];
       for (let i = 0; i < arguments.length; i++) {
@@ -955,7 +894,7 @@ exports.install = function install(globalObject) {
         if (Node.is(curArg)) {
           curArg = utils.implForWrapper(curArg);
         } else {
-          curArg = conversions["DOMString"](curArg, {
+          curArg = conversions['DOMString'](curArg, {
             context: "Failed to execute 'append' on 'Element': parameter " + (i + 1)
           });
         }
@@ -972,20 +911,20 @@ exports.install = function install(globalObject) {
     querySelector(selectors) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 1) {
         throw new TypeError(
           "Failed to execute 'querySelector' on 'Element': 1 argument required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
       {
         let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'querySelector' on 'Element': parameter 1"
         });
         args.push(curArg);
@@ -996,20 +935,20 @@ exports.install = function install(globalObject) {
     querySelectorAll(selectors) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       if (arguments.length < 1) {
         throw new TypeError(
           "Failed to execute 'querySelectorAll' on 'Element': 1 argument required, but only " +
             arguments.length +
-            " present."
+            ' present.'
         );
       }
       const args = [];
       {
         let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
+        curArg = conversions['DOMString'](curArg, {
           context: "Failed to execute 'querySelectorAll' on 'Element': parameter 1"
         });
         args.push(curArg);
@@ -1021,53 +960,53 @@ exports.install = function install(globalObject) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return esValue[implSymbol]["namespaceURI"];
+      return esValue[implSymbol]['namespaceURI'];
     }
 
     get prefix() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return esValue[implSymbol]["prefix"];
+      return esValue[implSymbol]['prefix'];
     }
 
     get localName() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return esValue[implSymbol]["localName"];
+      return esValue[implSymbol]['localName'];
     }
 
     get tagName() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return esValue[implSymbol]["tagName"];
+      return esValue[implSymbol]['tagName'];
     }
 
     get id() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       ceReactionsPreSteps_helpers_custom_elements(globalObject);
       try {
-        const value = esValue[implSymbol].getAttributeNS(null, "id");
-        return value === null ? "" : value;
+        const value = esValue[implSymbol].getAttributeNS(null, 'id');
+        return value === null ? '' : value;
       } finally {
         ceReactionsPostSteps_helpers_custom_elements(globalObject);
       }
@@ -1077,14 +1016,14 @@ exports.install = function install(globalObject) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      V = conversions["DOMString"](V, { context: "Failed to set the 'id' property on 'Element': The provided value" });
+      V = conversions['DOMString'](V, { context: "Failed to set the 'id' property on 'Element': The provided value" });
 
       ceReactionsPreSteps_helpers_custom_elements(globalObject);
       try {
-        esValue[implSymbol].setAttributeNS(null, "id", V);
+        esValue[implSymbol].setAttributeNS(null, 'id', V);
       } finally {
         ceReactionsPostSteps_helpers_custom_elements(globalObject);
       }
@@ -1094,13 +1033,13 @@ exports.install = function install(globalObject) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       ceReactionsPreSteps_helpers_custom_elements(globalObject);
       try {
-        const value = esValue[implSymbol].getAttributeNS(null, "class");
-        return value === null ? "" : value;
+        const value = esValue[implSymbol].getAttributeNS(null, 'class');
+        return value === null ? '' : value;
       } finally {
         ceReactionsPostSteps_helpers_custom_elements(globalObject);
       }
@@ -1110,16 +1049,16 @@ exports.install = function install(globalObject) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      V = conversions["DOMString"](V, {
+      V = conversions['DOMString'](V, {
         context: "Failed to set the 'className' property on 'Element': The provided value"
       });
 
       ceReactionsPreSteps_helpers_custom_elements(globalObject);
       try {
-        esValue[implSymbol].setAttributeNS(null, "class", V);
+        esValue[implSymbol].setAttributeNS(null, 'class', V);
       } finally {
         ceReactionsPostSteps_helpers_custom_elements(globalObject);
       }
@@ -1129,11 +1068,11 @@ exports.install = function install(globalObject) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return utils.getSameObject(this, "classList", () => {
-        return utils.tryWrapperForImpl(esValue[implSymbol]["classList"]);
+      return utils.getSameObject(this, 'classList', () => {
+        return utils.tryWrapperForImpl(esValue[implSymbol]['classList']);
       });
     }
 
@@ -1141,7 +1080,7 @@ exports.install = function install(globalObject) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       this.classList.value = V;
@@ -1151,13 +1090,13 @@ exports.install = function install(globalObject) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       ceReactionsPreSteps_helpers_custom_elements(globalObject);
       try {
-        const value = esValue[implSymbol].getAttributeNS(null, "slot");
-        return value === null ? "" : value;
+        const value = esValue[implSymbol].getAttributeNS(null, 'slot');
+        return value === null ? '' : value;
       } finally {
         ceReactionsPostSteps_helpers_custom_elements(globalObject);
       }
@@ -1167,16 +1106,16 @@ exports.install = function install(globalObject) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      V = conversions["DOMString"](V, {
+      V = conversions['DOMString'](V, {
         context: "Failed to set the 'slot' property on 'Element': The provided value"
       });
 
       ceReactionsPreSteps_helpers_custom_elements(globalObject);
       try {
-        esValue[implSymbol].setAttributeNS(null, "slot", V);
+        esValue[implSymbol].setAttributeNS(null, 'slot', V);
       } finally {
         ceReactionsPostSteps_helpers_custom_elements(globalObject);
       }
@@ -1186,11 +1125,11 @@ exports.install = function install(globalObject) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return utils.getSameObject(this, "attributes", () => {
-        return utils.tryWrapperForImpl(esValue[implSymbol]["attributes"]);
+      return utils.getSameObject(this, 'attributes', () => {
+        return utils.tryWrapperForImpl(esValue[implSymbol]['attributes']);
       });
     }
 
@@ -1198,22 +1137,22 @@ exports.install = function install(globalObject) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return utils.tryWrapperForImpl(esValue[implSymbol]["shadowRoot"]);
+      return utils.tryWrapperForImpl(esValue[implSymbol]['shadowRoot']);
     }
 
     get innerHTML() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       ceReactionsPreSteps_helpers_custom_elements(globalObject);
       try {
-        return esValue[implSymbol]["innerHTML"];
+        return esValue[implSymbol]['innerHTML'];
       } finally {
         ceReactionsPostSteps_helpers_custom_elements(globalObject);
       }
@@ -1223,17 +1162,17 @@ exports.install = function install(globalObject) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      V = conversions["DOMString"](V, {
+      V = conversions['DOMString'](V, {
         context: "Failed to set the 'innerHTML' property on 'Element': The provided value",
         treatNullAsEmptyString: true
       });
 
       ceReactionsPreSteps_helpers_custom_elements(globalObject);
       try {
-        esValue[implSymbol]["innerHTML"] = V;
+        esValue[implSymbol]['innerHTML'] = V;
       } finally {
         ceReactionsPostSteps_helpers_custom_elements(globalObject);
       }
@@ -1243,12 +1182,12 @@ exports.install = function install(globalObject) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
       ceReactionsPreSteps_helpers_custom_elements(globalObject);
       try {
-        return esValue[implSymbol]["outerHTML"];
+        return esValue[implSymbol]['outerHTML'];
       } finally {
         ceReactionsPostSteps_helpers_custom_elements(globalObject);
       }
@@ -1258,17 +1197,17 @@ exports.install = function install(globalObject) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      V = conversions["DOMString"](V, {
+      V = conversions['DOMString'](V, {
         context: "Failed to set the 'outerHTML' property on 'Element': The provided value",
         treatNullAsEmptyString: true
       });
 
       ceReactionsPreSteps_helpers_custom_elements(globalObject);
       try {
-        esValue[implSymbol]["outerHTML"] = V;
+        esValue[implSymbol]['outerHTML'] = V;
       } finally {
         ceReactionsPostSteps_helpers_custom_elements(globalObject);
       }
@@ -1278,139 +1217,139 @@ exports.install = function install(globalObject) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return esValue[implSymbol]["scrollTop"];
+      return esValue[implSymbol]['scrollTop'];
     }
 
     set scrollTop(V) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      V = conversions["unrestricted double"](V, {
+      V = conversions['unrestricted double'](V, {
         context: "Failed to set the 'scrollTop' property on 'Element': The provided value"
       });
 
-      esValue[implSymbol]["scrollTop"] = V;
+      esValue[implSymbol]['scrollTop'] = V;
     }
 
     get scrollLeft() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return esValue[implSymbol]["scrollLeft"];
+      return esValue[implSymbol]['scrollLeft'];
     }
 
     set scrollLeft(V) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      V = conversions["unrestricted double"](V, {
+      V = conversions['unrestricted double'](V, {
         context: "Failed to set the 'scrollLeft' property on 'Element': The provided value"
       });
 
-      esValue[implSymbol]["scrollLeft"] = V;
+      esValue[implSymbol]['scrollLeft'] = V;
     }
 
     get scrollWidth() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return esValue[implSymbol]["scrollWidth"];
+      return esValue[implSymbol]['scrollWidth'];
     }
 
     get scrollHeight() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return esValue[implSymbol]["scrollHeight"];
+      return esValue[implSymbol]['scrollHeight'];
     }
 
     get clientTop() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return esValue[implSymbol]["clientTop"];
+      return esValue[implSymbol]['clientTop'];
     }
 
     get clientLeft() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return esValue[implSymbol]["clientLeft"];
+      return esValue[implSymbol]['clientLeft'];
     }
 
     get clientWidth() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return esValue[implSymbol]["clientWidth"];
+      return esValue[implSymbol]['clientWidth'];
     }
 
     get clientHeight() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return esValue[implSymbol]["clientHeight"];
+      return esValue[implSymbol]['clientHeight'];
     }
 
     get previousElementSibling() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return utils.tryWrapperForImpl(esValue[implSymbol]["previousElementSibling"]);
+      return utils.tryWrapperForImpl(esValue[implSymbol]['previousElementSibling']);
     }
 
     get nextElementSibling() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return utils.tryWrapperForImpl(esValue[implSymbol]["nextElementSibling"]);
+      return utils.tryWrapperForImpl(esValue[implSymbol]['nextElementSibling']);
     }
 
     get children() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return utils.getSameObject(this, "children", () => {
-        return utils.tryWrapperForImpl(esValue[implSymbol]["children"]);
+      return utils.getSameObject(this, 'children', () => {
+        return utils.tryWrapperForImpl(esValue[implSymbol]['children']);
       });
     }
 
@@ -1418,40 +1357,40 @@ exports.install = function install(globalObject) {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return utils.tryWrapperForImpl(esValue[implSymbol]["firstElementChild"]);
+      return utils.tryWrapperForImpl(esValue[implSymbol]['firstElementChild']);
     }
 
     get lastElementChild() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return utils.tryWrapperForImpl(esValue[implSymbol]["lastElementChild"]);
+      return utils.tryWrapperForImpl(esValue[implSymbol]['lastElementChild']);
     }
 
     get childElementCount() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return esValue[implSymbol]["childElementCount"];
+      return esValue[implSymbol]['childElementCount'];
     }
 
     get assignedSlot() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
       if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+        throw new TypeError('Illegal invocation');
       }
 
-      return utils.tryWrapperForImpl(esValue[implSymbol]["assignedSlot"]);
+      return utils.tryWrapperForImpl(esValue[implSymbol]['assignedSlot']);
     }
   }
   Object.defineProperties(Element.prototype, {
@@ -1480,7 +1419,6 @@ exports.install = function install(globalObject) {
     getElementsByClassName: { enumerable: true },
     insertAdjacentElement: { enumerable: true },
     insertAdjacentText: { enumerable: true },
-    insertAdjacentHTML: { enumerable: true },
     getClientRects: { enumerable: true },
     getBoundingClientRect: { enumerable: true },
     before: { enumerable: true },
@@ -1518,7 +1456,7 @@ exports.install = function install(globalObject) {
     lastElementChild: { enumerable: true },
     childElementCount: { enumerable: true },
     assignedSlot: { enumerable: true },
-    [Symbol.toStringTag]: { value: "Element", configurable: true },
+    [Symbol.toStringTag]: { value: 'Element', configurable: true },
     [Symbol.unscopables]: {
       value: {
         slot: true,
@@ -1545,4 +1483,4 @@ exports.install = function install(globalObject) {
   });
 };
 
-const Impl = require("../nodes/Element-impl.js");
+const Impl = require('../nodes/Element-impl.js');

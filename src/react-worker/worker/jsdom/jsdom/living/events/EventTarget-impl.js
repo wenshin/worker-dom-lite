@@ -22,7 +22,7 @@ const EVENT_PHASE = {
   BUBBLING_PHASE: 3
 };
 
-function getIPCMethod(method: string) {
+function getIPCMethod(method) {
   return `EventTarget:${method}`;
 }
 
@@ -44,8 +44,8 @@ class EventTargetImpl {
     this._eventListeners = Object.create(null);
 
     // ywx: 依赖 bootstrap 时在全局上绑定 bridge 和 ipcObjectManager
-    this.$bridge = self.bridge; // eslint-disable-line no-restricted-globals
-    this.$ipcObjectManager = self.ipcObjectManager; // eslint-disable-line no-restricted-globals
+    this.$bridge = globalObject.$bridge; // eslint-disable-line no-restricted-globals
+    this.$ipcObjectManager = globalObject.$ipcObjectManager; // eslint-disable-line no-restricted-globals
     this.$cargo = this.$ipcObjectManager.addSource('EventTarget', this);
   }
 

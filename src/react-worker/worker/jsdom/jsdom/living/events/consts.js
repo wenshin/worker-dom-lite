@@ -1,4 +1,8 @@
 module.exports = {
+  BridgeCommonEvents: {
+    initRuntime: 'common:init-runtime',
+    setProperty: 'common:setProperty'
+  },
   BridgeElementEvents: {
     setAttribute: 'Element:setAttribute',
     setAttributeNS: 'Element:setAttributeNS',
@@ -9,8 +13,5 @@ module.exports = {
   BridgeDocumentMethods: {
     createElement: 'document:createElement',
     createTextNode: 'document:createTextNode'
-  },
-  BridgeCommonEvents: {
-    setProperty: 'common:setProperty'
   }
 };

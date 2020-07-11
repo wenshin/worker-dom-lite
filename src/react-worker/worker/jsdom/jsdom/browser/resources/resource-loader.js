@@ -1,6 +1,6 @@
 'use strict';
 const fs = require('fs');
-const { parseURL } = require('whatwg-url');
+// const { parseURL } = require('whatwg-url');
 const dataURLFromRecord = require('data-urls').fromURLRecord;
 const request = require('request-promise-native');
 const wrapCookieJarForRequest = require('../../living/helpers/wrap-cookie-jar-for-request');
@@ -94,7 +94,7 @@ module.exports = class ResourceLoader {
   }
 
   fetch(urlString, options = {}) {
-    const url = parseURL(urlString);
+    const url = urlString;
 
     if (!url) {
       return Promise.reject(new Error(`Tried to fetch invalid URL ${urlString}`));

@@ -6,6 +6,7 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
+    "antd": "^4.4.0",
     "cssom": "^0.4.4",
     "cssstyle": "^2.3.0",
     "domexception": "^2.0.1",
@@ -86,12 +87,15 @@
     "style-loader": "0.23.1",
     "terser-webpack-plugin": "2.3.5",
     "ts-pnp": "1.1.6",
-    "typescript": "^3.9.5",
+    "tslint": "^6.1.2",
+    "typescript": "^3.9.6",
     "url-loader": "2.3.0",
     "webpack": "4.42.0",
+    "webpack-bundle-analyzer": "^3.8.0",
     "webpack-dev-server": "3.10.3",
     "webpack-manifest-plugin": "2.2.0",
     "workbox-webpack-plugin": "4.3.1",
-    "worker-loader": "^2.0.0"
+    "worker-loader": "^2.0.0",
+    "worker-plugin": "^4.0.3"
   }
 }

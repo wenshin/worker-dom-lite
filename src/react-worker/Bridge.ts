@@ -1,4 +1,4 @@
-import events from 'events';
+import { EventEmitter } from 'events';
 import { genId } from './utils';
 import {
   Bridge,
@@ -24,6 +24,7 @@ export function getBridgeName(namespace: string, method: string) {
 }
 
 export const BRIDGE_READY_EVENT = getBridgeName('bridge', 'ready');
+export const TRANSPORT_READY_EVENT = getBridgeName('transport', 'ready');
 
 const INVOKE_NAME = 'invoke';
 const EVENT_NAME = 'event';
@@ -45,7 +46,7 @@ function getEventName(name: string) {
   return getInnerName(`${EVENT_NAME}:${name}`);
 }
 
-class BridgeImpl extends events.EventEmitter implements Bridge {
+class BridgeImpl extends EventEmitter implements Bridge {
   private invokeResponseHandler: {
     [invokeName: string]: {
       [id: string]: InvokeCallback | null;
@@ -68,7 +69,11 @@ class BridgeImpl extends events.EventEmitter implements Bridge {
     this.isReady = false;
     this.transport = options.transport;
     this.transport.onMessage((payload) => {
-      this.emit(payload.name, payload);
+      if (payload && (payload as any).isTransportReady) {
+        this.emit(getEventName(TRANSPORT_READY_EVENT), payload);
+      } else {
+        this.emit(payload.name, payload);
+      }
     });
     this.invokeRequestHandler = {};
     this.invokeResponseHandler = {};

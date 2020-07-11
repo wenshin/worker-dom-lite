@@ -12,6 +12,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "strict": true,
+    "typeRoots": ["./src/typings"],
     "forceConsistentCasingInFileNames": true,
     "module": "esnext",
     "moduleResolution": "node",
@@ -21,13 +22,14 @@
     "jsx": "react"
   },
   "exclude": [
+    "**/node_modules/**/*",
+    "**/scripts/**/*",
+    "src/react-worker/worker/jsdom/**/*",
     "src/react-worker/host/handlers/reconciler.ts",
     "src/react-worker/worker/createElement.ts",
-    "src/react-worker/worker/jsdom",
-    "src/react-worker/worker/jsdom-v1",
-    "src/react-worker/worker/jsdom-v2"
   ],
   "include": [
-    "src/typings"
+    "src/**/*.ts",
+    "src/**/*.tsx",
   ]
 }
