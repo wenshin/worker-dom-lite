@@ -1,10 +1,10 @@
-"use strict";
-const util = require("util");
-const idlUtils = require("../generated/utils");
-const ErrorEvent = require("../generated/ErrorEvent");
-const { createAnEvent } = require("../helpers/events");
+'use strict';
+const util = require('util');
+const idlUtils = require('../generated/utils');
+const ErrorEvent = require('../generated/ErrorEvent');
+const { createAnEvent } = require('./events');
 
-const errorReportingMode = Symbol("error reporting mode");
+const errorReportingMode = Symbol('error reporting mode');
 
 // https://html.spec.whatwg.org/multipage/webappapis.html#report-the-error
 // Omits script parameter and any check for muted errors.
@@ -18,7 +18,7 @@ function reportAnError(line, col, target, errorObject, message, location) {
 
   target[errorReportingMode] = true;
 
-  const event = createAnEvent("error", target._globalObject, ErrorEvent, {
+  const event = createAnEvent('error', target._globalObject, ErrorEvent, {
     cancelable: true,
     message,
     filename: location,
@@ -39,7 +39,7 @@ module.exports = function reportException(window, error, filenameHint) {
   // This function will give good results on real Error objects with stacks; poor ones otherwise
 
   const stack = error && error.stack;
-  const lines = stack && stack.split("\n");
+  const lines = stack && stack.split('\n');
 
   // Find the first line that matches; important for multi-line messages
   let pieces;
@@ -61,9 +61,9 @@ module.exports = function reportException(window, error, filenameHint) {
     const errorString = shouldBeDisplayedAsError(error) ? `[${error.name}: ${error.message}]` : util.inspect(error);
     const jsdomError = new Error(`Uncaught ${errorString}`);
     jsdomError.detail = error;
-    jsdomError.type = "unhandled exception";
+    jsdomError.type = 'unhandled exception';
 
-    window._virtualConsole.emit("jsdomError", jsdomError);
+    window._virtualConsole.emit('jsdomError', jsdomError);
   }
 };
 

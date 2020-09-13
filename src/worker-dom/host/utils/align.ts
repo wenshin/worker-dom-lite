@@ -22,7 +22,6 @@ export interface AlignConfig {
     adjustY: boolean;
     alwaysByViewport?: boolean;
   };
-  classPrefix?: string;
 }
 
 /**

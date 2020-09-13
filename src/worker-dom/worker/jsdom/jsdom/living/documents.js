@@ -1,6 +1,6 @@
 'use strict';
 // const XMLDocument = require('../living/generated/XMLDocument.js');
-const Document = require('../living/generated/Document.js');
+const Document = require('./generated/Document.js');
 const { wrapperForImpl } = require('./generated/utils.js');
 
 exports.createImpl = (globalObject, options, { alwaysUseDocumentClass = false } = {}) => {

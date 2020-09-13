@@ -1,5 +1,7 @@
 import React, { ReactNode, Fragment, createRef, RefObject } from 'react';
 import ReactDOM from 'react-dom';
+import { Transition } from 'react-transition-group';
+import { TransitionProps, TransitionStatus } from 'react-transition-group/Transition';
 // import alignElement from '../../../host/utils/align';
 import { AlignConfig, Point } from '../../../host/utils/align';
 
@@ -13,10 +15,11 @@ export interface RenderArg {
 
 export interface PopupProps {
   align: AlignConfig;
+  transition?: TransitionProps;
   // default is true
   autoUseScrollContainer?: boolean;
   getContainer?: () => HTMLElement;
-  renderPopup: (arg: RenderArg) => ReactNode;
+  renderPopup: (arg: RenderArg & { transitionStatus?: TransitionStatus }) => ReactNode;
   children: (arg: RenderArg) => ReactNode;
 }
 
@@ -91,13 +94,17 @@ export default class Popup extends React.PureComponent<PopupProps, PopupState> {
 
   handleOpen = () => {
     this.isShowCache = true;
-    this.setState({ isShow: true });
+    if (!this.state.isShow) {
+      this.setState({ isShow: true });
+    }
   };
 
   handleClose = () => {
     this.isShowCache = false;
     setTimeout(() => {
-      this.setState({ isShow: this.isShowCache });
+      if (this.state.isShow && !this.isShowCache) {
+        this.setState({ isShow: this.isShowCache });
+      }
     }, 100);
   };
 
@@ -140,7 +147,8 @@ export default class Popup extends React.PureComponent<PopupProps, PopupState> {
 
   render() {
     const { isShow, alignConfig } = this.state;
-    const popupArgs = {
+    const { renderPopup, children, transition } = this.props;
+    const popupArgs: RenderArg & { transitionStatus?: TransitionStatus } = {
       ref: this.popupElemRef,
       align: alignConfig,
       isShow,
@@ -148,17 +156,28 @@ export default class Popup extends React.PureComponent<PopupProps, PopupState> {
       open: this.handleOpen
     };
 
-    const triggerArgRef = {
+    const triggerArgs = {
       ref: this.triggerElemRef,
       align: alignConfig,
       isShow,
       close: this.handleClose,
       open: this.handleOpen
     };
-    let popup = this.props.renderPopup(popupArgs);
+
+    const popup = transition ? (
+      <Transition {...transition} in={isShow}>
+        {(status: TransitionStatus) => {
+          popupArgs.transitionStatus = status;
+          return renderPopup(popupArgs);
+        }}
+      </Transition>
+    ) : (
+      renderPopup(popupArgs)
+    );
+
     return (
       <Fragment>
-        {this.props.children(triggerArgRef)}
+        {children(triggerArgs)}
         {isShow && ReactDOM.createPortal(popup, this.wrapperElem)}
       </Fragment>
     );
