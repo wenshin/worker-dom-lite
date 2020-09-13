@@ -1,6 +1,10 @@
 import { Bridge } from '../../interface';
 import { IPCObjectManager, IPCCargo } from '../../ipc-object';
-import { BridgeElementEvents, BridgeCommonEvents } from '../../worker/jsdom/jsdom/living/events/consts';
+import {
+  BridgeElementEvents,
+  BridgeCommonEvents,
+  BridgeNodeEvents
+} from '../../worker/jsdom/jsdom/living/events/consts';
 import { assertBridgeEventData, createEventDataError } from './assert';
 
 export function registerElementHandlers(bridge: Bridge, ipcObjectManager: IPCObjectManager) {
@@ -39,6 +43,23 @@ export function registerElementHandlers(bridge: Bridge, ipcObjectManager: IPCObj
         throw new Error(`Node:insertBefore arguments [${elemCargo}, ${nodeCargo}]  are invalid!`);
       }
       elem.insertBefore(node, child);
+    }
+  });
+
+  bridge.subscribe(BridgeNodeEvents.removeChild, (data?: { elemCargo?: IPCCargo; childElemCargo?: IPCCargo }) => {
+    assertBridgeEventData(BridgeNodeEvents.removeChild, data);
+    if (!data || !data.elemCargo || !data.childElemCargo) return;
+    const elem = data.elemCargo ? ipcObjectManager.getObject(data.elemCargo) as Element : undefined;
+    const childElem = data.childElemCargo && (ipcObjectManager.getObject(data.childElemCargo) as Element);
+    if (elem && childElem) {
+      if (childElem.parentNode === elem) {
+        // 如果 childElem 不是 elem 的子节点，会报错，这里做一下容错处理
+        elem.removeChild(childElem);
+      } else if (childElem.parentNode) {
+        childElem.parentNode.removeChild(childElem);
+      }
+    } else {
+      throw createEventDataError(BridgeNodeEvents.removeChild, `element and child element are not exist!`);
     }
   });
 

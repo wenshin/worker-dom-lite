@@ -22,7 +22,8 @@ const {
 const SlotableMixinImpl = require('./Slotable-impl').implementation;
 const NonDocumentTypeChildNode = require('./NonDocumentTypeChildNode-impl').implementation;
 const Text = require('../generated/Text');
-const { BridgeElementEvents, BridgeDocumentMethods } = require('../events/consts');
+const { BridgeElementEvents, BridgeElementMethods, BridgeDocumentMethods } = require('../events/consts');
+const { implSymbol } = require('../generated/utils');
 
 function attachId(id, elm, doc) {
   if (id && elm && doc) {
@@ -316,7 +317,7 @@ class ElementImpl extends NodeImpl {
 
   toggleAttribute(qualifiedName, force) {
     if (qualifiedName) {
-      this.$bridge.publish(BridgeElementEvents.removeAttributeNS, {
+      this.$bridge.publish(BridgeElementEvents.toggleAttribute, {
         elemCargo: this.$cargo,
         name: qualifiedName,
         force
@@ -469,6 +470,18 @@ class ElementImpl extends NodeImpl {
   closest(selectors) {
     const matcher = addNwsapi(this);
     return matcher.closest(selectors, idlUtils.wrapperForImpl(this));
+  }
+
+  alignElement({ triggerElem, alignConfig, autoUseScrollContainer, container }) {
+    return this.$bridge.invoke(BridgeElementMethods.alignElement, [
+      {
+        elemCargo: this.$cargo,
+        triggerElemCargo: triggerElem[implSymbol].$cargo,
+        alignConfig,
+        autoUseScrollContainer,
+        container: container && container[implSymbol].$cargo
+      }
+    ]);
   }
 }
 

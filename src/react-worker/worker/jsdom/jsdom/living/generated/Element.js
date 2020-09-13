@@ -1,5 +1,3 @@
-'use strict';
-
 const conversions = require('webidl-conversions');
 const utils = require('./utils.js');
 
@@ -9,6 +7,7 @@ const Attr = require('./Attr.js');
 const Node = require('./Node.js');
 const implSymbol = utils.implSymbol;
 const ctorRegistrySymbol = utils.ctorRegistrySymbol;
+const getESValue = utils.getESValue;
 
 const interfaceName = 'Element';
 
@@ -72,28 +71,19 @@ exports.install = function install(globalObject) {
     }
 
     hasAttributes() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return esValue[implSymbol].hasAttributes();
     }
 
     getAttributeNames() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return utils.tryWrapperForImpl(esValue[implSymbol].getAttributeNames());
     }
 
     getAttribute(qualifiedName) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 1) {
         throw new TypeError(
@@ -114,10 +104,7 @@ exports.install = function install(globalObject) {
     }
 
     getAttributeNS(namespace, localName) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 2) {
         throw new TypeError(
@@ -149,10 +136,7 @@ exports.install = function install(globalObject) {
     }
 
     setAttribute(qualifiedName, value) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 2) {
         throw new TypeError(
@@ -185,10 +169,7 @@ exports.install = function install(globalObject) {
     }
 
     setAttributeNS(namespace, qualifiedName, value) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 3) {
         throw new TypeError(
@@ -232,10 +213,7 @@ exports.install = function install(globalObject) {
     }
 
     removeAttribute(qualifiedName) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 1) {
         throw new TypeError(
@@ -261,10 +239,7 @@ exports.install = function install(globalObject) {
     }
 
     removeAttributeNS(namespace, localName) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 2) {
         throw new TypeError(
@@ -301,10 +276,7 @@ exports.install = function install(globalObject) {
     }
 
     toggleAttribute(qualifiedName) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 1) {
         throw new TypeError(
@@ -339,10 +311,7 @@ exports.install = function install(globalObject) {
     }
 
     hasAttribute(qualifiedName) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 1) {
         throw new TypeError(
@@ -363,10 +332,7 @@ exports.install = function install(globalObject) {
     }
 
     hasAttributeNS(namespace, localName) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 2) {
         throw new TypeError(
@@ -398,10 +364,7 @@ exports.install = function install(globalObject) {
     }
 
     getAttributeNode(qualifiedName) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 1) {
         throw new TypeError(
@@ -422,10 +385,7 @@ exports.install = function install(globalObject) {
     }
 
     getAttributeNodeNS(namespace, localName) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 2) {
         throw new TypeError(
@@ -457,10 +417,7 @@ exports.install = function install(globalObject) {
     }
 
     setAttributeNode(attr) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 1) {
         throw new TypeError(
@@ -484,10 +441,7 @@ exports.install = function install(globalObject) {
     }
 
     setAttributeNodeNS(attr) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 1) {
         throw new TypeError(
@@ -511,10 +465,7 @@ exports.install = function install(globalObject) {
     }
 
     removeAttributeNode(attr) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 1) {
         throw new TypeError(
@@ -538,10 +489,7 @@ exports.install = function install(globalObject) {
     }
 
     closest(selectors) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 1) {
         throw new TypeError(
@@ -558,10 +506,7 @@ exports.install = function install(globalObject) {
     }
 
     matches(selectors) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 1) {
         throw new TypeError(
@@ -578,10 +523,7 @@ exports.install = function install(globalObject) {
     }
 
     webkitMatchesSelector(selectors) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 1) {
         throw new TypeError(
@@ -602,10 +544,7 @@ exports.install = function install(globalObject) {
     }
 
     getElementsByTagName(qualifiedName) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 1) {
         throw new TypeError(
@@ -626,10 +565,7 @@ exports.install = function install(globalObject) {
     }
 
     getElementsByTagNameNS(namespace, localName) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 2) {
         throw new TypeError(
@@ -661,10 +597,7 @@ exports.install = function install(globalObject) {
     }
 
     getElementsByClassName(classNames) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 1) {
         throw new TypeError(
@@ -685,10 +618,7 @@ exports.install = function install(globalObject) {
     }
 
     insertAdjacentElement(where, element) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 2) {
         throw new TypeError(
@@ -721,10 +651,7 @@ exports.install = function install(globalObject) {
     }
 
     insertAdjacentText(where, data) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 2) {
         throw new TypeError(
@@ -752,28 +679,19 @@ exports.install = function install(globalObject) {
     }
 
     getClientRects() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return utils.tryWrapperForImpl(esValue[implSymbol].getClientRects());
     }
 
     getBoundingClientRect() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return utils.tryWrapperForImpl(esValue[implSymbol].getBoundingClientRect());
     }
 
     before() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
       const args = [];
       for (let i = 0; i < arguments.length; i++) {
         let curArg = arguments[i];
@@ -795,10 +713,7 @@ exports.install = function install(globalObject) {
     }
 
     after() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
       const args = [];
       for (let i = 0; i < arguments.length; i++) {
         let curArg = arguments[i];
@@ -820,10 +735,7 @@ exports.install = function install(globalObject) {
     }
 
     replaceWith() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
       const args = [];
       for (let i = 0; i < arguments.length; i++) {
         let curArg = arguments[i];
@@ -845,10 +757,7 @@ exports.install = function install(globalObject) {
     }
 
     remove() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       ceReactionsPreSteps_helpers_custom_elements(globalObject);
       try {
@@ -859,10 +768,7 @@ exports.install = function install(globalObject) {
     }
 
     prepend() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
       const args = [];
       for (let i = 0; i < arguments.length; i++) {
         let curArg = arguments[i];
@@ -884,10 +790,7 @@ exports.install = function install(globalObject) {
     }
 
     append() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
       const args = [];
       for (let i = 0; i < arguments.length; i++) {
         let curArg = arguments[i];
@@ -909,10 +812,7 @@ exports.install = function install(globalObject) {
     }
 
     querySelector(selectors) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 1) {
         throw new TypeError(
@@ -933,10 +833,7 @@ exports.install = function install(globalObject) {
     }
 
     querySelectorAll(selectors) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       if (arguments.length < 1) {
         throw new TypeError(
@@ -957,51 +854,31 @@ exports.install = function install(globalObject) {
     }
 
     get namespaceURI() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return esValue[implSymbol]['namespaceURI'];
     }
 
     get prefix() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return esValue[implSymbol]['prefix'];
     }
 
     get localName() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return esValue[implSymbol]['localName'];
     }
 
     get tagName() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return esValue[implSymbol]['tagName'];
     }
 
     get id() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       ceReactionsPreSteps_helpers_custom_elements(globalObject);
       try {
@@ -1013,11 +890,7 @@ exports.install = function install(globalObject) {
     }
 
     set id(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       V = conversions['DOMString'](V, { context: "Failed to set the 'id' property on 'Element': The provided value" });
 
@@ -1030,11 +903,7 @@ exports.install = function install(globalObject) {
     }
 
     get className() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       ceReactionsPreSteps_helpers_custom_elements(globalObject);
       try {
@@ -1046,11 +915,7 @@ exports.install = function install(globalObject) {
     }
 
     set className(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       V = conversions['DOMString'](V, {
         context: "Failed to set the 'className' property on 'Element': The provided value"
@@ -1065,11 +930,7 @@ exports.install = function install(globalObject) {
     }
 
     get classList() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return utils.getSameObject(this, 'classList', () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]['classList']);
@@ -1077,21 +938,13 @@ exports.install = function install(globalObject) {
     }
 
     set classList(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       this.classList.value = V;
     }
 
     get slot() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       ceReactionsPreSteps_helpers_custom_elements(globalObject);
       try {
@@ -1103,11 +956,7 @@ exports.install = function install(globalObject) {
     }
 
     set slot(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       V = conversions['DOMString'](V, {
         context: "Failed to set the 'slot' property on 'Element': The provided value"
@@ -1122,11 +971,7 @@ exports.install = function install(globalObject) {
     }
 
     get attributes() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return utils.getSameObject(this, 'attributes', () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]['attributes']);
@@ -1134,21 +979,13 @@ exports.install = function install(globalObject) {
     }
 
     get shadowRoot() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return utils.tryWrapperForImpl(esValue[implSymbol]['shadowRoot']);
     }
 
     get innerHTML() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       ceReactionsPreSteps_helpers_custom_elements(globalObject);
       try {
@@ -1159,11 +996,7 @@ exports.install = function install(globalObject) {
     }
 
     set innerHTML(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       V = conversions['DOMString'](V, {
         context: "Failed to set the 'innerHTML' property on 'Element': The provided value",
@@ -1179,11 +1012,7 @@ exports.install = function install(globalObject) {
     }
 
     get outerHTML() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       ceReactionsPreSteps_helpers_custom_elements(globalObject);
       try {
@@ -1194,11 +1023,7 @@ exports.install = function install(globalObject) {
     }
 
     set outerHTML(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       V = conversions['DOMString'](V, {
         context: "Failed to set the 'outerHTML' property on 'Element': The provided value",
@@ -1214,21 +1039,13 @@ exports.install = function install(globalObject) {
     }
 
     get scrollTop() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return esValue[implSymbol]['scrollTop'];
     }
 
     set scrollTop(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       V = conversions['unrestricted double'](V, {
         context: "Failed to set the 'scrollTop' property on 'Element': The provided value"
@@ -1238,21 +1055,13 @@ exports.install = function install(globalObject) {
     }
 
     get scrollLeft() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return esValue[implSymbol]['scrollLeft'];
     }
 
     set scrollLeft(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       V = conversions['unrestricted double'](V, {
         context: "Failed to set the 'scrollLeft' property on 'Element': The provided value"
@@ -1262,91 +1071,55 @@ exports.install = function install(globalObject) {
     }
 
     get scrollWidth() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return esValue[implSymbol]['scrollWidth'];
     }
 
     get scrollHeight() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return esValue[implSymbol]['scrollHeight'];
     }
 
     get clientTop() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return esValue[implSymbol]['clientTop'];
     }
 
     get clientLeft() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return esValue[implSymbol]['clientLeft'];
     }
 
     get clientWidth() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return esValue[implSymbol]['clientWidth'];
     }
 
     get clientHeight() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return esValue[implSymbol]['clientHeight'];
     }
 
     get previousElementSibling() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return utils.tryWrapperForImpl(esValue[implSymbol]['previousElementSibling']);
     }
 
     get nextElementSibling() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return utils.tryWrapperForImpl(esValue[implSymbol]['nextElementSibling']);
     }
 
     get children() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return utils.getSameObject(this, 'children', () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]['children']);
@@ -1354,43 +1127,33 @@ exports.install = function install(globalObject) {
     }
 
     get firstElementChild() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return utils.tryWrapperForImpl(esValue[implSymbol]['firstElementChild']);
     }
 
     get lastElementChild() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return utils.tryWrapperForImpl(esValue[implSymbol]['lastElementChild']);
     }
 
     get childElementCount() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return esValue[implSymbol]['childElementCount'];
     }
 
     get assignedSlot() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError('Illegal invocation');
-      }
+      const esValue = getESValue(this, globalObject, Impl);
 
       return utils.tryWrapperForImpl(esValue[implSymbol]['assignedSlot']);
+    }
+
+    alignElement(params) {
+      const esValue = getESValue(this, globalObject, Impl);
+
+      return esValue[implSymbol]['alignElement'](params);
     }
   }
   Object.defineProperties(Element.prototype, {

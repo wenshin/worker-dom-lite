@@ -1,16 +1,20 @@
-"use strict";
+'use strict';
 
 // Returns "Type(value) is Object" in ES terminology.
 function isObject(value) {
-  return typeof value === "object" && value !== null || typeof value === "function";
+  return (typeof value === 'object' && value !== null) || typeof value === 'function';
+}
+
+function is(obj, Impl) {
+  return isObject(obj) && hasOwn(obj, implSymbol) && obj[implSymbol] instanceof Impl.implementation;
 }
 
 const hasOwn = Function.prototype.call.bind(Object.prototype.hasOwnProperty);
 
-const wrapperSymbol = Symbol("wrapper");
-const implSymbol = Symbol("impl");
-const sameObjectCaches = Symbol("SameObject caches");
-const ctorRegistrySymbol = Symbol.for("[webidl2js]  constructor registry");
+const wrapperSymbol = Symbol('wrapper');
+const implSymbol = Symbol('impl');
+const sameObjectCaches = Symbol('SameObject caches');
+const ctorRegistrySymbol = Symbol.for('[webidl2js]  constructor registry');
 
 function getSameObject(wrapper, prop, creator) {
   if (!wrapper[sameObjectCaches]) {
@@ -43,11 +47,11 @@ function tryImplForWrapper(wrapper) {
   return impl ? impl : wrapper;
 }
 
-const iterInternalSymbol = Symbol("internal");
+const iterInternalSymbol = Symbol('internal');
 const IteratorPrototype = Object.getPrototypeOf(Object.getPrototypeOf([][Symbol.iterator]()));
 
 function isArrayIndexPropName(P) {
-  if (typeof P !== "string") {
+  if (typeof P !== 'string') {
     return false;
   }
   const i = P >>> 0;
@@ -61,8 +65,7 @@ function isArrayIndexPropName(P) {
   return true;
 }
 
-const byteLengthGetter =
-    Object.getOwnPropertyDescriptor(ArrayBuffer.prototype, "byteLength").get;
+const byteLengthGetter = Object.getOwnPropertyDescriptor(ArrayBuffer.prototype, 'byteLength').get;
 function isArrayBuffer(value) {
   try {
     byteLengthGetter.call(value);
@@ -72,24 +75,35 @@ function isArrayBuffer(value) {
   }
 }
 
-const supportsPropertyIndex = Symbol("supports property index");
-const supportedPropertyIndices = Symbol("supported property indices");
-const supportsPropertyName = Symbol("supports property name");
-const supportedPropertyNames = Symbol("supported property names");
-const indexedGet = Symbol("indexed property get");
-const indexedSetNew = Symbol("indexed property set new");
-const indexedSetExisting = Symbol("indexed property set existing");
-const namedGet = Symbol("named property get");
-const namedSetNew = Symbol("named property set new");
-const namedSetExisting = Symbol("named property set existing");
-const namedDelete = Symbol("named property delete");
+function getESValue(obj, globalObject, Impl) {
+  const esValue = obj !== null && obj !== undefined ? obj : globalObject;
+
+  if (!is(esValue, Impl)) {
+    throw new TypeError('Illegal invocation');
+  }
+  return esValue;
+}
+
+const supportsPropertyIndex = Symbol('supports property index');
+const supportedPropertyIndices = Symbol('supported property indices');
+const supportsPropertyName = Symbol('supports property name');
+const supportedPropertyNames = Symbol('supported property names');
+const indexedGet = Symbol('indexed property get');
+const indexedSetNew = Symbol('indexed property set new');
+const indexedSetExisting = Symbol('indexed property set existing');
+const namedGet = Symbol('named property get');
+const namedSetNew = Symbol('named property set new');
+const namedSetExisting = Symbol('named property set existing');
+const namedDelete = Symbol('named property delete');
 
 module.exports = exports = {
+  is,
   isObject,
   hasOwn,
   wrapperSymbol,
   implSymbol,
   getSameObject,
+  getESValue,
   ctorRegistrySymbol,
   wrapperForImpl,
   implForWrapper,

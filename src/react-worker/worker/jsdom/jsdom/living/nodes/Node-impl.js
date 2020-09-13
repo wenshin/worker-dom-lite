@@ -27,7 +27,7 @@ const {
   shadowIncludingInclusiveDescendantsIterator,
   shadowIncludingDescendantsIterator
 } = require('../helpers/shadow-dom');
-const { BridgeCommonEvents } = require('../events/consts');
+const { BridgeCommonEvents, BridgeNodeEvents } = require('../events/consts');
 
 function isObsoleteNodeType(node) {
   return (
@@ -1092,6 +1092,10 @@ class NodeImpl extends EventTargetImpl {
 
   // https://dom.spec.whatwg.org/#concept-node-remove
   _remove(nodeImpl, suppressObservers) {
+    this.$bridge.publish(BridgeNodeEvents.removeChild, {
+      elemCargo: this.$cargo,
+      childElemCargo: nodeImpl.$cargo
+    });
     const index = domSymbolTree.index(nodeImpl);
 
     for (const descendant of domSymbolTree.treeIterator(nodeImpl)) {

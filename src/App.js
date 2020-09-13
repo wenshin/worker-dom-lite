@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import WorkerDemo from './WorkerDemo';
+import { Tooltip } from 'antd';
+import Popup from './react-worker/worker/react/Popup';
+import 'antd/dist/antd.css';
 
 class App extends Component<unknown, { name: string }> {
   state: { name: string } = {
@@ -21,10 +23,45 @@ class App extends Component<unknown, { name: string }> {
           >
             Edit <code>src/App.js</code> and save to reload.
           </p>
-          <a className="App-link" href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
-            Learn React
-          </a>
-          <WorkerDemo name={this.state.name} />
+          <Popup
+            align={{
+              points: [ 'bc', 'tc' ],
+              classPrefix: 'test-popup'
+            }}
+            renderPopup={({ ref }) => {
+              return (
+                <span
+                  ref={ref}
+                  style={{
+                    background: '#0ff'
+                  }}
+                >
+                  Ha ha
+                </span>
+              );
+            }}
+          >
+            {({ ref, open, close }) => {
+              return (
+                <button
+                  ref={ref}
+                  onMouseEnter={() => {
+                    open();
+                  }}
+                  onMouseLeave={() => {
+                    close();
+                  }}
+                >
+                  Custom Popup
+                </button>
+              );
+            }}
+          </Popup>
+          <Tooltip title="prompt text">
+            <a className="App-link" href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
+              Learn React
+            </a>
+          </Tooltip>
         </header>
       </div>
     );

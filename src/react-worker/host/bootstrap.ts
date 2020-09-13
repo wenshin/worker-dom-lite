@@ -2,6 +2,7 @@ import { IPCObjectManager } from '../ipc-object';
 import { BridgeCommonEvents } from '../worker/jsdom/jsdom/living/events/consts';
 import { registerEventTargetHandlers } from './handlers/event';
 import { registerElementHandlers } from './handlers/element';
+import { registerAlignHandlers } from './handlers/align';
 
 import createBridge from './createBridge';
 
@@ -22,6 +23,7 @@ function bootstrap(worker: Worker, name?: string) {
 
   registerEventTargetHandlers(bridge, ipcObjectManager);
   registerElementHandlers(bridge, ipcObjectManager);
+  registerAlignHandlers(bridge, ipcObjectManager);
 
   return { bridge, ipcObjectManager };
 }

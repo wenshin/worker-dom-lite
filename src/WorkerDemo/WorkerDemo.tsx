@@ -1,5 +1,7 @@
 import React, { MouseEvent, ChangeEvent } from 'react';
+import Popup from '../react-worker/worker/react/Popup';
 import './index.css';
+import { Point } from 'src/react-worker/host/utils/align';
 
 export interface WorkerDemoProps {
   name: string;
@@ -28,6 +30,49 @@ export default class WorkerDemo extends React.Component<WorkerDemoProps, { name:
         <h1>Hello World</h1>
         <input placeholder="Input Your Name!" value={stateName} onChange={this.handleChange} />
         <p>Hello {stateName || name}!</p>
+        <Popup
+          align={{
+            points: [ Point.BC, Point.TC ],
+            offset: [],
+            targetOffset: [],
+            overflow: { adjustX: true, adjustY: true },
+            classPrefix: 'test-popup'
+          }}
+          renderPopup={({ ref, open, close }) => {
+            return (
+              <span
+                ref={ref}
+                style={{
+                  background: '#0ff'
+                }}
+                onMouseEnter={() => {
+                  open();
+                }}
+                onMouseLeave={() => {
+                  close();
+                }}
+              >
+                Ha ha
+              </span>
+            );
+          }}
+        >
+          {({ ref, open, close }) => {
+            return (
+              <button
+                ref={ref as React.MutableRefObject<HTMLButtonElement>}
+                onMouseEnter={() => {
+                  open();
+                }}
+                onMouseLeave={() => {
+                  close();
+                }}
+              >
+                Custom Popup
+              </button>
+            );
+          }}
+        </Popup>
       </div>
     );
   }

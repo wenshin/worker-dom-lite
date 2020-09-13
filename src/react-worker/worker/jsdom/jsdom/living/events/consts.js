@@ -10,6 +10,12 @@ module.exports = {
     removeAttributeNS: 'Element:removeAttributeNS',
     toggleAttribute: 'Element:toggleAttribute'
   },
+  BridgeNodeEvents: {
+    removeChild: 'Node:removeChild'
+  },
+  BridgeElementMethods: {
+    alignElement: 'Element:alignElement'
+  },
   BridgeDocumentMethods: {
     createElement: 'document:createElement',
     createTextNode: 'document:createTextNode'
