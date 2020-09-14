@@ -1,4 +1,4 @@
-import { BridgePayload } from '../interface';
+import { BridgePayload, TransportTransferPayload } from '../interface';
 import Bridge from '../Bridge';
 import { genId, getTime } from '../utils';
 
@@ -18,33 +18,41 @@ function createBridge(name?: string) {
   // transport name 需要动态协商，而不是写死，防止被三方代码攻击
   let secretName = '';
   const syncSecretName = `${name || 'transport'}:${genId()}`;
+  let sendBuffer: TransportTransferPayload[] = [];
+  let sendTimer: number = 0;
   const transport = {
     name: 'bridge-transport',
     postMessage(payload: any, transfer?: Transferable[]) {
-      console.debug(getTime(), 'BridgeDebugWorkerSend ', payload.id, payload);
-      webworker.postMessage(
-        {
-          $channel: secretName || transport.name,
-          payload
-        },
-        transfer || []
-      );
+      sendBuffer.push({
+        $channel: secretName || transport.name,
+        payload
+      });
+      if (!sendTimer) {
+        sendTimer = (setTimeout(() => {
+          console.debug(getTime(), 'BridgeDebugWorkerSend ', sendBuffer);
+          webworker.postMessage(sendBuffer, transfer || []);
+          sendTimer = 0;
+          sendBuffer = [];
+        }, 0) as unknown) as number;
+      }
     },
     onMessage(cb: (payload: BridgePayload) => void): Function {
       const old = webworker.onmessage;
       webworker.onmessage = (evt) => {
-        if (evt.data) {
-          const { $channel, payload } = evt.data;
-          const isChannel = secretName ? $channel === secretName : $channel === transport.name;
-          if (isChannel) {
-            console.debug(getTime(), 'BridgeDebugWorkerReceive: ', payload.id, payload);
-            if (payload && payload.isTransportReady) {
-              // [secret transport name] 3. ack host ready
-              transport.postMessage({ isTransportReady: true });
-              secretName = syncSecretName;
+        if (evt.data && evt.data.length) {
+          console.debug(getTime(), 'BridgeDebugWorkerReceive ', evt.data);
+          evt.data.forEach((data: TransportTransferPayload) => {
+            const { $channel, payload } = data;
+            const isChannel = secretName ? $channel === secretName : $channel === transport.name;
+            if (isChannel) {
+              if (payload && payload.isTransportReady) {
+                // [secret transport name] 3. ack host ready
+                transport.postMessage({ isTransportReady: true });
+                secretName = syncSecretName;
+              }
+              cb(payload);
             }
-            cb(payload);
-          }
+          });
         }
         old && old.call(webworker, evt);
       };

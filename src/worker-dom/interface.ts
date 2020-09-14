@@ -26,6 +26,11 @@ export interface BridgeTransport {
   onMessage(cb: (payload: BridgePayload) => void): void;
 }
 
+export interface TransportTransferPayload {
+  $channel: string;
+  payload: any;
+}
+
 export interface EventEmitterOptions {
   transport: BridgeTransport;
   name?: string;

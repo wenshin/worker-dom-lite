@@ -17,7 +17,7 @@ const { window } = new JSDOM(`<!DOCTYPE html><html><head></head><body></body></h
 });
 
 worker.window = window;
-worker.document = window.document;
+worker.document = (window as any).document;
 
 const cargos: {
   [key: string]: IPCCargo;
