@@ -1,5 +1,5 @@
-import { IPCCargo, IPCObjectManager } from '../react-worker/ipc-object';
-import { Bridge } from '../react-worker/interface';
+import { IPCCargo, IPCObjectManager } from '../worker-dom/ipc-object';
+import { Bridge } from '../worker-dom/interface';
 
 interface JSDOMElementCreationOptions extends ElementCreationOptions {
   cargo: IPCCargo;

@@ -1,6 +1,6 @@
 import Worker from './index.worker';
-import { bootstrap } from '../react-worker/host';
-import createComponent from '../react-worker/host/react/createComponent';
+import { bootstrap } from '../worker-dom/host';
+import createComponent from '../worker-dom/host/react/createComponent';
 // import { IPCCargoType } from '../react-worker/ipc-object';
 // import { BRIDGE_READY_EVENT } from '../react-worker/Bridge';
 

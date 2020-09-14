@@ -1,7 +1,7 @@
 import React, { MouseEvent, ChangeEvent } from 'react';
-import Popup from '../react-worker/worker/react/Popup';
+import Popup from '../worker-dom/worker/react/Popup';
 import './index.css';
-import { Point } from 'src/react-worker/host/utils/align';
+import { Point } from 'src/worker-dom/host/utils/align';
 
 export interface WorkerDemoProps {
   name: string;
@@ -35,16 +35,18 @@ export default class WorkerDemo extends React.Component<WorkerDemoProps, { name:
             points: [ Point.BC, Point.TC ],
             offset: [],
             targetOffset: [],
-            overflow: { adjustX: true, adjustY: true },
-            classPrefix: 'test-popup'
+            overflow: { adjustX: true, adjustY: true }
           }}
-          renderPopup={({ ref, open, close }) => {
+          transition={{
+            appear: true,
+            timeout: 300
+          }}
+          renderPopup={({ ref, open, close, transitionStatus }) => {
+            const transClass = transitionStatus ? `wd-popup-${transitionStatus}` : '';
             return (
               <span
                 ref={ref}
-                style={{
-                  background: '#0ff'
-                }}
+                className={`${transClass} popup-ha-ha`}
                 onMouseEnter={() => {
                   open();
                 }}

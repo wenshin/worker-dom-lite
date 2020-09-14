@@ -16,6 +16,7 @@
     "react-dom": "^16.13.1",
     "react-reconciler": "^0.25.1",
     "react-scripts": "3.4.1",
+    "react-transition-group": "^4.4.1",
     "whatwg-url": "^8.1.0"
   },
   "scripts": {
@@ -43,6 +44,7 @@
     "@babel/core": "7.9.0",
     "@svgr/webpack": "4.3.3",
     "@types/jsdom": "^16.2.3",
+    "@types/react-transition-group": "^4.4.0",
     "@typescript-eslint/eslint-plugin": "^2.10.0",
     "@typescript-eslint/parser": "^2.10.0",
     "babel-eslint": "10.1.0",

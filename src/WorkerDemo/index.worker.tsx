@@ -1,5 +1,5 @@
 // must import first
-import { WorkerElement, registerWorkerElementHandlers } from '../react-worker/worker/react';
+import { WorkerElement, registerWorkerElementHandlers } from '../worker-dom/worker/react';
 import App from './App';
 import WorkerDemo from './WorkerDemo';
 

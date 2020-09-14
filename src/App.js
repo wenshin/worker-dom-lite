@@ -25,8 +25,7 @@ class App extends Component<unknown, { name: string }> {
           </p>
           <Popup
             align={{
-              points: [ 'bc', 'tc' ],
-              classPrefix: 'test-popup'
+              points: [ 'bc', 'tc' ]
             }}
             renderPopup={({ ref }) => {
               return (

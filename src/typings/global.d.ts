@@ -1,5 +1,5 @@
-import { Bridge } from 'src/react-worker/interface';
-import { IPCObjectManager } from 'src/react-worker/ipc-object';
+import { Bridge } from 'src/worker-dom/interface';
+import { IPCObjectManager } from 'src/worker-dom/ipc-object';
 
 declare global {
   interface Window {
