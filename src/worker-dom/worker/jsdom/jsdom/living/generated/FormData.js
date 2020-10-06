@@ -2,9 +2,11 @@
 
 const conversions = require("webidl-conversions");
 const utils = require("./utils.js");
+const Impl = require("../xhr/FormData-impl.js");
 
 const HTMLFormElement = require("./HTMLFormElement.js");
 const Blob = require("./Blob.js");
+const Function = require("./Function.js");
 const implSymbol = utils.implSymbol;
 const ctorRegistrySymbol = utils.ctorRegistrySymbol;
 
@@ -13,7 +15,11 @@ const interfaceName = "FormData";
 const IteratorPrototype = Object.create(utils.IteratorPrototype, {
   next: {
     value: function next() {
-      const internal = this[utils.iterInternalSymbol];
+      const internal = this && this[utils.iterInternalSymbol];
+      if (!internal) {
+        throw new TypeError("next() called on a value that is not an iterator prototype object");
+      }
+
       const { target, kind, index } = internal;
       const values = Array.from(target[implSymbol]);
       const len = values.length;
@@ -23,21 +29,7 @@ const IteratorPrototype = Object.create(utils.IteratorPrototype, {
 
       const pair = values[index];
       internal.index = index + 1;
-      const [key, value] = pair.map(utils.tryWrapperForImpl);
-
-      let result;
-      switch (kind) {
-        case "key":
-          result = key;
-          break;
-        case "value":
-          result = value;
-          break;
-        case "key+value":
-          result = [key, value];
-          break;
-      }
-      return { value: result, done: false };
+      return utils.iteratorResult(pair.map(utils.tryWrapperForImpl), kind);
     },
     writable: true,
     enumerable: true,
@@ -49,20 +41,11 @@ const IteratorPrototype = Object.create(utils.IteratorPrototype, {
   }
 });
 
-exports.is = function is(obj) {
-  return utils.isObject(obj) && utils.hasOwn(obj, implSymbol) && obj[implSymbol] instanceof Impl.implementation;
-};
-exports.isImpl = function isImpl(obj) {
-  return utils.isObject(obj) && obj instanceof Impl.implementation;
-};
-exports.convert = function convert(obj, { context = "The provided value" } = {}) {
-  if (exports.is(obj)) {
-    return utils.implForWrapper(obj);
-  }
-  throw new TypeError(`${context} is not of type 'FormData'.`);
-};
+exports.is = utils.is.bind(utils);
+exports.isImpl = utils.isImpl.bind(utils, Impl);
+exports.convert = utils.convert.bind(utils);
 
-exports.createDefaultIterator = function createDefaultIterator(target, kind) {
+exports.createDefaultIterator = (target, kind) => {
   const iterator = Object.create(IteratorPrototype);
   Object.defineProperty(iterator, utils.iterInternalSymbol, {
     value: { target, kind, index: 0 },
@@ -71,300 +54,139 @@ exports.createDefaultIterator = function createDefaultIterator(target, kind) {
   return iterator;
 };
 
-exports.create = function create(globalObject, constructorArgs, privateData) {
-  if (globalObject[ctorRegistrySymbol] === undefined) {
-    throw new Error("Internal error: invalid global object");
-  }
-
-  const ctor = globalObject[ctorRegistrySymbol]["FormData"];
-  if (ctor === undefined) {
-    throw new Error("Internal error: constructor FormData is not installed on the passed global object");
-  }
-
-  let obj = Object.create(ctor.prototype);
-  obj = exports.setup(obj, globalObject, constructorArgs, privateData);
-  return obj;
+exports.create = (globalObject, constructorArgs, privateData) => {
+  const wrapper = utils.makeWrapper("FormData", globalObject);
+  return exports.setup(wrapper, globalObject, constructorArgs, privateData);
 };
-exports.createImpl = function createImpl(globalObject, constructorArgs, privateData) {
-  const obj = exports.create(globalObject, constructorArgs, privateData);
-  return utils.implForWrapper(obj);
-};
-exports._internalSetup = function _internalSetup(obj, globalObject) {};
-exports.setup = function setup(obj, globalObject, constructorArgs = [], privateData = {}) {
-  privateData.wrapper = obj;
 
-  exports._internalSetup(obj, globalObject);
-  Object.defineProperty(obj, implSymbol, {
+exports.createImpl = (globalObject, constructorArgs, privateData) => {
+  const wrapper = exports.create(globalObject, constructorArgs, privateData);
+  return utils.implForWrapper(wrapper);
+};
+
+exports._internalSetup = (wrapper, globalObject) => {};
+
+exports.setup = (wrapper, globalObject, constructorArgs = [], privateData = {}) => {
+  privateData.wrapper = wrapper;
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
     value: new Impl.implementation(globalObject, constructorArgs, privateData),
     configurable: true
   });
 
-  obj[implSymbol][utils.wrapperSymbol] = obj;
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
   if (Impl.init) {
-    Impl.init(obj[implSymbol], privateData);
+    Impl.init(wrapper[implSymbol]);
   }
-  return obj;
+  return wrapper;
 };
 
-exports.install = function install(globalObject) {
+exports.new = globalObject => {
+  const wrapper = utils.makeWrapper(FormData, globalObject);
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
+    value: Object.create(Impl.implementation.prototype),
+    configurable: true
+  });
+
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
+  if (Impl.init) {
+    Impl.init(wrapper[implSymbol]);
+  }
+  return wrapper[implSymbol];
+};
+
+const exposed = new Set(["Window", "Worker"]);
+
+exports.install = globalObject => {
   class FormData {
     constructor() {
-      const args = [];
-      {
-        let curArg = arguments[0];
-        if (curArg !== undefined) {
-          curArg = HTMLFormElement.convert(curArg, { context: "Failed to construct 'FormData': parameter 1" });
-        }
-        args.push(curArg);
-      }
-      return exports.setup(Object.create(new.target.prototype), globalObject, args);
+      return exports.setup(Object.create(new.target.prototype), globalObject, arguments);
     }
 
     append(name, value) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 2) {
-        throw new TypeError(
-          "Failed to execute 'append' on 'FormData': 2 arguments required, but only " + arguments.length + " present."
-        );
-      }
-      const args = [];
-      switch (arguments.length) {
-        case 2:
-          {
-            let curArg = arguments[0];
-            curArg = conversions["USVString"](curArg, {
-              context: "Failed to execute 'append' on 'FormData': parameter 1"
-            });
-            args.push(curArg);
-          }
-          {
-            let curArg = arguments[1];
-            if (Blob.is(curArg)) {
-              {
-                let curArg = arguments[1];
-                curArg = Blob.convert(curArg, { context: "Failed to execute 'append' on 'FormData': parameter 2" });
-                args.push(curArg);
-              }
-            } else {
-              {
-                let curArg = arguments[1];
-                curArg = conversions["USVString"](curArg, {
-                  context: "Failed to execute 'append' on 'FormData': parameter 2"
-                });
-                args.push(curArg);
-              }
-            }
-          }
-          break;
-        default:
-          {
-            let curArg = arguments[0];
-            curArg = conversions["USVString"](curArg, {
-              context: "Failed to execute 'append' on 'FormData': parameter 1"
-            });
-            args.push(curArg);
-          }
-          {
-            let curArg = arguments[1];
-            curArg = Blob.convert(curArg, { context: "Failed to execute 'append' on 'FormData': parameter 2" });
-            args.push(curArg);
-          }
-          {
-            let curArg = arguments[2];
-            if (curArg !== undefined) {
-              curArg = conversions["USVString"](curArg, {
-                context: "Failed to execute 'append' on 'FormData': parameter 3"
-              });
-            }
-            args.push(curArg);
-          }
-      }
-      return esValue[implSymbol].append(...args);
+      return esValue[implSymbol].append(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     delete(name) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'delete' on 'FormData': 1 argument required, but only " + arguments.length + " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["USVString"](curArg, { context: "Failed to execute 'delete' on 'FormData': parameter 1" });
-        args.push(curArg);
-      }
-      return esValue[implSymbol].delete(...args);
+      return esValue[implSymbol].delete(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     get(name) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'get' on 'FormData': 1 argument required, but only " + arguments.length + " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["USVString"](curArg, { context: "Failed to execute 'get' on 'FormData': parameter 1" });
-        args.push(curArg);
-      }
-      return utils.tryWrapperForImpl(esValue[implSymbol].get(...args));
+      return utils.tryWrapperForImpl(
+        esValue[implSymbol].get(...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v)))
+      );
     }
 
     getAll(name) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'getAll' on 'FormData': 1 argument required, but only " + arguments.length + " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["USVString"](curArg, { context: "Failed to execute 'getAll' on 'FormData': parameter 1" });
-        args.push(curArg);
-      }
-      return utils.tryWrapperForImpl(esValue[implSymbol].getAll(...args));
+      return utils.tryWrapperForImpl(
+        esValue[implSymbol].getAll(
+          ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+        )
+      );
     }
 
     has(name) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'has' on 'FormData': 1 argument required, but only " + arguments.length + " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["USVString"](curArg, { context: "Failed to execute 'has' on 'FormData': parameter 1" });
-        args.push(curArg);
-      }
-      return esValue[implSymbol].has(...args);
+      return esValue[implSymbol].has(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     set(name, value) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 2) {
-        throw new TypeError(
-          "Failed to execute 'set' on 'FormData': 2 arguments required, but only " + arguments.length + " present."
-        );
-      }
-      const args = [];
-      switch (arguments.length) {
-        case 2:
-          {
-            let curArg = arguments[0];
-            curArg = conversions["USVString"](curArg, {
-              context: "Failed to execute 'set' on 'FormData': parameter 1"
-            });
-            args.push(curArg);
-          }
-          {
-            let curArg = arguments[1];
-            if (Blob.is(curArg)) {
-              {
-                let curArg = arguments[1];
-                curArg = Blob.convert(curArg, { context: "Failed to execute 'set' on 'FormData': parameter 2" });
-                args.push(curArg);
-              }
-            } else {
-              {
-                let curArg = arguments[1];
-                curArg = conversions["USVString"](curArg, {
-                  context: "Failed to execute 'set' on 'FormData': parameter 2"
-                });
-                args.push(curArg);
-              }
-            }
-          }
-          break;
-        default:
-          {
-            let curArg = arguments[0];
-            curArg = conversions["USVString"](curArg, {
-              context: "Failed to execute 'set' on 'FormData': parameter 1"
-            });
-            args.push(curArg);
-          }
-          {
-            let curArg = arguments[1];
-            curArg = Blob.convert(curArg, { context: "Failed to execute 'set' on 'FormData': parameter 2" });
-            args.push(curArg);
-          }
-          {
-            let curArg = arguments[2];
-            if (curArg !== undefined) {
-              curArg = conversions["USVString"](curArg, {
-                context: "Failed to execute 'set' on 'FormData': parameter 3"
-              });
-            }
-            args.push(curArg);
-          }
-      }
-      return esValue[implSymbol].set(...args);
+      return esValue[implSymbol].set(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     keys() {
-      if (!this || !exports.is(this)) {
-        throw new TypeError("Illegal invocation");
+      if (!exports.is(this)) {
+        throw new TypeError("'keys' called on an object that is not a valid instance of FormData.");
       }
       return exports.createDefaultIterator(this, "key");
     }
 
     values() {
-      if (!this || !exports.is(this)) {
-        throw new TypeError("Illegal invocation");
+      if (!exports.is(this)) {
+        throw new TypeError("'values' called on an object that is not a valid instance of FormData.");
       }
       return exports.createDefaultIterator(this, "value");
     }
 
     entries() {
-      if (!this || !exports.is(this)) {
-        throw new TypeError("Illegal invocation");
+      if (!exports.is(this)) {
+        throw new TypeError("'entries' called on an object that is not a valid instance of FormData.");
       }
       return exports.createDefaultIterator(this, "key+value");
     }
 
     forEach(callback) {
-      if (!this || !exports.is(this)) {
-        throw new TypeError("Illegal invocation");
+      if (!exports.is(this)) {
+        throw new TypeError("'forEach' called on an object that is not a valid instance of FormData.");
       }
       if (arguments.length < 1) {
         throw new TypeError("Failed to execute 'forEach' on 'iterable': 1 argument required, " + "but only 0 present.");
       }
-      if (typeof callback !== "function") {
-        throw new TypeError(
-          "Failed to execute 'forEach' on 'iterable': The callback provided " + "as parameter 1 is not a function."
-        );
-      }
+      callback = Function.convert(callback, {
+        context: "Failed to execute 'forEach' on 'iterable': The callback provided as parameter 1"
+      });
       const thisArg = arguments[1];
       let pairs = Array.from(this[implSymbol]);
       let i = 0;
@@ -401,5 +223,3 @@ exports.install = function install(globalObject) {
     value: FormData
   });
 };
-
-const Impl = require("../xhr/FormData-impl.js");

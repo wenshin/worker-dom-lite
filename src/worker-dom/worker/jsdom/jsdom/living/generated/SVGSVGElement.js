@@ -2,6 +2,7 @@
 
 const conversions = require("webidl-conversions");
 const utils = require("./utils.js");
+const Impl = require("../nodes/SVGSVGElement-impl.js");
 
 const implSymbol = utils.implSymbol;
 const ctorRegistrySymbol = utils.ctorRegistrySymbol;
@@ -9,57 +10,59 @@ const SVGGraphicsElement = require("./SVGGraphicsElement.js");
 
 const interfaceName = "SVGSVGElement";
 
-exports.is = function is(obj) {
-  return utils.isObject(obj) && utils.hasOwn(obj, implSymbol) && obj[implSymbol] instanceof Impl.implementation;
-};
-exports.isImpl = function isImpl(obj) {
-  return utils.isObject(obj) && obj instanceof Impl.implementation;
-};
-exports.convert = function convert(obj, { context = "The provided value" } = {}) {
-  if (exports.is(obj)) {
-    return utils.implForWrapper(obj);
-  }
-  throw new TypeError(`${context} is not of type 'SVGSVGElement'.`);
+exports.is = utils.is.bind(utils);
+exports.isImpl = utils.isImpl.bind(utils, Impl);
+exports.convert = utils.convert.bind(utils);
+
+exports.create = (globalObject, constructorArgs, privateData) => {
+  const wrapper = utils.makeWrapper("SVGSVGElement", globalObject);
+  return exports.setup(wrapper, globalObject, constructorArgs, privateData);
 };
 
-exports.create = function create(globalObject, constructorArgs, privateData) {
-  if (globalObject[ctorRegistrySymbol] === undefined) {
-    throw new Error("Internal error: invalid global object");
-  }
-
-  const ctor = globalObject[ctorRegistrySymbol]["SVGSVGElement"];
-  if (ctor === undefined) {
-    throw new Error("Internal error: constructor SVGSVGElement is not installed on the passed global object");
-  }
-
-  let obj = Object.create(ctor.prototype);
-  obj = exports.setup(obj, globalObject, constructorArgs, privateData);
-  return obj;
+exports.createImpl = (globalObject, constructorArgs, privateData) => {
+  const wrapper = exports.create(globalObject, constructorArgs, privateData);
+  return utils.implForWrapper(wrapper);
 };
-exports.createImpl = function createImpl(globalObject, constructorArgs, privateData) {
-  const obj = exports.create(globalObject, constructorArgs, privateData);
-  return utils.implForWrapper(obj);
-};
-exports._internalSetup = function _internalSetup(obj, globalObject) {
-  SVGGraphicsElement._internalSetup(obj, globalObject);
-};
-exports.setup = function setup(obj, globalObject, constructorArgs = [], privateData = {}) {
-  privateData.wrapper = obj;
 
-  exports._internalSetup(obj, globalObject);
-  Object.defineProperty(obj, implSymbol, {
+exports._internalSetup = (wrapper, globalObject) => {
+  SVGGraphicsElement._internalSetup(wrapper, globalObject);
+};
+
+exports.setup = (wrapper, globalObject, constructorArgs = [], privateData = {}) => {
+  privateData.wrapper = wrapper;
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
     value: new Impl.implementation(globalObject, constructorArgs, privateData),
     configurable: true
   });
 
-  obj[implSymbol][utils.wrapperSymbol] = obj;
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
   if (Impl.init) {
-    Impl.init(obj[implSymbol], privateData);
+    Impl.init(wrapper[implSymbol]);
   }
-  return obj;
+  return wrapper;
 };
 
-exports.install = function install(globalObject) {
+exports.new = globalObject => {
+  const wrapper = utils.makeWrapper(SVGSVGElement, globalObject);
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
+    value: Object.create(Impl.implementation.prototype),
+    configurable: true
+  });
+
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
+  if (Impl.init) {
+    Impl.init(wrapper[implSymbol]);
+  }
+  return wrapper[implSymbol];
+};
+
+const exposed = new Set(["Window"]);
+
+exports.install = globalObject => {
   if (globalObject.SVGGraphicsElement === undefined) {
     throw new Error("Internal error: attempting to evaluate SVGSVGElement before SVGGraphicsElement");
   }
@@ -69,453 +72,206 @@ exports.install = function install(globalObject) {
     }
 
     createSVGNumber() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
       return utils.tryWrapperForImpl(esValue[implSymbol].createSVGNumber());
     }
 
     getElementById(elementId) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'getElementById' on 'SVGSVGElement': 1 argument required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
-          context: "Failed to execute 'getElementById' on 'SVGSVGElement': parameter 1"
-        });
-        args.push(curArg);
-      }
-      return utils.tryWrapperForImpl(esValue[implSymbol].getElementById(...args));
+      return utils.tryWrapperForImpl(
+        esValue[implSymbol].getElementById(
+          ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+        )
+      );
     }
 
     suspendRedraw(maxWaitMilliseconds) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'suspendRedraw' on 'SVGSVGElement': 1 argument required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["unsigned long"](curArg, {
-          context: "Failed to execute 'suspendRedraw' on 'SVGSVGElement': parameter 1"
-        });
-        args.push(curArg);
-      }
-      return esValue[implSymbol].suspendRedraw(...args);
+      return esValue[implSymbol].suspendRedraw(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     unsuspendRedraw(suspendHandleID) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'unsuspendRedraw' on 'SVGSVGElement': 1 argument required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["unsigned long"](curArg, {
-          context: "Failed to execute 'unsuspendRedraw' on 'SVGSVGElement': parameter 1"
-        });
-        args.push(curArg);
-      }
-      return esValue[implSymbol].unsuspendRedraw(...args);
+      return esValue[implSymbol].unsuspendRedraw(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     unsuspendRedrawAll() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].unsuspendRedrawAll();
     }
 
     forceRedraw() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].forceRedraw();
     }
 
     get onafterprint() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["onafterprint"]);
     }
 
     set onafterprint(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = utils.tryImplForWrapper(V);
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["onafterprint"] = V;
     }
 
     get onbeforeprint() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["onbeforeprint"]);
     }
 
     set onbeforeprint(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = utils.tryImplForWrapper(V);
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["onbeforeprint"] = V;
     }
 
     get onbeforeunload() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["onbeforeunload"]);
     }
 
     set onbeforeunload(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = utils.tryImplForWrapper(V);
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["onbeforeunload"] = V;
     }
 
     get onhashchange() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["onhashchange"]);
     }
 
     set onhashchange(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = utils.tryImplForWrapper(V);
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["onhashchange"] = V;
     }
 
     get onlanguagechange() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["onlanguagechange"]);
     }
 
     set onlanguagechange(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = utils.tryImplForWrapper(V);
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["onlanguagechange"] = V;
     }
 
     get onmessage() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["onmessage"]);
     }
 
     set onmessage(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = utils.tryImplForWrapper(V);
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["onmessage"] = V;
     }
 
     get onmessageerror() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["onmessageerror"]);
     }
 
     set onmessageerror(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = utils.tryImplForWrapper(V);
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["onmessageerror"] = V;
     }
 
     get onoffline() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["onoffline"]);
     }
 
     set onoffline(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = utils.tryImplForWrapper(V);
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["onoffline"] = V;
     }
 
     get ononline() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["ononline"]);
     }
 
     set ononline(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = utils.tryImplForWrapper(V);
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["ononline"] = V;
     }
 
     get onpagehide() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["onpagehide"]);
     }
 
     set onpagehide(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = utils.tryImplForWrapper(V);
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["onpagehide"] = V;
     }
 
     get onpageshow() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["onpageshow"]);
     }
 
     set onpageshow(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = utils.tryImplForWrapper(V);
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["onpageshow"] = V;
     }
 
     get onpopstate() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["onpopstate"]);
     }
 
     set onpopstate(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = utils.tryImplForWrapper(V);
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["onpopstate"] = V;
     }
 
     get onrejectionhandled() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["onrejectionhandled"]);
     }
 
     set onrejectionhandled(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = utils.tryImplForWrapper(V);
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["onrejectionhandled"] = V;
     }
 
     get onstorage() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["onstorage"]);
     }
 
     set onstorage(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = utils.tryImplForWrapper(V);
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["onstorage"] = V;
     }
 
     get onunhandledrejection() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["onunhandledrejection"]);
     }
 
     set onunhandledrejection(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = utils.tryImplForWrapper(V);
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["onunhandledrejection"] = V;
     }
 
     get onunload() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["onunload"]);
     }
 
     set onunload(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = utils.tryImplForWrapper(V);
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["onunload"] = V;
     }
   }
@@ -555,5 +311,3 @@ exports.install = function install(globalObject) {
     value: SVGSVGElement
   });
 };
-
-const Impl = require("../nodes/SVGSVGElement-impl.js");

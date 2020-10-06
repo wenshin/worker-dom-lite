@@ -2,6 +2,7 @@
 
 const conversions = require("webidl-conversions");
 const utils = require("./utils.js");
+const Impl = require("../events/Event-impl.js");
 
 const EventInit = require("./EventInit.js");
 const implSymbol = utils.implSymbol;
@@ -9,312 +10,173 @@ const ctorRegistrySymbol = utils.ctorRegistrySymbol;
 
 const interfaceName = "Event";
 
-exports.is = function is(obj) {
-  return utils.isObject(obj) && utils.hasOwn(obj, implSymbol) && obj[implSymbol] instanceof Impl.implementation;
-};
-exports.isImpl = function isImpl(obj) {
-  return utils.isObject(obj) && obj instanceof Impl.implementation;
-};
-exports.convert = function convert(obj, { context = "The provided value" } = {}) {
-  if (exports.is(obj)) {
-    return utils.implForWrapper(obj);
-  }
-  throw new TypeError(`${context} is not of type 'Event'.`);
+exports.is = utils.is.bind(utils);
+exports.isImpl = utils.isImpl.bind(utils, Impl);
+exports.convert = utils.convert.bind(utils);
+
+exports.create = (globalObject, constructorArgs, privateData) => {
+  const wrapper = utils.makeWrapper("Event", globalObject);
+  return exports.setup(wrapper, globalObject, constructorArgs, privateData);
 };
 
-exports.create = function create(globalObject, constructorArgs, privateData) {
-  if (globalObject[ctorRegistrySymbol] === undefined) {
-    throw new Error("Internal error: invalid global object");
-  }
-
-  const ctor = globalObject[ctorRegistrySymbol]["Event"];
-  if (ctor === undefined) {
-    throw new Error("Internal error: constructor Event is not installed on the passed global object");
-  }
-
-  let obj = Object.create(ctor.prototype);
-  obj = exports.setup(obj, globalObject, constructorArgs, privateData);
-  return obj;
+exports.createImpl = (globalObject, constructorArgs, privateData) => {
+  const wrapper = exports.create(globalObject, constructorArgs, privateData);
+  return utils.implForWrapper(wrapper);
 };
-exports.createImpl = function createImpl(globalObject, constructorArgs, privateData) {
-  const obj = exports.create(globalObject, constructorArgs, privateData);
-  return utils.implForWrapper(obj);
-};
-exports._internalSetup = function _internalSetup(obj, globalObject) {
+
+exports._internalSetup = (wrapper, globalObject) => {
   Object.defineProperties(
-    obj,
+    wrapper,
     Object.getOwnPropertyDescriptors({
       get isTrusted() {
         const esValue = this !== null && this !== undefined ? this : globalObject;
-
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
-
         return esValue[implSymbol]["isTrusted"];
       }
     })
   );
 
-  Object.defineProperties(obj, { isTrusted: { configurable: false } });
+  Object.defineProperties(wrapper, { isTrusted: { configurable: false } });
 };
-exports.setup = function setup(obj, globalObject, constructorArgs = [], privateData = {}) {
-  privateData.wrapper = obj;
 
-  exports._internalSetup(obj, globalObject);
-  Object.defineProperty(obj, implSymbol, {
+exports.setup = (wrapper, globalObject, constructorArgs = [], privateData = {}) => {
+  privateData.wrapper = wrapper;
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
     value: new Impl.implementation(globalObject, constructorArgs, privateData),
     configurable: true
   });
 
-  obj[implSymbol][utils.wrapperSymbol] = obj;
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
   if (Impl.init) {
-    Impl.init(obj[implSymbol], privateData);
+    Impl.init(wrapper[implSymbol]);
   }
-  return obj;
+  return wrapper;
 };
 
-exports.install = function install(globalObject) {
+exports.new = globalObject => {
+  const wrapper = utils.makeWrapper(Event, globalObject);
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
+    value: Object.create(Impl.implementation.prototype),
+    configurable: true
+  });
+
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
+  if (Impl.init) {
+    Impl.init(wrapper[implSymbol]);
+  }
+  return wrapper[implSymbol];
+};
+
+const exposed = new Set(["Window", "Worker", "AudioWorklet"]);
+
+exports.install = globalObject => {
   class Event {
     constructor(type) {
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to construct 'Event': 1 argument required, but only " + arguments.length + " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, { context: "Failed to construct 'Event': parameter 1" });
-        args.push(curArg);
-      }
-      {
-        let curArg = arguments[1];
-        curArg = EventInit.convert(curArg, { context: "Failed to construct 'Event': parameter 2" });
-        args.push(curArg);
-      }
-      return exports.setup(Object.create(new.target.prototype), globalObject, args);
+      return exports.setup(Object.create(new.target.prototype), globalObject, arguments);
     }
 
     composedPath() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
       return utils.tryWrapperForImpl(esValue[implSymbol].composedPath());
     }
 
     stopPropagation() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].stopPropagation();
     }
 
     stopImmediatePropagation() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].stopImmediatePropagation();
     }
 
     preventDefault() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].preventDefault();
     }
 
     initEvent(type) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'initEvent' on 'Event': 1 argument required, but only " + arguments.length + " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, { context: "Failed to execute 'initEvent' on 'Event': parameter 1" });
-        args.push(curArg);
-      }
-      {
-        let curArg = arguments[1];
-        if (curArg !== undefined) {
-          curArg = conversions["boolean"](curArg, { context: "Failed to execute 'initEvent' on 'Event': parameter 2" });
-        } else {
-          curArg = false;
-        }
-        args.push(curArg);
-      }
-      {
-        let curArg = arguments[2];
-        if (curArg !== undefined) {
-          curArg = conversions["boolean"](curArg, { context: "Failed to execute 'initEvent' on 'Event': parameter 3" });
-        } else {
-          curArg = false;
-        }
-        args.push(curArg);
-      }
-      return esValue[implSymbol].initEvent(...args);
+      return esValue[implSymbol].initEvent(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     get type() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["type"];
     }
 
     get target() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["target"]);
     }
 
     get srcElement() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["srcElement"]);
     }
 
     get currentTarget() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["currentTarget"]);
     }
 
     get eventPhase() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["eventPhase"];
     }
 
     get cancelBubble() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["cancelBubble"];
     }
 
     set cancelBubble(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["boolean"](V, {
-        context: "Failed to set the 'cancelBubble' property on 'Event': The provided value"
-      });
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["cancelBubble"] = V;
     }
 
     get bubbles() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["bubbles"];
     }
 
     get cancelable() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["cancelable"];
     }
 
     get returnValue() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["returnValue"];
     }
 
     set returnValue(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["boolean"](V, {
-        context: "Failed to set the 'returnValue' property on 'Event': The provided value"
-      });
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["returnValue"] = V;
     }
 
     get defaultPrevented() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["defaultPrevented"];
     }
 
     get composed() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["composed"];
     }
 
     get timeStamp() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["timeStamp"];
     }
   }
@@ -359,5 +221,3 @@ exports.install = function install(globalObject) {
     value: Event
   });
 };
-
-const Impl = require("../events/Event-impl.js");

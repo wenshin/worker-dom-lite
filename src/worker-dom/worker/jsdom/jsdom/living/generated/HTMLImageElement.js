@@ -2,10 +2,9 @@
 
 const conversions = require("webidl-conversions");
 const utils = require("./utils.js");
+const Impl = require("../nodes/HTMLImageElement-impl.js");
 
 const HTMLConstructor_helpers_html_constructor = require("../helpers/html-constructor.js").HTMLConstructor;
-const ceReactionsPreSteps_helpers_custom_elements = require("../helpers/custom-elements.js").ceReactionsPreSteps;
-const ceReactionsPostSteps_helpers_custom_elements = require("../helpers/custom-elements.js").ceReactionsPostSteps;
 const parseURLToResultingURLRecord_helpers_document_base_url = require("../helpers/document-base-url.js")
   .parseURLToResultingURLRecord;
 const serializeURLwhatwg_url = require("whatwg-url").serializeURL;
@@ -16,57 +15,59 @@ const HTMLElement = require("./HTMLElement.js");
 
 const interfaceName = "HTMLImageElement";
 
-exports.is = function is(obj) {
-  return utils.isObject(obj) && utils.hasOwn(obj, implSymbol) && obj[implSymbol] instanceof Impl.implementation;
-};
-exports.isImpl = function isImpl(obj) {
-  return utils.isObject(obj) && obj instanceof Impl.implementation;
-};
-exports.convert = function convert(obj, { context = "The provided value" } = {}) {
-  if (exports.is(obj)) {
-    return utils.implForWrapper(obj);
-  }
-  throw new TypeError(`${context} is not of type 'HTMLImageElement'.`);
+exports.is = utils.is.bind(utils);
+exports.isImpl = utils.isImpl.bind(utils, Impl);
+exports.convert = utils.convert.bind(utils);
+
+exports.create = (globalObject, constructorArgs, privateData) => {
+  const wrapper = utils.makeWrapper("HTMLImageElement", globalObject);
+  return exports.setup(wrapper, globalObject, constructorArgs, privateData);
 };
 
-exports.create = function create(globalObject, constructorArgs, privateData) {
-  if (globalObject[ctorRegistrySymbol] === undefined) {
-    throw new Error("Internal error: invalid global object");
-  }
-
-  const ctor = globalObject[ctorRegistrySymbol]["HTMLImageElement"];
-  if (ctor === undefined) {
-    throw new Error("Internal error: constructor HTMLImageElement is not installed on the passed global object");
-  }
-
-  let obj = Object.create(ctor.prototype);
-  obj = exports.setup(obj, globalObject, constructorArgs, privateData);
-  return obj;
+exports.createImpl = (globalObject, constructorArgs, privateData) => {
+  const wrapper = exports.create(globalObject, constructorArgs, privateData);
+  return utils.implForWrapper(wrapper);
 };
-exports.createImpl = function createImpl(globalObject, constructorArgs, privateData) {
-  const obj = exports.create(globalObject, constructorArgs, privateData);
-  return utils.implForWrapper(obj);
-};
-exports._internalSetup = function _internalSetup(obj, globalObject) {
-  HTMLElement._internalSetup(obj, globalObject);
-};
-exports.setup = function setup(obj, globalObject, constructorArgs = [], privateData = {}) {
-  privateData.wrapper = obj;
 
-  exports._internalSetup(obj, globalObject);
-  Object.defineProperty(obj, implSymbol, {
+exports._internalSetup = (wrapper, globalObject) => {
+  HTMLElement._internalSetup(wrapper, globalObject);
+};
+
+exports.setup = (wrapper, globalObject, constructorArgs = [], privateData = {}) => {
+  privateData.wrapper = wrapper;
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
     value: new Impl.implementation(globalObject, constructorArgs, privateData),
     configurable: true
   });
 
-  obj[implSymbol][utils.wrapperSymbol] = obj;
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
   if (Impl.init) {
-    Impl.init(obj[implSymbol], privateData);
+    Impl.init(wrapper[implSymbol]);
   }
-  return obj;
+  return wrapper;
 };
 
-exports.install = function install(globalObject) {
+exports.new = globalObject => {
+  const wrapper = utils.makeWrapper(HTMLImageElement, globalObject);
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
+    value: Object.create(Impl.implementation.prototype),
+    configurable: true
+  });
+
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
+  if (Impl.init) {
+    Impl.init(wrapper[implSymbol]);
+  }
+  return wrapper[implSymbol];
+};
+
+const exposed = new Set(["Window"]);
+
+exports.install = globalObject => {
   if (globalObject.HTMLElement === undefined) {
     throw new Error("Internal error: attempting to evaluate HTMLImageElement before HTMLElement");
   }
@@ -78,647 +79,266 @@ exports.install = function install(globalObject) {
     get alt() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "alt");
-        return value === null ? "" : value;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const value = esValue[implSymbol].getAttributeNS(null, "alt");
+      return value === null ? "" : value;
     }
 
     set alt(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["DOMString"](V, {
-        context: "Failed to set the 'alt' property on 'HTMLImageElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "alt", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "alt", V);
     }
 
     get src() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+      const value = esValue[implSymbol].getAttributeNS(null, "src");
+      if (value === null) {
+        return "";
       }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "src");
-        if (value === null) {
-          return "";
-        }
-        const urlRecord = parseURLToResultingURLRecord_helpers_document_base_url(
-          value,
-          esValue[implSymbol]._ownerDocument
-        );
-        if (urlRecord !== null) {
-          return serializeURLwhatwg_url(urlRecord);
-        }
-        return conversions.USVString(value);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
+      const urlRecord = parseURLToResultingURLRecord_helpers_document_base_url(
+        value,
+        esValue[implSymbol]._ownerDocument
+      );
+      if (urlRecord !== null) {
+        return serializeURLwhatwg_url(urlRecord);
       }
+      return conversions.USVString(value);
     }
 
     set src(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["USVString"](V, {
-        context: "Failed to set the 'src' property on 'HTMLImageElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "src", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "src", V);
     }
 
     get srcset() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "srcset");
-        return value === null ? "" : conversions.USVString(value);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const value = esValue[implSymbol].getAttributeNS(null, "srcset");
+      return value === null ? "" : conversions.USVString(value);
     }
 
     set srcset(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["USVString"](V, {
-        context: "Failed to set the 'srcset' property on 'HTMLImageElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "srcset", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "srcset", V);
     }
 
     get sizes() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "sizes");
-        return value === null ? "" : value;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const value = esValue[implSymbol].getAttributeNS(null, "sizes");
+      return value === null ? "" : value;
     }
 
     set sizes(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["DOMString"](V, {
-        context: "Failed to set the 'sizes' property on 'HTMLImageElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "sizes", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "sizes", V);
     }
 
     get crossOrigin() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "crossorigin");
-        return value === null ? "" : value;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const value = esValue[implSymbol].getAttributeNS(null, "crossorigin");
+      return value === null ? "" : value;
     }
 
     set crossOrigin(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      if (V === null || V === undefined) {
-        V = null;
-      } else {
-        V = conversions["DOMString"](V, {
-          context: "Failed to set the 'crossOrigin' property on 'HTMLImageElement': The provided value"
-        });
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "crossorigin", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "crossorigin", V);
     }
 
     get useMap() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "usemap");
-        return value === null ? "" : value;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const value = esValue[implSymbol].getAttributeNS(null, "usemap");
+      return value === null ? "" : value;
     }
 
     set useMap(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["DOMString"](V, {
-        context: "Failed to set the 'useMap' property on 'HTMLImageElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "usemap", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "usemap", V);
     }
 
     get isMap() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol].hasAttributeNS(null, "ismap");
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol].hasAttributeNS(null, "ismap");
     }
 
     set isMap(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["boolean"](V, {
-        context: "Failed to set the 'isMap' property on 'HTMLImageElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        if (V) {
-          esValue[implSymbol].setAttributeNS(null, "ismap", "");
-        } else {
-          esValue[implSymbol].removeAttributeNS(null, "ismap");
-        }
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
+      if (V) {
+        esValue[implSymbol].setAttributeNS(null, "ismap", "");
+      } else {
+        esValue[implSymbol].removeAttributeNS(null, "ismap");
       }
     }
 
     get width() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol]["width"];
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol]["width"];
     }
 
     set width(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["unsigned long"](V, {
-        context: "Failed to set the 'width' property on 'HTMLImageElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol]["width"] = V;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const esValue = this || globalObject;
+      esValue[implSymbol]["width"] = V;
     }
 
     get height() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol]["height"];
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol]["height"];
     }
 
     set height(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["unsigned long"](V, {
-        context: "Failed to set the 'height' property on 'HTMLImageElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol]["height"] = V;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const esValue = this || globalObject;
+      esValue[implSymbol]["height"] = V;
     }
 
     get naturalWidth() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["naturalWidth"];
     }
 
     get naturalHeight() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["naturalHeight"];
     }
 
     get complete() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["complete"];
     }
 
     get currentSrc() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["currentSrc"];
     }
 
     get name() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "name");
-        return value === null ? "" : value;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const value = esValue[implSymbol].getAttributeNS(null, "name");
+      return value === null ? "" : value;
     }
 
     set name(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["DOMString"](V, {
-        context: "Failed to set the 'name' property on 'HTMLImageElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "name", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "name", V);
     }
 
     get lowsrc() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+      const value = esValue[implSymbol].getAttributeNS(null, "lowsrc");
+      if (value === null) {
+        return "";
       }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "lowsrc");
-        if (value === null) {
-          return "";
-        }
-        const urlRecord = parseURLToResultingURLRecord_helpers_document_base_url(
-          value,
-          esValue[implSymbol]._ownerDocument
-        );
-        if (urlRecord !== null) {
-          return serializeURLwhatwg_url(urlRecord);
-        }
-        return conversions.USVString(value);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
+      const urlRecord = parseURLToResultingURLRecord_helpers_document_base_url(
+        value,
+        esValue[implSymbol]._ownerDocument
+      );
+      if (urlRecord !== null) {
+        return serializeURLwhatwg_url(urlRecord);
       }
+      return conversions.USVString(value);
     }
 
     set lowsrc(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["USVString"](V, {
-        context: "Failed to set the 'lowsrc' property on 'HTMLImageElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "lowsrc", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "lowsrc", V);
     }
 
     get align() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "align");
-        return value === null ? "" : value;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const value = esValue[implSymbol].getAttributeNS(null, "align");
+      return value === null ? "" : value;
     }
 
     set align(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["DOMString"](V, {
-        context: "Failed to set the 'align' property on 'HTMLImageElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "align", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "align", V);
     }
 
     get hspace() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+      let value = esValue[implSymbol].getAttributeNS(null, "hspace");
+      if (value === null) {
+        return 0;
       }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        let value = esValue[implSymbol].getAttributeNS(null, "hspace");
-        if (value === null) {
-          return 0;
-        }
-        value = parseNonNegativeInteger_helpers_strings(value);
-        return value !== null && value >= 0 && value <= 2147483647 ? value : 0;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      value = parseNonNegativeInteger_helpers_strings(value);
+      return value !== null && value >= 0 && value <= 2147483647 ? value : 0;
     }
 
     set hspace(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["unsigned long"](V, {
-        context: "Failed to set the 'hspace' property on 'HTMLImageElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const n = V <= 2147483647 ? V : 0;
-        esValue[implSymbol].setAttributeNS(null, "hspace", String(n));
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const n = V <= 2147483647 ? V : 0;
+      esValue[implSymbol].setAttributeNS(null, "hspace", String(n));
     }
 
     get vspace() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+      let value = esValue[implSymbol].getAttributeNS(null, "vspace");
+      if (value === null) {
+        return 0;
       }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        let value = esValue[implSymbol].getAttributeNS(null, "vspace");
-        if (value === null) {
-          return 0;
-        }
-        value = parseNonNegativeInteger_helpers_strings(value);
-        return value !== null && value >= 0 && value <= 2147483647 ? value : 0;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      value = parseNonNegativeInteger_helpers_strings(value);
+      return value !== null && value >= 0 && value <= 2147483647 ? value : 0;
     }
 
     set vspace(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["unsigned long"](V, {
-        context: "Failed to set the 'vspace' property on 'HTMLImageElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const n = V <= 2147483647 ? V : 0;
-        esValue[implSymbol].setAttributeNS(null, "vspace", String(n));
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const n = V <= 2147483647 ? V : 0;
+      esValue[implSymbol].setAttributeNS(null, "vspace", String(n));
     }
 
     get longDesc() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+      const value = esValue[implSymbol].getAttributeNS(null, "longdesc");
+      if (value === null) {
+        return "";
       }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "longdesc");
-        if (value === null) {
-          return "";
-        }
-        const urlRecord = parseURLToResultingURLRecord_helpers_document_base_url(
-          value,
-          esValue[implSymbol]._ownerDocument
-        );
-        if (urlRecord !== null) {
-          return serializeURLwhatwg_url(urlRecord);
-        }
-        return conversions.USVString(value);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
+      const urlRecord = parseURLToResultingURLRecord_helpers_document_base_url(
+        value,
+        esValue[implSymbol]._ownerDocument
+      );
+      if (urlRecord !== null) {
+        return serializeURLwhatwg_url(urlRecord);
       }
+      return conversions.USVString(value);
     }
 
     set longDesc(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["USVString"](V, {
-        context: "Failed to set the 'longDesc' property on 'HTMLImageElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "longdesc", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "longdesc", V);
     }
 
     get border() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "border");
-        return value === null ? "" : value;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const value = esValue[implSymbol].getAttributeNS(null, "border");
+      return value === null ? "" : value;
     }
 
     set border(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["DOMString"](V, {
-        context: "Failed to set the 'border' property on 'HTMLImageElement': The provided value",
-        treatNullAsEmptyString: true
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "border", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "border", V);
     }
   }
   Object.defineProperties(HTMLImageElement.prototype, {
@@ -755,5 +375,3 @@ exports.install = function install(globalObject) {
     value: HTMLImageElement
   });
 };
-
-const Impl = require("../nodes/HTMLImageElement-impl.js");

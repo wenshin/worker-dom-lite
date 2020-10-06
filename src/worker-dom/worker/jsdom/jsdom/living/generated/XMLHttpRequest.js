@@ -2,6 +2,7 @@
 
 const conversions = require("webidl-conversions");
 const utils = require("./utils.js");
+const Impl = require("../xhr/XMLHttpRequest-impl.js");
 
 const Document = require("./Document.js");
 const Blob = require("./Blob.js");
@@ -13,57 +14,59 @@ const XMLHttpRequestEventTarget = require("./XMLHttpRequestEventTarget.js");
 
 const interfaceName = "XMLHttpRequest";
 
-exports.is = function is(obj) {
-  return utils.isObject(obj) && utils.hasOwn(obj, implSymbol) && obj[implSymbol] instanceof Impl.implementation;
-};
-exports.isImpl = function isImpl(obj) {
-  return utils.isObject(obj) && obj instanceof Impl.implementation;
-};
-exports.convert = function convert(obj, { context = "The provided value" } = {}) {
-  if (exports.is(obj)) {
-    return utils.implForWrapper(obj);
-  }
-  throw new TypeError(`${context} is not of type 'XMLHttpRequest'.`);
+exports.is = utils.is.bind(utils);
+exports.isImpl = utils.isImpl.bind(utils, Impl);
+exports.convert = utils.convert.bind(utils);
+
+exports.create = (globalObject, constructorArgs, privateData) => {
+  const wrapper = utils.makeWrapper("XMLHttpRequest", globalObject);
+  return exports.setup(wrapper, globalObject, constructorArgs, privateData);
 };
 
-exports.create = function create(globalObject, constructorArgs, privateData) {
-  if (globalObject[ctorRegistrySymbol] === undefined) {
-    throw new Error("Internal error: invalid global object");
-  }
-
-  const ctor = globalObject[ctorRegistrySymbol]["XMLHttpRequest"];
-  if (ctor === undefined) {
-    throw new Error("Internal error: constructor XMLHttpRequest is not installed on the passed global object");
-  }
-
-  let obj = Object.create(ctor.prototype);
-  obj = exports.setup(obj, globalObject, constructorArgs, privateData);
-  return obj;
+exports.createImpl = (globalObject, constructorArgs, privateData) => {
+  const wrapper = exports.create(globalObject, constructorArgs, privateData);
+  return utils.implForWrapper(wrapper);
 };
-exports.createImpl = function createImpl(globalObject, constructorArgs, privateData) {
-  const obj = exports.create(globalObject, constructorArgs, privateData);
-  return utils.implForWrapper(obj);
-};
-exports._internalSetup = function _internalSetup(obj, globalObject) {
-  XMLHttpRequestEventTarget._internalSetup(obj, globalObject);
-};
-exports.setup = function setup(obj, globalObject, constructorArgs = [], privateData = {}) {
-  privateData.wrapper = obj;
 
-  exports._internalSetup(obj, globalObject);
-  Object.defineProperty(obj, implSymbol, {
+exports._internalSetup = (wrapper, globalObject) => {
+  XMLHttpRequestEventTarget._internalSetup(wrapper, globalObject);
+};
+
+exports.setup = (wrapper, globalObject, constructorArgs = [], privateData = {}) => {
+  privateData.wrapper = wrapper;
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
     value: new Impl.implementation(globalObject, constructorArgs, privateData),
     configurable: true
   });
 
-  obj[implSymbol][utils.wrapperSymbol] = obj;
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
   if (Impl.init) {
-    Impl.init(obj[implSymbol], privateData);
+    Impl.init(wrapper[implSymbol]);
   }
-  return obj;
+  return wrapper;
 };
 
-exports.install = function install(globalObject) {
+exports.new = globalObject => {
+  const wrapper = utils.makeWrapper(XMLHttpRequest, globalObject);
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
+    value: Object.create(Impl.implementation.prototype),
+    configurable: true
+  });
+
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
+  if (Impl.init) {
+    Impl.init(wrapper[implSymbol]);
+  }
+  return wrapper[implSymbol];
+};
+
+const exposed = new Set(["Window", "DedicatedWorker", "SharedWorker"]);
+
+exports.install = globalObject => {
   if (globalObject.XMLHttpRequestEventTarget === undefined) {
     throw new Error("Internal error: attempting to evaluate XMLHttpRequest before XMLHttpRequestEventTarget");
   }
@@ -73,367 +76,94 @@ exports.install = function install(globalObject) {
     }
 
     open(method, url) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 2) {
-        throw new TypeError(
-          "Failed to execute 'open' on 'XMLHttpRequest': 2 arguments required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      switch (arguments.length) {
-        case 2:
-          {
-            let curArg = arguments[0];
-            curArg = conversions["ByteString"](curArg, {
-              context: "Failed to execute 'open' on 'XMLHttpRequest': parameter 1"
-            });
-            args.push(curArg);
-          }
-          {
-            let curArg = arguments[1];
-            curArg = conversions["USVString"](curArg, {
-              context: "Failed to execute 'open' on 'XMLHttpRequest': parameter 2"
-            });
-            args.push(curArg);
-          }
-          break;
-        case 3:
-          {
-            let curArg = arguments[0];
-            curArg = conversions["ByteString"](curArg, {
-              context: "Failed to execute 'open' on 'XMLHttpRequest': parameter 1"
-            });
-            args.push(curArg);
-          }
-          {
-            let curArg = arguments[1];
-            curArg = conversions["USVString"](curArg, {
-              context: "Failed to execute 'open' on 'XMLHttpRequest': parameter 2"
-            });
-            args.push(curArg);
-          }
-          {
-            let curArg = arguments[2];
-            curArg = conversions["boolean"](curArg, {
-              context: "Failed to execute 'open' on 'XMLHttpRequest': parameter 3"
-            });
-            args.push(curArg);
-          }
-          break;
-        case 4:
-          {
-            let curArg = arguments[0];
-            curArg = conversions["ByteString"](curArg, {
-              context: "Failed to execute 'open' on 'XMLHttpRequest': parameter 1"
-            });
-            args.push(curArg);
-          }
-          {
-            let curArg = arguments[1];
-            curArg = conversions["USVString"](curArg, {
-              context: "Failed to execute 'open' on 'XMLHttpRequest': parameter 2"
-            });
-            args.push(curArg);
-          }
-          {
-            let curArg = arguments[2];
-            curArg = conversions["boolean"](curArg, {
-              context: "Failed to execute 'open' on 'XMLHttpRequest': parameter 3"
-            });
-            args.push(curArg);
-          }
-          {
-            let curArg = arguments[3];
-            if (curArg !== undefined) {
-              if (curArg === null || curArg === undefined) {
-                curArg = null;
-              } else {
-                curArg = conversions["USVString"](curArg, {
-                  context: "Failed to execute 'open' on 'XMLHttpRequest': parameter 4"
-                });
-              }
-            } else {
-              curArg = null;
-            }
-            args.push(curArg);
-          }
-          break;
-        default:
-          {
-            let curArg = arguments[0];
-            curArg = conversions["ByteString"](curArg, {
-              context: "Failed to execute 'open' on 'XMLHttpRequest': parameter 1"
-            });
-            args.push(curArg);
-          }
-          {
-            let curArg = arguments[1];
-            curArg = conversions["USVString"](curArg, {
-              context: "Failed to execute 'open' on 'XMLHttpRequest': parameter 2"
-            });
-            args.push(curArg);
-          }
-          {
-            let curArg = arguments[2];
-            curArg = conversions["boolean"](curArg, {
-              context: "Failed to execute 'open' on 'XMLHttpRequest': parameter 3"
-            });
-            args.push(curArg);
-          }
-          {
-            let curArg = arguments[3];
-            if (curArg !== undefined) {
-              if (curArg === null || curArg === undefined) {
-                curArg = null;
-              } else {
-                curArg = conversions["USVString"](curArg, {
-                  context: "Failed to execute 'open' on 'XMLHttpRequest': parameter 4"
-                });
-              }
-            } else {
-              curArg = null;
-            }
-            args.push(curArg);
-          }
-          {
-            let curArg = arguments[4];
-            if (curArg !== undefined) {
-              if (curArg === null || curArg === undefined) {
-                curArg = null;
-              } else {
-                curArg = conversions["USVString"](curArg, {
-                  context: "Failed to execute 'open' on 'XMLHttpRequest': parameter 5"
-                });
-              }
-            } else {
-              curArg = null;
-            }
-            args.push(curArg);
-          }
-      }
-      return esValue[implSymbol].open(...args);
+      return esValue[implSymbol].open(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     setRequestHeader(name, value) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 2) {
-        throw new TypeError(
-          "Failed to execute 'setRequestHeader' on 'XMLHttpRequest': 2 arguments required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["ByteString"](curArg, {
-          context: "Failed to execute 'setRequestHeader' on 'XMLHttpRequest': parameter 1"
-        });
-        args.push(curArg);
-      }
-      {
-        let curArg = arguments[1];
-        curArg = conversions["ByteString"](curArg, {
-          context: "Failed to execute 'setRequestHeader' on 'XMLHttpRequest': parameter 2"
-        });
-        args.push(curArg);
-      }
-      return esValue[implSymbol].setRequestHeader(...args);
+      return esValue[implSymbol].setRequestHeader(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     send() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        if (curArg !== undefined) {
-          if (curArg === null || curArg === undefined) {
-            curArg = null;
-          } else {
-            if (Document.is(curArg) || Blob.is(curArg) || FormData.is(curArg)) {
-              curArg = utils.implForWrapper(curArg);
-            } else if (utils.isArrayBuffer(curArg)) {
-            } else if (ArrayBuffer.isView(curArg)) {
-            } else {
-              curArg = conversions["USVString"](curArg, {
-                context: "Failed to execute 'send' on 'XMLHttpRequest': parameter 1"
-              });
-            }
-          }
-        } else {
-          curArg = null;
-        }
-        args.push(curArg);
-      }
-      return esValue[implSymbol].send(...args);
+      const esValue = this || globalObject;
+
+      return esValue[implSymbol].send(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     abort() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].abort();
     }
 
     getResponseHeader(name) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'getResponseHeader' on 'XMLHttpRequest': 1 argument required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["ByteString"](curArg, {
-          context: "Failed to execute 'getResponseHeader' on 'XMLHttpRequest': parameter 1"
-        });
-        args.push(curArg);
-      }
-      return esValue[implSymbol].getResponseHeader(...args);
+      return esValue[implSymbol].getResponseHeader(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     getAllResponseHeaders() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].getAllResponseHeaders();
     }
 
     overrideMimeType(mime) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'overrideMimeType' on 'XMLHttpRequest': 1 argument required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
-          context: "Failed to execute 'overrideMimeType' on 'XMLHttpRequest': parameter 1"
-        });
-        args.push(curArg);
-      }
-      return esValue[implSymbol].overrideMimeType(...args);
+      return esValue[implSymbol].overrideMimeType(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     get onreadystatechange() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["onreadystatechange"]);
     }
 
     set onreadystatechange(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = utils.tryImplForWrapper(V);
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["onreadystatechange"] = V;
     }
 
     get readyState() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["readyState"];
     }
 
     get timeout() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["timeout"];
     }
 
     set timeout(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["unsigned long"](V, {
-        context: "Failed to set the 'timeout' property on 'XMLHttpRequest': The provided value"
-      });
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["timeout"] = V;
     }
 
     get withCredentials() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["withCredentials"];
     }
 
     set withCredentials(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["boolean"](V, {
-        context: "Failed to set the 'withCredentials' property on 'XMLHttpRequest': The provided value"
-      });
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["withCredentials"] = V;
     }
 
     get upload() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.getSameObject(this, "upload", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["upload"]);
       });
@@ -441,86 +171,41 @@ exports.install = function install(globalObject) {
 
     get responseURL() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["responseURL"];
     }
 
     get status() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["status"];
     }
 
     get statusText() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["statusText"];
     }
 
     get responseType() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["responseType"]);
     }
 
     set responseType(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = `${V}`;
-      if (!XMLHttpRequestResponseType.enumerationValues.has(V)) {
-        return;
-      }
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["responseType"] = V;
     }
 
     get response() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["response"];
     }
 
     get responseText() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["responseText"];
     }
 
     get responseXML() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["responseXML"]);
     }
   }
@@ -569,5 +254,3 @@ exports.install = function install(globalObject) {
     value: XMLHttpRequest
   });
 };
-
-const Impl = require("../xhr/XMLHttpRequest-impl.js");

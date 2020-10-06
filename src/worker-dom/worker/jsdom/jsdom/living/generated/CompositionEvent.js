@@ -2,6 +2,7 @@
 
 const conversions = require("webidl-conversions");
 const utils = require("./utils.js");
+const Impl = require("../events/CompositionEvent-impl.js");
 
 const CompositionEventInit = require("./CompositionEventInit.js");
 const implSymbol = utils.implSymbol;
@@ -10,160 +11,77 @@ const UIEvent = require("./UIEvent.js");
 
 const interfaceName = "CompositionEvent";
 
-exports.is = function is(obj) {
-  return utils.isObject(obj) && utils.hasOwn(obj, implSymbol) && obj[implSymbol] instanceof Impl.implementation;
-};
-exports.isImpl = function isImpl(obj) {
-  return utils.isObject(obj) && obj instanceof Impl.implementation;
-};
-exports.convert = function convert(obj, { context = "The provided value" } = {}) {
-  if (exports.is(obj)) {
-    return utils.implForWrapper(obj);
-  }
-  throw new TypeError(`${context} is not of type 'CompositionEvent'.`);
+exports.is = utils.is.bind(utils);
+exports.isImpl = utils.isImpl.bind(utils, Impl);
+exports.convert = utils.convert.bind(utils);
+
+exports.create = (globalObject, constructorArgs, privateData) => {
+  const wrapper = utils.makeWrapper("CompositionEvent", globalObject);
+  return exports.setup(wrapper, globalObject, constructorArgs, privateData);
 };
 
-exports.create = function create(globalObject, constructorArgs, privateData) {
-  if (globalObject[ctorRegistrySymbol] === undefined) {
-    throw new Error("Internal error: invalid global object");
-  }
-
-  const ctor = globalObject[ctorRegistrySymbol]["CompositionEvent"];
-  if (ctor === undefined) {
-    throw new Error("Internal error: constructor CompositionEvent is not installed on the passed global object");
-  }
-
-  let obj = Object.create(ctor.prototype);
-  obj = exports.setup(obj, globalObject, constructorArgs, privateData);
-  return obj;
+exports.createImpl = (globalObject, constructorArgs, privateData) => {
+  const wrapper = exports.create(globalObject, constructorArgs, privateData);
+  return utils.implForWrapper(wrapper);
 };
-exports.createImpl = function createImpl(globalObject, constructorArgs, privateData) {
-  const obj = exports.create(globalObject, constructorArgs, privateData);
-  return utils.implForWrapper(obj);
-};
-exports._internalSetup = function _internalSetup(obj, globalObject) {
-  UIEvent._internalSetup(obj, globalObject);
-};
-exports.setup = function setup(obj, globalObject, constructorArgs = [], privateData = {}) {
-  privateData.wrapper = obj;
 
-  exports._internalSetup(obj, globalObject);
-  Object.defineProperty(obj, implSymbol, {
+exports._internalSetup = (wrapper, globalObject) => {
+  UIEvent._internalSetup(wrapper, globalObject);
+};
+
+exports.setup = (wrapper, globalObject, constructorArgs = [], privateData = {}) => {
+  privateData.wrapper = wrapper;
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
     value: new Impl.implementation(globalObject, constructorArgs, privateData),
     configurable: true
   });
 
-  obj[implSymbol][utils.wrapperSymbol] = obj;
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
   if (Impl.init) {
-    Impl.init(obj[implSymbol], privateData);
+    Impl.init(wrapper[implSymbol]);
   }
-  return obj;
+  return wrapper;
 };
 
-exports.install = function install(globalObject) {
+exports.new = globalObject => {
+  const wrapper = utils.makeWrapper(CompositionEvent, globalObject);
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
+    value: Object.create(Impl.implementation.prototype),
+    configurable: true
+  });
+
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
+  if (Impl.init) {
+    Impl.init(wrapper[implSymbol]);
+  }
+  return wrapper[implSymbol];
+};
+
+const exposed = new Set(["Window"]);
+
+exports.install = globalObject => {
   if (globalObject.UIEvent === undefined) {
     throw new Error("Internal error: attempting to evaluate CompositionEvent before UIEvent");
   }
   class CompositionEvent extends globalObject.UIEvent {
     constructor(type) {
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to construct 'CompositionEvent': 1 argument required, but only " + arguments.length + " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, { context: "Failed to construct 'CompositionEvent': parameter 1" });
-        args.push(curArg);
-      }
-      {
-        let curArg = arguments[1];
-        curArg = CompositionEventInit.convert(curArg, {
-          context: "Failed to construct 'CompositionEvent': parameter 2"
-        });
-        args.push(curArg);
-      }
-      return exports.setup(Object.create(new.target.prototype), globalObject, args);
+      return exports.setup(Object.create(new.target.prototype), globalObject, arguments);
     }
 
     initCompositionEvent(typeArg) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'initCompositionEvent' on 'CompositionEvent': 1 argument required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
-          context: "Failed to execute 'initCompositionEvent' on 'CompositionEvent': parameter 1"
-        });
-        args.push(curArg);
-      }
-      {
-        let curArg = arguments[1];
-        if (curArg !== undefined) {
-          curArg = conversions["boolean"](curArg, {
-            context: "Failed to execute 'initCompositionEvent' on 'CompositionEvent': parameter 2"
-          });
-        } else {
-          curArg = false;
-        }
-        args.push(curArg);
-      }
-      {
-        let curArg = arguments[2];
-        if (curArg !== undefined) {
-          curArg = conversions["boolean"](curArg, {
-            context: "Failed to execute 'initCompositionEvent' on 'CompositionEvent': parameter 3"
-          });
-        } else {
-          curArg = false;
-        }
-        args.push(curArg);
-      }
-      {
-        let curArg = arguments[3];
-        if (curArg !== undefined) {
-          if (curArg === null || curArg === undefined) {
-            curArg = null;
-          } else {
-            curArg = utils.tryImplForWrapper(curArg);
-          }
-        } else {
-          curArg = null;
-        }
-        args.push(curArg);
-      }
-      {
-        let curArg = arguments[4];
-        if (curArg !== undefined) {
-          curArg = conversions["DOMString"](curArg, {
-            context: "Failed to execute 'initCompositionEvent' on 'CompositionEvent': parameter 5"
-          });
-        } else {
-          curArg = "";
-        }
-        args.push(curArg);
-      }
-      return esValue[implSymbol].initCompositionEvent(...args);
+      return esValue[implSymbol].initCompositionEvent(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     get data() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["data"];
     }
   }
@@ -183,5 +101,3 @@ exports.install = function install(globalObject) {
     value: CompositionEvent
   });
 };
-
-const Impl = require("../events/CompositionEvent-impl.js");

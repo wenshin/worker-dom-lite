@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Tooltip } from 'antd';
-import 'antd/dist/antd.css';
+// import { Tooltip } from 'antd';
+// import 'antd/dist/antd.css';
 import logo from './logo.svg';
 import './App.css';
 import WorkerDemo from './WorkerDemo';
@@ -27,9 +27,9 @@ class App extends Component<unknown, { name: string }> {
             Learn React
           </a>
           <WorkerDemo name={this.state.name} />
-          <Tooltip title="prompt text">
+          {/* <Tooltip title="prompt text">
             <span>Tooltip will show on mouse enter.</span>
-          </Tooltip>
+          </Tooltip> */}
         </header>
       </div>
     );

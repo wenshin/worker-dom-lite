@@ -2,67 +2,68 @@
 
 const conversions = require("webidl-conversions");
 const utils = require("./utils.js");
+const Impl = require("../range/Range-impl.js");
 
 const Node = require("./Node.js");
-const ceReactionsPreSteps_helpers_custom_elements = require("../helpers/custom-elements.js").ceReactionsPreSteps;
-const ceReactionsPostSteps_helpers_custom_elements = require("../helpers/custom-elements.js").ceReactionsPostSteps;
 const implSymbol = utils.implSymbol;
 const ctorRegistrySymbol = utils.ctorRegistrySymbol;
 const AbstractRange = require("./AbstractRange.js");
 
 const interfaceName = "Range";
 
-exports.is = function is(obj) {
-  return utils.isObject(obj) && utils.hasOwn(obj, implSymbol) && obj[implSymbol] instanceof Impl.implementation;
-};
-exports.isImpl = function isImpl(obj) {
-  return utils.isObject(obj) && obj instanceof Impl.implementation;
-};
-exports.convert = function convert(obj, { context = "The provided value" } = {}) {
-  if (exports.is(obj)) {
-    return utils.implForWrapper(obj);
-  }
-  throw new TypeError(`${context} is not of type 'Range'.`);
+exports.is = utils.is.bind(utils);
+exports.isImpl = utils.isImpl.bind(utils, Impl);
+exports.convert = utils.convert.bind(utils);
+
+exports.create = (globalObject, constructorArgs, privateData) => {
+  const wrapper = utils.makeWrapper("Range", globalObject);
+  return exports.setup(wrapper, globalObject, constructorArgs, privateData);
 };
 
-exports.create = function create(globalObject, constructorArgs, privateData) {
-  if (globalObject[ctorRegistrySymbol] === undefined) {
-    throw new Error("Internal error: invalid global object");
-  }
-
-  const ctor = globalObject[ctorRegistrySymbol]["Range"];
-  if (ctor === undefined) {
-    throw new Error("Internal error: constructor Range is not installed on the passed global object");
-  }
-
-  let obj = Object.create(ctor.prototype);
-  obj = exports.setup(obj, globalObject, constructorArgs, privateData);
-  return obj;
+exports.createImpl = (globalObject, constructorArgs, privateData) => {
+  const wrapper = exports.create(globalObject, constructorArgs, privateData);
+  return utils.implForWrapper(wrapper);
 };
-exports.createImpl = function createImpl(globalObject, constructorArgs, privateData) {
-  const obj = exports.create(globalObject, constructorArgs, privateData);
-  return utils.implForWrapper(obj);
-};
-exports._internalSetup = function _internalSetup(obj, globalObject) {
-  AbstractRange._internalSetup(obj, globalObject);
-};
-exports.setup = function setup(obj, globalObject, constructorArgs = [], privateData = {}) {
-  privateData.wrapper = obj;
 
-  exports._internalSetup(obj, globalObject);
-  Object.defineProperty(obj, implSymbol, {
+exports._internalSetup = (wrapper, globalObject) => {
+  AbstractRange._internalSetup(wrapper, globalObject);
+};
+
+exports.setup = (wrapper, globalObject, constructorArgs = [], privateData = {}) => {
+  privateData.wrapper = wrapper;
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
     value: new Impl.implementation(globalObject, constructorArgs, privateData),
     configurable: true
   });
 
-  obj[implSymbol][utils.wrapperSymbol] = obj;
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
   if (Impl.init) {
-    Impl.init(obj[implSymbol], privateData);
+    Impl.init(wrapper[implSymbol]);
   }
-  return obj;
+  return wrapper;
 };
 
-exports.install = function install(globalObject) {
+exports.new = globalObject => {
+  const wrapper = utils.makeWrapper(Range, globalObject);
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
+    value: Object.create(Impl.implementation.prototype),
+    configurable: true
+  });
+
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
+  if (Impl.init) {
+    Impl.init(wrapper[implSymbol]);
+  }
+  return wrapper[implSymbol];
+};
+
+const exposed = new Set(["Window"]);
+
+exports.install = globalObject => {
   if (globalObject.AbstractRange === undefined) {
     throw new Error("Internal error: attempting to evaluate Range before AbstractRange");
   }
@@ -72,471 +73,173 @@ exports.install = function install(globalObject) {
     }
 
     setStart(node, offset) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 2) {
-        throw new TypeError(
-          "Failed to execute 'setStart' on 'Range': 2 arguments required, but only " + arguments.length + " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = Node.convert(curArg, { context: "Failed to execute 'setStart' on 'Range': parameter 1" });
-        args.push(curArg);
-      }
-      {
-        let curArg = arguments[1];
-        curArg = conversions["unsigned long"](curArg, {
-          context: "Failed to execute 'setStart' on 'Range': parameter 2"
-        });
-        args.push(curArg);
-      }
-      return esValue[implSymbol].setStart(...args);
+      return esValue[implSymbol].setStart(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     setEnd(node, offset) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 2) {
-        throw new TypeError(
-          "Failed to execute 'setEnd' on 'Range': 2 arguments required, but only " + arguments.length + " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = Node.convert(curArg, { context: "Failed to execute 'setEnd' on 'Range': parameter 1" });
-        args.push(curArg);
-      }
-      {
-        let curArg = arguments[1];
-        curArg = conversions["unsigned long"](curArg, {
-          context: "Failed to execute 'setEnd' on 'Range': parameter 2"
-        });
-        args.push(curArg);
-      }
-      return esValue[implSymbol].setEnd(...args);
+      return esValue[implSymbol].setEnd(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     setStartBefore(node) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'setStartBefore' on 'Range': 1 argument required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = Node.convert(curArg, { context: "Failed to execute 'setStartBefore' on 'Range': parameter 1" });
-        args.push(curArg);
-      }
-      return esValue[implSymbol].setStartBefore(...args);
+      return esValue[implSymbol].setStartBefore(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     setStartAfter(node) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'setStartAfter' on 'Range': 1 argument required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = Node.convert(curArg, { context: "Failed to execute 'setStartAfter' on 'Range': parameter 1" });
-        args.push(curArg);
-      }
-      return esValue[implSymbol].setStartAfter(...args);
+      return esValue[implSymbol].setStartAfter(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     setEndBefore(node) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'setEndBefore' on 'Range': 1 argument required, but only " + arguments.length + " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = Node.convert(curArg, { context: "Failed to execute 'setEndBefore' on 'Range': parameter 1" });
-        args.push(curArg);
-      }
-      return esValue[implSymbol].setEndBefore(...args);
+      return esValue[implSymbol].setEndBefore(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     setEndAfter(node) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'setEndAfter' on 'Range': 1 argument required, but only " + arguments.length + " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = Node.convert(curArg, { context: "Failed to execute 'setEndAfter' on 'Range': parameter 1" });
-        args.push(curArg);
-      }
-      return esValue[implSymbol].setEndAfter(...args);
+      return esValue[implSymbol].setEndAfter(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     collapse() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        if (curArg !== undefined) {
-          curArg = conversions["boolean"](curArg, { context: "Failed to execute 'collapse' on 'Range': parameter 1" });
-        } else {
-          curArg = false;
-        }
-        args.push(curArg);
-      }
-      return esValue[implSymbol].collapse(...args);
+      const esValue = this || globalObject;
+
+      return esValue[implSymbol].collapse(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     selectNode(node) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'selectNode' on 'Range': 1 argument required, but only " + arguments.length + " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = Node.convert(curArg, { context: "Failed to execute 'selectNode' on 'Range': parameter 1" });
-        args.push(curArg);
-      }
-      return esValue[implSymbol].selectNode(...args);
+      return esValue[implSymbol].selectNode(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     selectNodeContents(node) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'selectNodeContents' on 'Range': 1 argument required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = Node.convert(curArg, { context: "Failed to execute 'selectNodeContents' on 'Range': parameter 1" });
-        args.push(curArg);
-      }
-      return esValue[implSymbol].selectNodeContents(...args);
+      return esValue[implSymbol].selectNodeContents(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     compareBoundaryPoints(how, sourceRange) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 2) {
-        throw new TypeError(
-          "Failed to execute 'compareBoundaryPoints' on 'Range': 2 arguments required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["unsigned short"](curArg, {
-          context: "Failed to execute 'compareBoundaryPoints' on 'Range': parameter 1"
-        });
-        args.push(curArg);
-      }
-      {
-        let curArg = arguments[1];
-        curArg = exports.convert(curArg, {
-          context: "Failed to execute 'compareBoundaryPoints' on 'Range': parameter 2"
-        });
-        args.push(curArg);
-      }
-      return esValue[implSymbol].compareBoundaryPoints(...args);
+      return esValue[implSymbol].compareBoundaryPoints(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     deleteContents() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol].deleteContents();
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol].deleteContents();
     }
 
     extractContents() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return utils.tryWrapperForImpl(esValue[implSymbol].extractContents());
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return utils.tryWrapperForImpl(esValue[implSymbol].extractContents());
     }
 
     cloneContents() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return utils.tryWrapperForImpl(esValue[implSymbol].cloneContents());
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return utils.tryWrapperForImpl(esValue[implSymbol].cloneContents());
     }
 
     insertNode(node) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'insertNode' on 'Range': 1 argument required, but only " + arguments.length + " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = Node.convert(curArg, { context: "Failed to execute 'insertNode' on 'Range': parameter 1" });
-        args.push(curArg);
-      }
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol].insertNode(...args);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol].insertNode(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     surroundContents(newParent) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'surroundContents' on 'Range': 1 argument required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = Node.convert(curArg, { context: "Failed to execute 'surroundContents' on 'Range': parameter 1" });
-        args.push(curArg);
-      }
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol].surroundContents(...args);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol].surroundContents(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     cloneRange() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
       return utils.tryWrapperForImpl(esValue[implSymbol].cloneRange());
     }
 
     detach() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].detach();
     }
 
     isPointInRange(node, offset) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 2) {
-        throw new TypeError(
-          "Failed to execute 'isPointInRange' on 'Range': 2 arguments required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = Node.convert(curArg, { context: "Failed to execute 'isPointInRange' on 'Range': parameter 1" });
-        args.push(curArg);
-      }
-      {
-        let curArg = arguments[1];
-        curArg = conversions["unsigned long"](curArg, {
-          context: "Failed to execute 'isPointInRange' on 'Range': parameter 2"
-        });
-        args.push(curArg);
-      }
-      return esValue[implSymbol].isPointInRange(...args);
+      return esValue[implSymbol].isPointInRange(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     comparePoint(node, offset) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 2) {
-        throw new TypeError(
-          "Failed to execute 'comparePoint' on 'Range': 2 arguments required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = Node.convert(curArg, { context: "Failed to execute 'comparePoint' on 'Range': parameter 1" });
-        args.push(curArg);
-      }
-      {
-        let curArg = arguments[1];
-        curArg = conversions["unsigned long"](curArg, {
-          context: "Failed to execute 'comparePoint' on 'Range': parameter 2"
-        });
-        args.push(curArg);
-      }
-      return esValue[implSymbol].comparePoint(...args);
+      return esValue[implSymbol].comparePoint(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     intersectsNode(node) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'intersectsNode' on 'Range': 1 argument required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = Node.convert(curArg, { context: "Failed to execute 'intersectsNode' on 'Range': parameter 1" });
-        args.push(curArg);
-      }
-      return esValue[implSymbol].intersectsNode(...args);
+      return esValue[implSymbol].intersectsNode(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     toString() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].toString();
     }
 
     createContextualFragment(fragment) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'createContextualFragment' on 'Range': 1 argument required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
-          context: "Failed to execute 'createContextualFragment' on 'Range': parameter 1"
-        });
-        args.push(curArg);
-      }
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return utils.tryWrapperForImpl(esValue[implSymbol].createContextualFragment(...args));
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return utils.tryWrapperForImpl(
+        esValue[implSymbol].createContextualFragment(
+          ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+        )
+      );
     }
 
     get commonAncestorContainer() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["commonAncestorContainer"]);
     }
   }
@@ -587,5 +290,3 @@ exports.install = function install(globalObject) {
     value: Range
   });
 };
-
-const Impl = require("../range/Range-impl.js");

@@ -1,7 +1,6 @@
 import { IPCObjectManager } from './IPCObjectManager';
 import { IPCCargoType, isIPCCargo, IPCCargoImpl, IPCCargo } from './IPCObject';
-import idlUtils from '../worker/jsdom/jsdom/living/generated/utils';
-import utils from '../worker/jsdom/jsdom/living/generated/utils';
+import { implSymbol } from '../worker/jsdom/jsdom/living/generated/utils';
 
 const ELEMENT_COPY_PROPS = [
   'clientLeft',
@@ -157,7 +156,7 @@ export function packEvent(ipcObjectManager: IPCObjectManager, evt: Event): Event
 }
 
 function unpackElementCargo(elem: any, cargo: IPCCargo) {
-  const impl = elem[utils.implSymbol] || elem;
+  const impl = elem[implSymbol] || elem;
   pickProps(cargo.info, ELEMENT_COPY_PROPS, impl._$nodeProps);
   if (cargo.info && cargo.info.boundingClientRect) {
     impl._$nodeProps.boundingClientRect = cargo.info.boundingClientRect;
@@ -221,13 +220,13 @@ export function unpackEvent(ipcObjectManager: IPCObjectManager, evt: any): Event
   // @ts-ignore
   delete unpacked.srcElement;
   delete (unpacked as any).__parents;
-  Object.assign((wrapper as any)[idlUtils.implSymbol], unpacked);
-  (wrapper as any)[idlUtils.implSymbol]._canceledFlag = defaultPrevented;
+  Object.assign((wrapper as any)[implSymbol], unpacked);
+  (wrapper as any)[implSymbol]._canceledFlag = defaultPrevented;
   if (wrapper.target && targetInfo) {
     // 这里直接修改 _value 和 _checkedness 底层数据，避免 react 的 valueTracker 无效
     let target = wrapper.target;
-    if ((wrapper.target as any)[idlUtils.implSymbol]) {
-      target = (wrapper.target as any)[idlUtils.implSymbol];
+    if ((wrapper.target as any)[implSymbol]) {
+      target = (wrapper.target as any)[implSymbol];
     }
     Object.assign(target, {
       _value: targetInfo.value,

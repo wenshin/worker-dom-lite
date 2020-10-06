@@ -2,72 +2,77 @@
 
 const conversions = require("webidl-conversions");
 const utils = require("./utils.js");
+const Impl = require("../nodes/DOMStringMap-impl.js");
 
-const ceReactionsPreSteps_helpers_custom_elements = require("../helpers/custom-elements.js").ceReactionsPreSteps;
-const ceReactionsPostSteps_helpers_custom_elements = require("../helpers/custom-elements.js").ceReactionsPostSteps;
 const implSymbol = utils.implSymbol;
 const ctorRegistrySymbol = utils.ctorRegistrySymbol;
 
 const interfaceName = "DOMStringMap";
 
-exports.is = function is(obj) {
-  return utils.isObject(obj) && utils.hasOwn(obj, implSymbol) && obj[implSymbol] instanceof Impl.implementation;
-};
-exports.isImpl = function isImpl(obj) {
-  return utils.isObject(obj) && obj instanceof Impl.implementation;
-};
-exports.convert = function convert(obj, { context = "The provided value" } = {}) {
-  if (exports.is(obj)) {
-    return utils.implForWrapper(obj);
+exports.is = utils.is.bind(utils);
+exports.isImpl = utils.isImpl.bind(utils, Impl);
+exports.convert = utils.convert.bind(utils);
+
+function makeProxy(wrapper, globalObject) {
+  let proxyHandler = proxyHandlerCache.get(globalObject);
+  if (proxyHandler === undefined) {
+    proxyHandler = new ProxyHandler(globalObject);
+    proxyHandlerCache.set(globalObject, proxyHandler);
   }
-  throw new TypeError(`${context} is not of type 'DOMStringMap'.`);
+  return new Proxy(wrapper, proxyHandler);
+}
+
+exports.create = (globalObject, constructorArgs, privateData) => {
+  const wrapper = utils.makeWrapper("DOMStringMap", globalObject);
+  return exports.setup(wrapper, globalObject, constructorArgs, privateData);
 };
 
-exports.create = function create(globalObject, constructorArgs, privateData) {
-  if (globalObject[ctorRegistrySymbol] === undefined) {
-    throw new Error("Internal error: invalid global object");
-  }
-
-  const ctor = globalObject[ctorRegistrySymbol]["DOMStringMap"];
-  if (ctor === undefined) {
-    throw new Error("Internal error: constructor DOMStringMap is not installed on the passed global object");
-  }
-
-  let obj = Object.create(ctor.prototype);
-  obj = exports.setup(obj, globalObject, constructorArgs, privateData);
-  return obj;
+exports.createImpl = (globalObject, constructorArgs, privateData) => {
+  const wrapper = exports.create(globalObject, constructorArgs, privateData);
+  return utils.implForWrapper(wrapper);
 };
-exports.createImpl = function createImpl(globalObject, constructorArgs, privateData) {
-  const obj = exports.create(globalObject, constructorArgs, privateData);
-  return utils.implForWrapper(obj);
-};
-exports._internalSetup = function _internalSetup(obj, globalObject) {};
-exports.setup = function setup(obj, globalObject, constructorArgs = [], privateData = {}) {
-  privateData.wrapper = obj;
 
-  exports._internalSetup(obj, globalObject);
-  Object.defineProperty(obj, implSymbol, {
+exports._internalSetup = (wrapper, globalObject) => {};
+
+exports.setup = (wrapper, globalObject, constructorArgs = [], privateData = {}) => {
+  privateData.wrapper = wrapper;
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
     value: new Impl.implementation(globalObject, constructorArgs, privateData),
     configurable: true
   });
 
-  {
-    let proxyHandler = proxyHandlerCache.get(globalObject);
-    if (proxyHandler === undefined) {
-      proxyHandler = new ProxyHandler(globalObject);
-      proxyHandlerCache.set(globalObject, proxyHandler);
-    }
-    obj = new Proxy(obj, proxyHandler);
-  }
+  wrapper = makeProxy(wrapper, globalObject);
 
-  obj[implSymbol][utils.wrapperSymbol] = obj;
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
   if (Impl.init) {
-    Impl.init(obj[implSymbol], privateData);
+    Impl.init(wrapper[implSymbol]);
   }
-  return obj;
+  return wrapper;
 };
 
-exports.install = function install(globalObject) {
+exports.new = globalObject => {
+  let wrapper = utils.makeWrapper(DOMStringMap, globalObject);
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
+    value: Object.create(Impl.implementation.prototype),
+    configurable: true
+  });
+
+  wrapper = makeProxy(wrapper, globalObject);
+
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
+  if (Impl.init) {
+    Impl.init(wrapper[implSymbol]);
+  }
+  return wrapper[implSymbol];
+};
+
+const exposed = new Set(["Window"]);
+
+exports.install = globalObject => {
   class DOMStringMap {
     constructor() {
       throw new TypeError("Illegal constructor");
@@ -170,26 +175,23 @@ class ProxyHandler {
     if (typeof P === "symbol") {
       return Reflect.set(target, P, V, receiver);
     }
-    if (target === receiver) {
+    // The `receiver` argument refers to the Proxy exotic object or an object
+    // that inherits from it, whereas `target` refers to the Proxy target:
+    if (target[implSymbol][utils.wrapperSymbol] === receiver) {
       const globalObject = this._globalObject;
 
-      if (typeof P === "string" && !utils.isArrayIndexPropName(P)) {
+      if (typeof P === "string") {
         let namedValue = V;
 
         namedValue = conversions["DOMString"](namedValue, {
           context: "Failed to set the '" + P + "' property on 'DOMStringMap': The provided value"
         });
 
-        ceReactionsPreSteps_helpers_custom_elements(globalObject);
-        try {
-          const creating = !(target[implSymbol][utils.namedGet](P) !== undefined);
-          if (creating) {
-            target[implSymbol][utils.namedSetNew](P, namedValue);
-          } else {
-            target[implSymbol][utils.namedSetExisting](P, namedValue);
-          }
-        } finally {
-          ceReactionsPostSteps_helpers_custom_elements(globalObject);
+        const creating = !(target[implSymbol][utils.namedGet](P) !== undefined);
+        if (creating) {
+          target[implSymbol][utils.namedSetNew](P, namedValue);
+        } else {
+          target[implSymbol][utils.namedSetExisting](P, namedValue);
         }
 
         return true;
@@ -246,16 +248,11 @@ class ProxyHandler {
       context: "Failed to set the '" + P + "' property on 'DOMStringMap': The provided value"
     });
 
-    ceReactionsPreSteps_helpers_custom_elements(globalObject);
-    try {
-      const creating = !(target[implSymbol][utils.namedGet](P) !== undefined);
-      if (creating) {
-        target[implSymbol][utils.namedSetNew](P, namedValue);
-      } else {
-        target[implSymbol][utils.namedSetExisting](P, namedValue);
-      }
-    } finally {
-      ceReactionsPostSteps_helpers_custom_elements(globalObject);
+    const creating = !(target[implSymbol][utils.namedGet](P) !== undefined);
+    if (creating) {
+      target[implSymbol][utils.namedSetNew](P, namedValue);
+    } else {
+      target[implSymbol][utils.namedSetExisting](P, namedValue);
     }
 
     return true;
@@ -269,13 +266,8 @@ class ProxyHandler {
     const globalObject = this._globalObject;
 
     if (target[implSymbol][utils.namedGet](P) !== undefined && !utils.hasOwn(target, P)) {
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        target[implSymbol][utils.namedDelete](P);
-        return true;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      target[implSymbol][utils.namedDelete](P);
+      return true;
     }
 
     return Reflect.deleteProperty(target, P);
@@ -285,5 +277,3 @@ class ProxyHandler {
     return false;
   }
 }
-
-const Impl = require("../nodes/DOMStringMap-impl.js");

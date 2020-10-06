@@ -1,12 +1,6 @@
-'use strict';
-
 // Returns "Type(value) is Object" in ES terminology.
 function isObject(value) {
   return (typeof value === 'object' && value !== null) || typeof value === 'function';
-}
-
-function is(obj, Impl) {
-  return isObject(obj) && hasOwn(obj, implSymbol) && obj[implSymbol] instanceof Impl.implementation;
 }
 
 const hasOwn = Function.prototype.call.bind(Object.prototype.hasOwnProperty);
@@ -75,13 +69,47 @@ function isArrayBuffer(value) {
   }
 }
 
-function getESValue(obj, globalObject, Impl) {
-  const esValue = obj !== null && obj !== undefined ? obj : globalObject;
-
-  if (!is(esValue, Impl)) {
-    throw new TypeError('Illegal invocation');
+function iteratorResult([ key, value ], kind) {
+  let result;
+  switch (kind) {
+    case 'key':
+      result = key;
+      break;
+    case 'value':
+      result = value;
+      break;
+    case 'key+value':
+      result = [ key, value ];
+      break;
   }
-  return esValue;
+  return { value: result, done: false };
+}
+
+function is(IImpl, value) {
+  return isObject(value) && hasOwn(value, implSymbol) && value[implSymbol] instanceof IImpl.implementation;
+}
+
+function isImpl(IImpl, value) {
+  return isObject(value) && value instanceof IImpl.implementation;
+}
+
+function convert(IImpl, value, { context = 'The provided value' } = {}) {
+  if (is(value, IImpl)) {
+    return implForWrapper(value);
+  }
+}
+
+function makeWrapper(name, globalObject) {
+  if (globalObject[ctorRegistrySymbol] === undefined) {
+    throw new Error('Internal error: invalid global object');
+  }
+
+  const ctor = globalObject[ctorRegistrySymbol][name];
+  if (ctor === undefined) {
+    throw new Error(`Internal error: constructor ${name} is not installed on the passed global object`);
+  }
+
+  return Object.create(ctor.prototype);
 }
 
 const supportsPropertyIndex = Symbol('supports property index');
@@ -96,14 +124,21 @@ const namedSetNew = Symbol('named property set new');
 const namedSetExisting = Symbol('named property set existing');
 const namedDelete = Symbol('named property delete');
 
-module.exports = exports = {
+const asyncIteratorNext = Symbol('async iterator get the next iteration result');
+const asyncIteratorReturn = Symbol('async iterator return steps');
+const asyncIteratorInit = Symbol('async iterator initialization steps');
+const asyncIteratorEOI = Symbol('async iterator end of iteration');
+
+module.exports = {
   is,
+  isImpl,
+  convert,
   isObject,
+  makeWrapper,
   hasOwn,
   wrapperSymbol,
   implSymbol,
   getSameObject,
-  getESValue,
   ctorRegistrySymbol,
   wrapperForImpl,
   implForWrapper,
@@ -123,5 +158,10 @@ module.exports = exports = {
   namedGet,
   namedSetNew,
   namedSetExisting,
-  namedDelete
+  namedDelete,
+  asyncIteratorNext,
+  asyncIteratorReturn,
+  asyncIteratorInit,
+  asyncIteratorEOI,
+  iteratorResult
 };

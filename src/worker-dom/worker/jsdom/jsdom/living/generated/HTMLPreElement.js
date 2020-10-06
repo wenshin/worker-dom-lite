@@ -2,68 +2,69 @@
 
 const conversions = require("webidl-conversions");
 const utils = require("./utils.js");
+const Impl = require("../nodes/HTMLPreElement-impl.js");
 
 const HTMLConstructor_helpers_html_constructor = require("../helpers/html-constructor.js").HTMLConstructor;
 const parseInteger_helpers_strings = require("../helpers/strings.js").parseInteger;
-const ceReactionsPreSteps_helpers_custom_elements = require("../helpers/custom-elements.js").ceReactionsPreSteps;
-const ceReactionsPostSteps_helpers_custom_elements = require("../helpers/custom-elements.js").ceReactionsPostSteps;
 const implSymbol = utils.implSymbol;
 const ctorRegistrySymbol = utils.ctorRegistrySymbol;
 const HTMLElement = require("./HTMLElement.js");
 
 const interfaceName = "HTMLPreElement";
 
-exports.is = function is(obj) {
-  return utils.isObject(obj) && utils.hasOwn(obj, implSymbol) && obj[implSymbol] instanceof Impl.implementation;
-};
-exports.isImpl = function isImpl(obj) {
-  return utils.isObject(obj) && obj instanceof Impl.implementation;
-};
-exports.convert = function convert(obj, { context = "The provided value" } = {}) {
-  if (exports.is(obj)) {
-    return utils.implForWrapper(obj);
-  }
-  throw new TypeError(`${context} is not of type 'HTMLPreElement'.`);
+exports.is = utils.is.bind(utils);
+exports.isImpl = utils.isImpl.bind(utils, Impl);
+exports.convert = utils.convert.bind(utils);
+
+exports.create = (globalObject, constructorArgs, privateData) => {
+  const wrapper = utils.makeWrapper("HTMLPreElement", globalObject);
+  return exports.setup(wrapper, globalObject, constructorArgs, privateData);
 };
 
-exports.create = function create(globalObject, constructorArgs, privateData) {
-  if (globalObject[ctorRegistrySymbol] === undefined) {
-    throw new Error("Internal error: invalid global object");
-  }
-
-  const ctor = globalObject[ctorRegistrySymbol]["HTMLPreElement"];
-  if (ctor === undefined) {
-    throw new Error("Internal error: constructor HTMLPreElement is not installed on the passed global object");
-  }
-
-  let obj = Object.create(ctor.prototype);
-  obj = exports.setup(obj, globalObject, constructorArgs, privateData);
-  return obj;
+exports.createImpl = (globalObject, constructorArgs, privateData) => {
+  const wrapper = exports.create(globalObject, constructorArgs, privateData);
+  return utils.implForWrapper(wrapper);
 };
-exports.createImpl = function createImpl(globalObject, constructorArgs, privateData) {
-  const obj = exports.create(globalObject, constructorArgs, privateData);
-  return utils.implForWrapper(obj);
-};
-exports._internalSetup = function _internalSetup(obj, globalObject) {
-  HTMLElement._internalSetup(obj, globalObject);
-};
-exports.setup = function setup(obj, globalObject, constructorArgs = [], privateData = {}) {
-  privateData.wrapper = obj;
 
-  exports._internalSetup(obj, globalObject);
-  Object.defineProperty(obj, implSymbol, {
+exports._internalSetup = (wrapper, globalObject) => {
+  HTMLElement._internalSetup(wrapper, globalObject);
+};
+
+exports.setup = (wrapper, globalObject, constructorArgs = [], privateData = {}) => {
+  privateData.wrapper = wrapper;
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
     value: new Impl.implementation(globalObject, constructorArgs, privateData),
     configurable: true
   });
 
-  obj[implSymbol][utils.wrapperSymbol] = obj;
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
   if (Impl.init) {
-    Impl.init(obj[implSymbol], privateData);
+    Impl.init(wrapper[implSymbol]);
   }
-  return obj;
+  return wrapper;
 };
 
-exports.install = function install(globalObject) {
+exports.new = globalObject => {
+  const wrapper = utils.makeWrapper(HTMLPreElement, globalObject);
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
+    value: Object.create(Impl.implementation.prototype),
+    configurable: true
+  });
+
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
+  if (Impl.init) {
+    Impl.init(wrapper[implSymbol]);
+  }
+  return wrapper[implSymbol];
+};
+
+const exposed = new Set(["Window"]);
+
+exports.install = globalObject => {
   if (globalObject.HTMLElement === undefined) {
     throw new Error("Internal error: attempting to evaluate HTMLPreElement before HTMLElement");
   }
@@ -75,40 +76,18 @@ exports.install = function install(globalObject) {
     get width() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+      let value = esValue[implSymbol].getAttributeNS(null, "width");
+      if (value === null) {
+        return 0;
       }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        let value = esValue[implSymbol].getAttributeNS(null, "width");
-        if (value === null) {
-          return 0;
-        }
-        value = parseInteger_helpers_strings(value);
-        return value !== null && conversions.long(value) === value ? value : 0;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      value = parseInteger_helpers_strings(value);
+      return value !== null && conversions.long(value) === value ? value : 0;
     }
 
     set width(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["long"](V, {
-        context: "Failed to set the 'width' property on 'HTMLPreElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "width", String(V));
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "width", String(V));
     }
   }
   Object.defineProperties(HTMLPreElement.prototype, {
@@ -126,5 +105,3 @@ exports.install = function install(globalObject) {
     value: HTMLPreElement
   });
 };
-
-const Impl = require("../nodes/HTMLPreElement-impl.js");

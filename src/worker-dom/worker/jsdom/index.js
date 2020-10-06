@@ -11,6 +11,7 @@ class JSDOM {
 
     this[window] = createWindow(options.windowOptions);
 
+    // TODO wrapper fix
     const documentImpl = idlUtils.implForWrapper(this[window]._document);
 
     options.beforeParse(this[window]._globalProxy);

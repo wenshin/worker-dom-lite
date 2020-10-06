@@ -2,294 +2,126 @@
 
 const conversions = require("webidl-conversions");
 const utils = require("./utils.js");
+const Impl = require("../window/Location-impl.js");
 
 const implSymbol = utils.implSymbol;
 const ctorRegistrySymbol = utils.ctorRegistrySymbol;
 
 const interfaceName = "Location";
 
-exports.is = function is(obj) {
-  return utils.isObject(obj) && utils.hasOwn(obj, implSymbol) && obj[implSymbol] instanceof Impl.implementation;
-};
-exports.isImpl = function isImpl(obj) {
-  return utils.isObject(obj) && obj instanceof Impl.implementation;
-};
-exports.convert = function convert(obj, { context = "The provided value" } = {}) {
-  if (exports.is(obj)) {
-    return utils.implForWrapper(obj);
-  }
-  throw new TypeError(`${context} is not of type 'Location'.`);
+exports.is = utils.is.bind(utils);
+exports.isImpl = utils.isImpl.bind(utils, Impl);
+exports.convert = utils.convert.bind(utils);
+
+exports.create = (globalObject, constructorArgs, privateData) => {
+  const wrapper = utils.makeWrapper("Location", globalObject);
+  return exports.setup(wrapper, globalObject, constructorArgs, privateData);
 };
 
-exports.create = function create(globalObject, constructorArgs, privateData) {
-  if (globalObject[ctorRegistrySymbol] === undefined) {
-    throw new Error("Internal error: invalid global object");
-  }
-
-  const ctor = globalObject[ctorRegistrySymbol]["Location"];
-  if (ctor === undefined) {
-    throw new Error("Internal error: constructor Location is not installed on the passed global object");
-  }
-
-  let obj = Object.create(ctor.prototype);
-  obj = exports.setup(obj, globalObject, constructorArgs, privateData);
-  return obj;
+exports.createImpl = (globalObject, constructorArgs, privateData) => {
+  const wrapper = exports.create(globalObject, constructorArgs, privateData);
+  return utils.implForWrapper(wrapper);
 };
-exports.createImpl = function createImpl(globalObject, constructorArgs, privateData) {
-  const obj = exports.create(globalObject, constructorArgs, privateData);
-  return utils.implForWrapper(obj);
-};
-exports._internalSetup = function _internalSetup(obj, globalObject) {
+
+exports._internalSetup = (wrapper, globalObject) => {
   Object.defineProperties(
-    obj,
+    wrapper,
     Object.getOwnPropertyDescriptors({
       assign(url) {
-        const esValue = this !== null && this !== undefined ? this : globalObject;
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
+        const esValue = this || globalObject;
 
-        if (arguments.length < 1) {
-          throw new TypeError(
-            "Failed to execute 'assign' on 'Location': 1 argument required, but only " + arguments.length + " present."
-          );
-        }
-        const args = [];
-        {
-          let curArg = arguments[0];
-          curArg = conversions["USVString"](curArg, {
-            context: "Failed to execute 'assign' on 'Location': parameter 1"
-          });
-          args.push(curArg);
-        }
-        return esValue[implSymbol].assign(...args);
+        return esValue[implSymbol].assign(
+          ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+        );
       },
       replace(url) {
-        const esValue = this !== null && this !== undefined ? this : globalObject;
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
+        const esValue = this || globalObject;
 
-        if (arguments.length < 1) {
-          throw new TypeError(
-            "Failed to execute 'replace' on 'Location': 1 argument required, but only " + arguments.length + " present."
-          );
-        }
-        const args = [];
-        {
-          let curArg = arguments[0];
-          curArg = conversions["USVString"](curArg, {
-            context: "Failed to execute 'replace' on 'Location': parameter 1"
-          });
-          args.push(curArg);
-        }
-        return esValue[implSymbol].replace(...args);
+        return esValue[implSymbol].replace(
+          ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+        );
       },
       reload() {
-        const esValue = this !== null && this !== undefined ? this : globalObject;
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
+        const esValue = this || globalObject;
 
         return esValue[implSymbol].reload();
       },
       get href() {
         const esValue = this !== null && this !== undefined ? this : globalObject;
-
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
-
         return esValue[implSymbol]["href"];
       },
       set href(V) {
-        const esValue = this !== null && this !== undefined ? this : globalObject;
-
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
-
-        V = conversions["USVString"](V, {
-          context: "Failed to set the 'href' property on 'Location': The provided value"
-        });
-
+        const esValue = this || globalObject;
         esValue[implSymbol]["href"] = V;
       },
       toString() {
-        const esValue = this;
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
-
+        const esValue = this || globalObject;
         return esValue[implSymbol]["href"];
       },
       get origin() {
         const esValue = this !== null && this !== undefined ? this : globalObject;
-
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
-
         return esValue[implSymbol]["origin"];
       },
       get protocol() {
         const esValue = this !== null && this !== undefined ? this : globalObject;
-
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
-
         return esValue[implSymbol]["protocol"];
       },
       set protocol(V) {
-        const esValue = this !== null && this !== undefined ? this : globalObject;
-
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
-
-        V = conversions["USVString"](V, {
-          context: "Failed to set the 'protocol' property on 'Location': The provided value"
-        });
-
+        const esValue = this || globalObject;
         esValue[implSymbol]["protocol"] = V;
       },
       get host() {
         const esValue = this !== null && this !== undefined ? this : globalObject;
-
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
-
         return esValue[implSymbol]["host"];
       },
       set host(V) {
-        const esValue = this !== null && this !== undefined ? this : globalObject;
-
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
-
-        V = conversions["USVString"](V, {
-          context: "Failed to set the 'host' property on 'Location': The provided value"
-        });
-
+        const esValue = this || globalObject;
         esValue[implSymbol]["host"] = V;
       },
       get hostname() {
         const esValue = this !== null && this !== undefined ? this : globalObject;
-
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
-
         return esValue[implSymbol]["hostname"];
       },
       set hostname(V) {
-        const esValue = this !== null && this !== undefined ? this : globalObject;
-
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
-
-        V = conversions["USVString"](V, {
-          context: "Failed to set the 'hostname' property on 'Location': The provided value"
-        });
-
+        const esValue = this || globalObject;
         esValue[implSymbol]["hostname"] = V;
       },
       get port() {
         const esValue = this !== null && this !== undefined ? this : globalObject;
-
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
-
         return esValue[implSymbol]["port"];
       },
       set port(V) {
-        const esValue = this !== null && this !== undefined ? this : globalObject;
-
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
-
-        V = conversions["USVString"](V, {
-          context: "Failed to set the 'port' property on 'Location': The provided value"
-        });
-
+        const esValue = this || globalObject;
         esValue[implSymbol]["port"] = V;
       },
       get pathname() {
         const esValue = this !== null && this !== undefined ? this : globalObject;
-
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
-
         return esValue[implSymbol]["pathname"];
       },
       set pathname(V) {
-        const esValue = this !== null && this !== undefined ? this : globalObject;
-
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
-
-        V = conversions["USVString"](V, {
-          context: "Failed to set the 'pathname' property on 'Location': The provided value"
-        });
-
+        const esValue = this || globalObject;
         esValue[implSymbol]["pathname"] = V;
       },
       get search() {
         const esValue = this !== null && this !== undefined ? this : globalObject;
-
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
-
         return esValue[implSymbol]["search"];
       },
       set search(V) {
-        const esValue = this !== null && this !== undefined ? this : globalObject;
-
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
-
-        V = conversions["USVString"](V, {
-          context: "Failed to set the 'search' property on 'Location': The provided value"
-        });
-
+        const esValue = this || globalObject;
         esValue[implSymbol]["search"] = V;
       },
       get hash() {
         const esValue = this !== null && this !== undefined ? this : globalObject;
-
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
-
         return esValue[implSymbol]["hash"];
       },
       set hash(V) {
-        const esValue = this !== null && this !== undefined ? this : globalObject;
-
-        if (!exports.is(esValue)) {
-          throw new TypeError("Illegal invocation");
-        }
-
-        V = conversions["USVString"](V, {
-          context: "Failed to set the 'hash' property on 'Location': The provided value"
-        });
-
+        const esValue = this || globalObject;
         esValue[implSymbol]["hash"] = V;
       }
     })
   );
 
-  Object.defineProperties(obj, {
+  Object.defineProperties(wrapper, {
     assign: { configurable: false, writable: false },
     replace: { configurable: false, writable: false },
     reload: { configurable: false, writable: false },
@@ -305,23 +137,42 @@ exports._internalSetup = function _internalSetup(obj, globalObject) {
     hash: { configurable: false }
   });
 };
-exports.setup = function setup(obj, globalObject, constructorArgs = [], privateData = {}) {
-  privateData.wrapper = obj;
 
-  exports._internalSetup(obj, globalObject);
-  Object.defineProperty(obj, implSymbol, {
+exports.setup = (wrapper, globalObject, constructorArgs = [], privateData = {}) => {
+  privateData.wrapper = wrapper;
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
     value: new Impl.implementation(globalObject, constructorArgs, privateData),
     configurable: true
   });
 
-  obj[implSymbol][utils.wrapperSymbol] = obj;
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
   if (Impl.init) {
-    Impl.init(obj[implSymbol], privateData);
+    Impl.init(wrapper[implSymbol]);
   }
-  return obj;
+  return wrapper;
 };
 
-exports.install = function install(globalObject) {
+exports.new = globalObject => {
+  const wrapper = utils.makeWrapper(Location, globalObject);
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
+    value: Object.create(Impl.implementation.prototype),
+    configurable: true
+  });
+
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
+  if (Impl.init) {
+    Impl.init(wrapper[implSymbol]);
+  }
+  return wrapper[implSymbol];
+};
+
+const exposed = new Set(["Window"]);
+
+exports.install = globalObject => {
   class Location {
     constructor() {
       throw new TypeError("Illegal constructor");
@@ -339,5 +190,3 @@ exports.install = function install(globalObject) {
     value: Location
   });
 };
-
-const Impl = require("../window/Location-impl.js");

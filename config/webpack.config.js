@@ -65,6 +65,7 @@ const sassModuleRegex = /\.module\.(scss|sass)$/;
 module.exports = function(webpackEnv) {
   const isEnvDevelopment = webpackEnv === 'development';
   const isEnvProduction = webpackEnv === 'production';
+  const isEnvProductionTest = webpackEnv === 'development';
 
   // Variable used for enabling profiling in Production
   // passed into alias object. Uses a flag if passed into the build command
@@ -79,8 +80,8 @@ module.exports = function(webpackEnv) {
   // common function to get style loaders
   const getStyleLoaders = (cssOptions, preProcessor) => {
     const loaders = [
-      isEnvDevelopment && require.resolve('style-loader'),
-      isEnvProduction && {
+      (isEnvDevelopment || isEnvProduction) && require.resolve('style-loader'),
+      isEnvProductionTest && {
         loader: MiniCssExtractPlugin.loader,
         // css is located in `static/css`, use '../../' to locate index.html folder
         // in production `paths.publicUrlOrPath` can be a relative path
@@ -315,7 +316,8 @@ module.exports = function(webpackEnv) {
       ]
     },
     module: {
-      strictExportPresence: true,
+      // 如果为 true ESM 引入 CommonJS 直接报错
+      strictExportPresence: false,
       rules: [
         // Disable require.ensure as it's not a standard language feature.
         { parser: { requireEnsure: false } },
@@ -372,6 +374,7 @@ module.exports = function(webpackEnv) {
             {
               test: /\.(js|mjs|jsx|ts|tsx)$/,
               include: paths.appSrc,
+              exclude: /worker\/jsdom/,
               loader: require.resolve('babel-loader'),
               options: {
                 customize: require.resolve('babel-preset-react-app/webpack-overrides'),
@@ -414,7 +417,7 @@ module.exports = function(webpackEnv) {
             // Unlike the application JS, we only compile the standard ES features.
             {
               test: /\.(js|mjs)$/,
-              exclude: /@babel(?:\/|\\{1,2})runtime/,
+              exclude: [ /worker\/jsdom/, /@babel(?:\/|\\{1,2})runtime/ ],
               loader: require.resolve('babel-loader'),
               options: {
                 babelrc: false,
@@ -585,7 +588,7 @@ module.exports = function(webpackEnv) {
       // makes the discovery automatic so you don't have to restart.
       // See https://github.com/facebook/create-react-app/issues/186
       isEnvDevelopment && new WatchMissingNodeModulesPlugin(paths.appNodeModules),
-      isEnvProduction &&
+      isEnvProductionTest &&
         new MiniCssExtractPlugin({
           // Options similar to the same options in webpackOptions.output
           // both options are optional
@@ -649,7 +652,7 @@ module.exports = function(webpackEnv) {
             basedir: paths.appNodeModules
           }),
           async: isEnvDevelopment,
-          useTypescriptIncrementalApi: true,
+          // useTypescriptIncrementalApi: true,
           checkSyntacticErrors: true,
           resolveModuleNameModule: process.versions.pnp ? `${__dirname}/pnpTs.js` : undefined,
           resolveTypeReferenceDirectiveModule: process.versions.pnp ? `${__dirname}/pnpTs.js` : undefined,

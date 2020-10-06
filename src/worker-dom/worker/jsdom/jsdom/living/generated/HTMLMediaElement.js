@@ -2,70 +2,71 @@
 
 const conversions = require("webidl-conversions");
 const utils = require("./utils.js");
+const Impl = require("../nodes/HTMLMediaElement-impl.js");
 
 const TextTrackKind = require("./TextTrackKind.js");
 const parseURLToResultingURLRecord_helpers_document_base_url = require("../helpers/document-base-url.js")
   .parseURLToResultingURLRecord;
 const serializeURLwhatwg_url = require("whatwg-url").serializeURL;
-const ceReactionsPreSteps_helpers_custom_elements = require("../helpers/custom-elements.js").ceReactionsPreSteps;
-const ceReactionsPostSteps_helpers_custom_elements = require("../helpers/custom-elements.js").ceReactionsPostSteps;
 const implSymbol = utils.implSymbol;
 const ctorRegistrySymbol = utils.ctorRegistrySymbol;
 const HTMLElement = require("./HTMLElement.js");
 
 const interfaceName = "HTMLMediaElement";
 
-exports.is = function is(obj) {
-  return utils.isObject(obj) && utils.hasOwn(obj, implSymbol) && obj[implSymbol] instanceof Impl.implementation;
-};
-exports.isImpl = function isImpl(obj) {
-  return utils.isObject(obj) && obj instanceof Impl.implementation;
-};
-exports.convert = function convert(obj, { context = "The provided value" } = {}) {
-  if (exports.is(obj)) {
-    return utils.implForWrapper(obj);
-  }
-  throw new TypeError(`${context} is not of type 'HTMLMediaElement'.`);
+exports.is = utils.is.bind(utils);
+exports.isImpl = utils.isImpl.bind(utils, Impl);
+exports.convert = utils.convert.bind(utils);
+
+exports.create = (globalObject, constructorArgs, privateData) => {
+  const wrapper = utils.makeWrapper("HTMLMediaElement", globalObject);
+  return exports.setup(wrapper, globalObject, constructorArgs, privateData);
 };
 
-exports.create = function create(globalObject, constructorArgs, privateData) {
-  if (globalObject[ctorRegistrySymbol] === undefined) {
-    throw new Error("Internal error: invalid global object");
-  }
-
-  const ctor = globalObject[ctorRegistrySymbol]["HTMLMediaElement"];
-  if (ctor === undefined) {
-    throw new Error("Internal error: constructor HTMLMediaElement is not installed on the passed global object");
-  }
-
-  let obj = Object.create(ctor.prototype);
-  obj = exports.setup(obj, globalObject, constructorArgs, privateData);
-  return obj;
+exports.createImpl = (globalObject, constructorArgs, privateData) => {
+  const wrapper = exports.create(globalObject, constructorArgs, privateData);
+  return utils.implForWrapper(wrapper);
 };
-exports.createImpl = function createImpl(globalObject, constructorArgs, privateData) {
-  const obj = exports.create(globalObject, constructorArgs, privateData);
-  return utils.implForWrapper(obj);
-};
-exports._internalSetup = function _internalSetup(obj, globalObject) {
-  HTMLElement._internalSetup(obj, globalObject);
-};
-exports.setup = function setup(obj, globalObject, constructorArgs = [], privateData = {}) {
-  privateData.wrapper = obj;
 
-  exports._internalSetup(obj, globalObject);
-  Object.defineProperty(obj, implSymbol, {
+exports._internalSetup = (wrapper, globalObject) => {
+  HTMLElement._internalSetup(wrapper, globalObject);
+};
+
+exports.setup = (wrapper, globalObject, constructorArgs = [], privateData = {}) => {
+  privateData.wrapper = wrapper;
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
     value: new Impl.implementation(globalObject, constructorArgs, privateData),
     configurable: true
   });
 
-  obj[implSymbol][utils.wrapperSymbol] = obj;
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
   if (Impl.init) {
-    Impl.init(obj[implSymbol], privateData);
+    Impl.init(wrapper[implSymbol]);
   }
-  return obj;
+  return wrapper;
 };
 
-exports.install = function install(globalObject) {
+exports.new = globalObject => {
+  const wrapper = utils.makeWrapper(HTMLMediaElement, globalObject);
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
+    value: Object.create(Impl.implementation.prototype),
+    configurable: true
+  });
+
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
+  if (Impl.init) {
+    Impl.init(wrapper[implSymbol]);
+  }
+  return wrapper[implSymbol];
+};
+
+const exposed = new Set(["Window"]);
+
+exports.install = globalObject => {
   if (globalObject.HTMLElement === undefined) {
     throw new Error("Internal error: attempting to evaluate HTMLMediaElement before HTMLElement");
   }
@@ -75,600 +76,262 @@ exports.install = function install(globalObject) {
     }
 
     load() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].load();
     }
 
     canPlayType(type) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'canPlayType' on 'HTMLMediaElement': 1 argument required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
-          context: "Failed to execute 'canPlayType' on 'HTMLMediaElement': parameter 1"
-        });
-        args.push(curArg);
-      }
-      return utils.tryWrapperForImpl(esValue[implSymbol].canPlayType(...args));
+      return utils.tryWrapperForImpl(
+        esValue[implSymbol].canPlayType(
+          ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+        )
+      );
     }
 
     play() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      try {
+        const esValue = this || globalObject;
 
-      return utils.tryWrapperForImpl(esValue[implSymbol].play());
+        return utils.tryWrapperForImpl(esValue[implSymbol].play());
+      } catch (e) {
+        return Promise.reject(e);
+      }
     }
 
     pause() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].pause();
     }
 
     addTextTrack(kind) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'addTextTrack' on 'HTMLMediaElement': 1 argument required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = TextTrackKind.convert(curArg, {
-          context: "Failed to execute 'addTextTrack' on 'HTMLMediaElement': parameter 1"
-        });
-        args.push(curArg);
-      }
-      {
-        let curArg = arguments[1];
-        if (curArg !== undefined) {
-          curArg = conversions["DOMString"](curArg, {
-            context: "Failed to execute 'addTextTrack' on 'HTMLMediaElement': parameter 2"
-          });
-        } else {
-          curArg = "";
-        }
-        args.push(curArg);
-      }
-      {
-        let curArg = arguments[2];
-        if (curArg !== undefined) {
-          curArg = conversions["DOMString"](curArg, {
-            context: "Failed to execute 'addTextTrack' on 'HTMLMediaElement': parameter 3"
-          });
-        } else {
-          curArg = "";
-        }
-        args.push(curArg);
-      }
-      return utils.tryWrapperForImpl(esValue[implSymbol].addTextTrack(...args));
+      return utils.tryWrapperForImpl(
+        esValue[implSymbol].addTextTrack(
+          ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+        )
+      );
     }
 
     get src() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+      const value = esValue[implSymbol].getAttributeNS(null, "src");
+      if (value === null) {
+        return "";
       }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "src");
-        if (value === null) {
-          return "";
-        }
-        const urlRecord = parseURLToResultingURLRecord_helpers_document_base_url(
-          value,
-          esValue[implSymbol]._ownerDocument
-        );
-        if (urlRecord !== null) {
-          return serializeURLwhatwg_url(urlRecord);
-        }
-        return conversions.USVString(value);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
+      const urlRecord = parseURLToResultingURLRecord_helpers_document_base_url(
+        value,
+        esValue[implSymbol]._ownerDocument
+      );
+      if (urlRecord !== null) {
+        return serializeURLwhatwg_url(urlRecord);
       }
+      return conversions.USVString(value);
     }
 
     set src(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["USVString"](V, {
-        context: "Failed to set the 'src' property on 'HTMLMediaElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "src", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "src", V);
     }
 
     get currentSrc() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["currentSrc"];
     }
 
     get crossOrigin() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "crossorigin");
-        return value === null ? "" : value;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const value = esValue[implSymbol].getAttributeNS(null, "crossorigin");
+      return value === null ? "" : value;
     }
 
     set crossOrigin(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      if (V === null || V === undefined) {
-        V = null;
-      } else {
-        V = conversions["DOMString"](V, {
-          context: "Failed to set the 'crossOrigin' property on 'HTMLMediaElement': The provided value"
-        });
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "crossorigin", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "crossorigin", V);
     }
 
     get networkState() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["networkState"];
     }
 
     get preload() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "preload");
-        return value === null ? "" : value;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const value = esValue[implSymbol].getAttributeNS(null, "preload");
+      return value === null ? "" : value;
     }
 
     set preload(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["DOMString"](V, {
-        context: "Failed to set the 'preload' property on 'HTMLMediaElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "preload", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "preload", V);
     }
 
     get buffered() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["buffered"]);
     }
 
     get readyState() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["readyState"];
     }
 
     get seeking() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["seeking"];
     }
 
     get currentTime() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["currentTime"];
     }
 
     set currentTime(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["double"](V, {
-        context: "Failed to set the 'currentTime' property on 'HTMLMediaElement': The provided value"
-      });
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["currentTime"] = V;
     }
 
     get duration() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["duration"];
     }
 
     get paused() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["paused"];
     }
 
     get defaultPlaybackRate() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["defaultPlaybackRate"];
     }
 
     set defaultPlaybackRate(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["double"](V, {
-        context: "Failed to set the 'defaultPlaybackRate' property on 'HTMLMediaElement': The provided value"
-      });
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["defaultPlaybackRate"] = V;
     }
 
     get playbackRate() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["playbackRate"];
     }
 
     set playbackRate(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["double"](V, {
-        context: "Failed to set the 'playbackRate' property on 'HTMLMediaElement': The provided value"
-      });
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["playbackRate"] = V;
     }
 
     get played() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["played"]);
     }
 
     get seekable() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["seekable"]);
     }
 
     get ended() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["ended"];
     }
 
     get autoplay() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol].hasAttributeNS(null, "autoplay");
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol].hasAttributeNS(null, "autoplay");
     }
 
     set autoplay(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["boolean"](V, {
-        context: "Failed to set the 'autoplay' property on 'HTMLMediaElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        if (V) {
-          esValue[implSymbol].setAttributeNS(null, "autoplay", "");
-        } else {
-          esValue[implSymbol].removeAttributeNS(null, "autoplay");
-        }
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
+      if (V) {
+        esValue[implSymbol].setAttributeNS(null, "autoplay", "");
+      } else {
+        esValue[implSymbol].removeAttributeNS(null, "autoplay");
       }
     }
 
     get loop() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol].hasAttributeNS(null, "loop");
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol].hasAttributeNS(null, "loop");
     }
 
     set loop(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["boolean"](V, {
-        context: "Failed to set the 'loop' property on 'HTMLMediaElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        if (V) {
-          esValue[implSymbol].setAttributeNS(null, "loop", "");
-        } else {
-          esValue[implSymbol].removeAttributeNS(null, "loop");
-        }
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
+      if (V) {
+        esValue[implSymbol].setAttributeNS(null, "loop", "");
+      } else {
+        esValue[implSymbol].removeAttributeNS(null, "loop");
       }
     }
 
     get controls() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol].hasAttributeNS(null, "controls");
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol].hasAttributeNS(null, "controls");
     }
 
     set controls(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["boolean"](V, {
-        context: "Failed to set the 'controls' property on 'HTMLMediaElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        if (V) {
-          esValue[implSymbol].setAttributeNS(null, "controls", "");
-        } else {
-          esValue[implSymbol].removeAttributeNS(null, "controls");
-        }
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
+      if (V) {
+        esValue[implSymbol].setAttributeNS(null, "controls", "");
+      } else {
+        esValue[implSymbol].removeAttributeNS(null, "controls");
       }
     }
 
     get volume() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["volume"];
     }
 
     set volume(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["double"](V, {
-        context: "Failed to set the 'volume' property on 'HTMLMediaElement': The provided value"
-      });
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["volume"] = V;
     }
 
     get muted() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["muted"];
     }
 
     set muted(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["boolean"](V, {
-        context: "Failed to set the 'muted' property on 'HTMLMediaElement': The provided value"
-      });
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["muted"] = V;
     }
 
     get defaultMuted() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol].hasAttributeNS(null, "muted");
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol].hasAttributeNS(null, "muted");
     }
 
     set defaultMuted(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["boolean"](V, {
-        context: "Failed to set the 'defaultMuted' property on 'HTMLMediaElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        if (V) {
-          esValue[implSymbol].setAttributeNS(null, "muted", "");
-        } else {
-          esValue[implSymbol].removeAttributeNS(null, "muted");
-        }
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
+      if (V) {
+        esValue[implSymbol].setAttributeNS(null, "muted", "");
+      } else {
+        esValue[implSymbol].removeAttributeNS(null, "muted");
       }
     }
 
     get audioTracks() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.getSameObject(this, "audioTracks", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["audioTracks"]);
       });
@@ -676,11 +339,6 @@ exports.install = function install(globalObject) {
 
     get videoTracks() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.getSameObject(this, "videoTracks", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["videoTracks"]);
       });
@@ -688,11 +346,6 @@ exports.install = function install(globalObject) {
 
     get textTracks() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.getSameObject(this, "textTracks", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["textTracks"]);
       });
@@ -762,5 +415,3 @@ exports.install = function install(globalObject) {
     value: HTMLMediaElement
   });
 };
-
-const Impl = require("../nodes/HTMLMediaElement-impl.js");

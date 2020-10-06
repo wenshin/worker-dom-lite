@@ -2,186 +2,108 @@
 
 const conversions = require("webidl-conversions");
 const utils = require("./utils.js");
+const Impl = require("../custom-elements/CustomElementRegistry-impl.js");
 
+const CustomElementConstructor = require("./CustomElementConstructor.js");
 const ElementDefinitionOptions = require("./ElementDefinitionOptions.js");
-const ceReactionsPreSteps_helpers_custom_elements = require("../helpers/custom-elements.js").ceReactionsPreSteps;
-const ceReactionsPostSteps_helpers_custom_elements = require("../helpers/custom-elements.js").ceReactionsPostSteps;
 const Node = require("./Node.js");
 const implSymbol = utils.implSymbol;
 const ctorRegistrySymbol = utils.ctorRegistrySymbol;
 
 const interfaceName = "CustomElementRegistry";
 
-exports.is = function is(obj) {
-  return utils.isObject(obj) && utils.hasOwn(obj, implSymbol) && obj[implSymbol] instanceof Impl.implementation;
-};
-exports.isImpl = function isImpl(obj) {
-  return utils.isObject(obj) && obj instanceof Impl.implementation;
-};
-exports.convert = function convert(obj, { context = "The provided value" } = {}) {
-  if (exports.is(obj)) {
-    return utils.implForWrapper(obj);
-  }
-  throw new TypeError(`${context} is not of type 'CustomElementRegistry'.`);
+exports.is = utils.is.bind(utils);
+exports.isImpl = utils.isImpl.bind(utils, Impl);
+exports.convert = utils.convert.bind(utils);
+
+exports.create = (globalObject, constructorArgs, privateData) => {
+  const wrapper = utils.makeWrapper("CustomElementRegistry", globalObject);
+  return exports.setup(wrapper, globalObject, constructorArgs, privateData);
 };
 
-exports.create = function create(globalObject, constructorArgs, privateData) {
-  if (globalObject[ctorRegistrySymbol] === undefined) {
-    throw new Error("Internal error: invalid global object");
-  }
-
-  const ctor = globalObject[ctorRegistrySymbol]["CustomElementRegistry"];
-  if (ctor === undefined) {
-    throw new Error("Internal error: constructor CustomElementRegistry is not installed on the passed global object");
-  }
-
-  let obj = Object.create(ctor.prototype);
-  obj = exports.setup(obj, globalObject, constructorArgs, privateData);
-  return obj;
+exports.createImpl = (globalObject, constructorArgs, privateData) => {
+  const wrapper = exports.create(globalObject, constructorArgs, privateData);
+  return utils.implForWrapper(wrapper);
 };
-exports.createImpl = function createImpl(globalObject, constructorArgs, privateData) {
-  const obj = exports.create(globalObject, constructorArgs, privateData);
-  return utils.implForWrapper(obj);
-};
-exports._internalSetup = function _internalSetup(obj, globalObject) {};
-exports.setup = function setup(obj, globalObject, constructorArgs = [], privateData = {}) {
-  privateData.wrapper = obj;
 
-  exports._internalSetup(obj, globalObject);
-  Object.defineProperty(obj, implSymbol, {
+exports._internalSetup = (wrapper, globalObject) => {};
+
+exports.setup = (wrapper, globalObject, constructorArgs = [], privateData = {}) => {
+  privateData.wrapper = wrapper;
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
     value: new Impl.implementation(globalObject, constructorArgs, privateData),
     configurable: true
   });
 
-  obj[implSymbol][utils.wrapperSymbol] = obj;
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
   if (Impl.init) {
-    Impl.init(obj[implSymbol], privateData);
+    Impl.init(wrapper[implSymbol]);
   }
-  return obj;
+  return wrapper;
 };
 
-exports.install = function install(globalObject) {
+exports.new = globalObject => {
+  const wrapper = utils.makeWrapper(CustomElementRegistry, globalObject);
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
+    value: Object.create(Impl.implementation.prototype),
+    configurable: true
+  });
+
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
+  if (Impl.init) {
+    Impl.init(wrapper[implSymbol]);
+  }
+  return wrapper[implSymbol];
+};
+
+const exposed = new Set(["Window"]);
+
+exports.install = globalObject => {
   class CustomElementRegistry {
     constructor() {
       throw new TypeError("Illegal constructor");
     }
 
     define(name, constructor) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 2) {
-        throw new TypeError(
-          "Failed to execute 'define' on 'CustomElementRegistry': 2 arguments required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
-          context: "Failed to execute 'define' on 'CustomElementRegistry': parameter 1"
-        });
-        args.push(curArg);
-      }
-      {
-        let curArg = arguments[1];
-        curArg = utils.tryImplForWrapper(curArg);
-        args.push(curArg);
-      }
-      {
-        let curArg = arguments[2];
-        curArg = ElementDefinitionOptions.convert(curArg, {
-          context: "Failed to execute 'define' on 'CustomElementRegistry': parameter 3"
-        });
-        args.push(curArg);
-      }
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol].define(...args);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol].define(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     get(name) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'get' on 'CustomElementRegistry': 1 argument required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
-          context: "Failed to execute 'get' on 'CustomElementRegistry': parameter 1"
-        });
-        args.push(curArg);
-      }
-      return esValue[implSymbol].get(...args);
+      return esValue[implSymbol].get(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     whenDefined(name) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      try {
+        const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'whenDefined' on 'CustomElementRegistry': 1 argument required, but only " +
-            arguments.length +
-            " present."
+        return utils.tryWrapperForImpl(
+          esValue[implSymbol].whenDefined(
+            ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+          )
         );
+      } catch (e) {
+        return Promise.reject(e);
       }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
-          context: "Failed to execute 'whenDefined' on 'CustomElementRegistry': parameter 1"
-        });
-        args.push(curArg);
-      }
-      return utils.tryWrapperForImpl(esValue[implSymbol].whenDefined(...args));
     }
 
     upgrade(root) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'upgrade' on 'CustomElementRegistry': 1 argument required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = Node.convert(curArg, {
-          context: "Failed to execute 'upgrade' on 'CustomElementRegistry': parameter 1"
-        });
-        args.push(curArg);
-      }
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol].upgrade(...args);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol].upgrade(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
   }
   Object.defineProperties(CustomElementRegistry.prototype, {
@@ -202,5 +124,3 @@ exports.install = function install(globalObject) {
     value: CustomElementRegistry
   });
 };
-
-const Impl = require("../custom-elements/CustomElementRegistry-impl.js");

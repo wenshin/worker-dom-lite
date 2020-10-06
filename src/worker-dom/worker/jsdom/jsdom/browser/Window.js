@@ -129,6 +129,7 @@ function Window(options) {
   Object.defineProperty(idlUtils.implForWrapper(this), idlUtils.wrapperSymbol, { get: () => this._globalProxy });
 
   // List options explicitly to be clear which are passed through
+  // TODO fix wrapper
   this._document = documents.createWrapper(
     window,
     {
@@ -150,6 +151,7 @@ function Window(options) {
   );
 
   if (vm.isContext(window)) {
+    // TODO fix wrapper
     const documentImpl = idlUtils.implForWrapper(window._document);
     documentImpl._defaultView = window._globalProxy = vm.runInContext('this', window);
   }

@@ -2,67 +2,68 @@
 
 const conversions = require("webidl-conversions");
 const utils = require("./utils.js");
+const Impl = require("../nodes/HTMLFormElement-impl.js");
 
 const HTMLConstructor_helpers_html_constructor = require("../helpers/html-constructor.js").HTMLConstructor;
 const HTMLElement = require("./HTMLElement.js");
-const ceReactionsPreSteps_helpers_custom_elements = require("../helpers/custom-elements.js").ceReactionsPreSteps;
-const ceReactionsPostSteps_helpers_custom_elements = require("../helpers/custom-elements.js").ceReactionsPostSteps;
 const implSymbol = utils.implSymbol;
 const ctorRegistrySymbol = utils.ctorRegistrySymbol;
 
 const interfaceName = "HTMLFormElement";
 
-exports.is = function is(obj) {
-  return utils.isObject(obj) && utils.hasOwn(obj, implSymbol) && obj[implSymbol] instanceof Impl.implementation;
-};
-exports.isImpl = function isImpl(obj) {
-  return utils.isObject(obj) && obj instanceof Impl.implementation;
-};
-exports.convert = function convert(obj, { context = "The provided value" } = {}) {
-  if (exports.is(obj)) {
-    return utils.implForWrapper(obj);
-  }
-  throw new TypeError(`${context} is not of type 'HTMLFormElement'.`);
+exports.is = utils.is.bind(utils);
+exports.isImpl = utils.isImpl.bind(utils, Impl);
+exports.convert = utils.convert.bind(utils);
+
+exports.create = (globalObject, constructorArgs, privateData) => {
+  const wrapper = utils.makeWrapper("HTMLFormElement", globalObject);
+  return exports.setup(wrapper, globalObject, constructorArgs, privateData);
 };
 
-exports.create = function create(globalObject, constructorArgs, privateData) {
-  if (globalObject[ctorRegistrySymbol] === undefined) {
-    throw new Error("Internal error: invalid global object");
-  }
-
-  const ctor = globalObject[ctorRegistrySymbol]["HTMLFormElement"];
-  if (ctor === undefined) {
-    throw new Error("Internal error: constructor HTMLFormElement is not installed on the passed global object");
-  }
-
-  let obj = Object.create(ctor.prototype);
-  obj = exports.setup(obj, globalObject, constructorArgs, privateData);
-  return obj;
+exports.createImpl = (globalObject, constructorArgs, privateData) => {
+  const wrapper = exports.create(globalObject, constructorArgs, privateData);
+  return utils.implForWrapper(wrapper);
 };
-exports.createImpl = function createImpl(globalObject, constructorArgs, privateData) {
-  const obj = exports.create(globalObject, constructorArgs, privateData);
-  return utils.implForWrapper(obj);
-};
-exports._internalSetup = function _internalSetup(obj, globalObject) {
-  HTMLElement._internalSetup(obj, globalObject);
-};
-exports.setup = function setup(obj, globalObject, constructorArgs = [], privateData = {}) {
-  privateData.wrapper = obj;
 
-  exports._internalSetup(obj, globalObject);
-  Object.defineProperty(obj, implSymbol, {
+exports._internalSetup = (wrapper, globalObject) => {
+  HTMLElement._internalSetup(wrapper, globalObject);
+};
+
+exports.setup = (wrapper, globalObject, constructorArgs = [], privateData = {}) => {
+  privateData.wrapper = wrapper;
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
     value: new Impl.implementation(globalObject, constructorArgs, privateData),
     configurable: true
   });
 
-  obj[implSymbol][utils.wrapperSymbol] = obj;
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
   if (Impl.init) {
-    Impl.init(obj[implSymbol], privateData);
+    Impl.init(wrapper[implSymbol]);
   }
-  return obj;
+  return wrapper;
 };
 
-exports.install = function install(globalObject) {
+exports.new = globalObject => {
+  const wrapper = utils.makeWrapper(HTMLFormElement, globalObject);
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
+    value: Object.create(Impl.implementation.prototype),
+    configurable: true
+  });
+
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
+  if (Impl.init) {
+    Impl.init(wrapper[implSymbol]);
+  }
+  return wrapper[implSymbol];
+};
+
+const exposed = new Set(["Window"]);
+
+exports.install = globalObject => {
   if (globalObject.HTMLElement === undefined) {
     throw new Error("Internal error: attempting to evaluate HTMLFormElement before HTMLElement");
   }
@@ -72,60 +73,33 @@ exports.install = function install(globalObject) {
     }
 
     submit() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].submit();
     }
 
     requestSubmit() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        if (curArg !== undefined) {
-          curArg = HTMLElement.convert(curArg, {
-            context: "Failed to execute 'requestSubmit' on 'HTMLFormElement': parameter 1"
-          });
-        }
-        args.push(curArg);
-      }
-      return esValue[implSymbol].requestSubmit(...args);
+      const esValue = this || globalObject;
+
+      return esValue[implSymbol].requestSubmit(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     reset() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol].reset();
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol].reset();
     }
 
     checkValidity() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].checkValidity();
     }
 
     reportValidity() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].reportValidity();
     }
@@ -133,255 +107,90 @@ exports.install = function install(globalObject) {
     get acceptCharset() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "accept-charset");
-        return value === null ? "" : value;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const value = esValue[implSymbol].getAttributeNS(null, "accept-charset");
+      return value === null ? "" : value;
     }
 
     set acceptCharset(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["DOMString"](V, {
-        context: "Failed to set the 'acceptCharset' property on 'HTMLFormElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "accept-charset", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "accept-charset", V);
     }
 
     get action() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol]["action"];
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol]["action"];
     }
 
     set action(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["USVString"](V, {
-        context: "Failed to set the 'action' property on 'HTMLFormElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol]["action"] = V;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const esValue = this || globalObject;
+      esValue[implSymbol]["action"] = V;
     }
 
     get enctype() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol]["enctype"];
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol]["enctype"];
     }
 
     set enctype(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["DOMString"](V, {
-        context: "Failed to set the 'enctype' property on 'HTMLFormElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol]["enctype"] = V;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const esValue = this || globalObject;
+      esValue[implSymbol]["enctype"] = V;
     }
 
     get method() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol]["method"];
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol]["method"];
     }
 
     set method(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["DOMString"](V, {
-        context: "Failed to set the 'method' property on 'HTMLFormElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol]["method"] = V;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const esValue = this || globalObject;
+      esValue[implSymbol]["method"] = V;
     }
 
     get name() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "name");
-        return value === null ? "" : value;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const value = esValue[implSymbol].getAttributeNS(null, "name");
+      return value === null ? "" : value;
     }
 
     set name(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["DOMString"](V, {
-        context: "Failed to set the 'name' property on 'HTMLFormElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "name", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "name", V);
     }
 
     get noValidate() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol].hasAttributeNS(null, "novalidate");
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol].hasAttributeNS(null, "novalidate");
     }
 
     set noValidate(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["boolean"](V, {
-        context: "Failed to set the 'noValidate' property on 'HTMLFormElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        if (V) {
-          esValue[implSymbol].setAttributeNS(null, "novalidate", "");
-        } else {
-          esValue[implSymbol].removeAttributeNS(null, "novalidate");
-        }
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
+      if (V) {
+        esValue[implSymbol].setAttributeNS(null, "novalidate", "");
+      } else {
+        esValue[implSymbol].removeAttributeNS(null, "novalidate");
       }
     }
 
     get target() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "target");
-        return value === null ? "" : value;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const value = esValue[implSymbol].getAttributeNS(null, "target");
+      return value === null ? "" : value;
     }
 
     set target(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["DOMString"](V, {
-        context: "Failed to set the 'target' property on 'HTMLFormElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "target", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "target", V);
     }
 
     get elements() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.getSameObject(this, "elements", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["elements"]);
       });
@@ -389,11 +198,6 @@ exports.install = function install(globalObject) {
 
     get length() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["length"];
     }
   }
@@ -425,5 +229,3 @@ exports.install = function install(globalObject) {
     value: HTMLFormElement
   });
 };
-
-const Impl = require("../nodes/HTMLFormElement-impl.js");

@@ -2,79 +2,84 @@
 
 const conversions = require("webidl-conversions");
 const utils = require("./utils.js");
+const Impl = require("../nodes/HTMLSelectElement-impl.js");
 
 const HTMLConstructor_helpers_html_constructor = require("../helpers/html-constructor.js").HTMLConstructor;
 const HTMLOptionElement = require("./HTMLOptionElement.js");
 const HTMLOptGroupElement = require("./HTMLOptGroupElement.js");
 const HTMLElement = require("./HTMLElement.js");
-const ceReactionsPreSteps_helpers_custom_elements = require("../helpers/custom-elements.js").ceReactionsPreSteps;
-const ceReactionsPostSteps_helpers_custom_elements = require("../helpers/custom-elements.js").ceReactionsPostSteps;
 const parseNonNegativeInteger_helpers_strings = require("../helpers/strings.js").parseNonNegativeInteger;
 const implSymbol = utils.implSymbol;
 const ctorRegistrySymbol = utils.ctorRegistrySymbol;
 
 const interfaceName = "HTMLSelectElement";
 
-exports.is = function is(obj) {
-  return utils.isObject(obj) && utils.hasOwn(obj, implSymbol) && obj[implSymbol] instanceof Impl.implementation;
-};
-exports.isImpl = function isImpl(obj) {
-  return utils.isObject(obj) && obj instanceof Impl.implementation;
-};
-exports.convert = function convert(obj, { context = "The provided value" } = {}) {
-  if (exports.is(obj)) {
-    return utils.implForWrapper(obj);
+exports.is = utils.is.bind(utils);
+exports.isImpl = utils.isImpl.bind(utils, Impl);
+exports.convert = utils.convert.bind(utils);
+
+function makeProxy(wrapper, globalObject) {
+  let proxyHandler = proxyHandlerCache.get(globalObject);
+  if (proxyHandler === undefined) {
+    proxyHandler = new ProxyHandler(globalObject);
+    proxyHandlerCache.set(globalObject, proxyHandler);
   }
-  throw new TypeError(`${context} is not of type 'HTMLSelectElement'.`);
+  return new Proxy(wrapper, proxyHandler);
+}
+
+exports.create = (globalObject, constructorArgs, privateData) => {
+  const wrapper = utils.makeWrapper("HTMLSelectElement", globalObject);
+  return exports.setup(wrapper, globalObject, constructorArgs, privateData);
 };
 
-exports.create = function create(globalObject, constructorArgs, privateData) {
-  if (globalObject[ctorRegistrySymbol] === undefined) {
-    throw new Error("Internal error: invalid global object");
-  }
-
-  const ctor = globalObject[ctorRegistrySymbol]["HTMLSelectElement"];
-  if (ctor === undefined) {
-    throw new Error("Internal error: constructor HTMLSelectElement is not installed on the passed global object");
-  }
-
-  let obj = Object.create(ctor.prototype);
-  obj = exports.setup(obj, globalObject, constructorArgs, privateData);
-  return obj;
+exports.createImpl = (globalObject, constructorArgs, privateData) => {
+  const wrapper = exports.create(globalObject, constructorArgs, privateData);
+  return utils.implForWrapper(wrapper);
 };
-exports.createImpl = function createImpl(globalObject, constructorArgs, privateData) {
-  const obj = exports.create(globalObject, constructorArgs, privateData);
-  return utils.implForWrapper(obj);
-};
-exports._internalSetup = function _internalSetup(obj, globalObject) {
-  HTMLElement._internalSetup(obj, globalObject);
-};
-exports.setup = function setup(obj, globalObject, constructorArgs = [], privateData = {}) {
-  privateData.wrapper = obj;
 
-  exports._internalSetup(obj, globalObject);
-  Object.defineProperty(obj, implSymbol, {
+exports._internalSetup = (wrapper, globalObject) => {
+  HTMLElement._internalSetup(wrapper, globalObject);
+};
+
+exports.setup = (wrapper, globalObject, constructorArgs = [], privateData = {}) => {
+  privateData.wrapper = wrapper;
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
     value: new Impl.implementation(globalObject, constructorArgs, privateData),
     configurable: true
   });
 
-  {
-    let proxyHandler = proxyHandlerCache.get(globalObject);
-    if (proxyHandler === undefined) {
-      proxyHandler = new ProxyHandler(globalObject);
-      proxyHandlerCache.set(globalObject, proxyHandler);
-    }
-    obj = new Proxy(obj, proxyHandler);
-  }
+  wrapper = makeProxy(wrapper, globalObject);
 
-  obj[implSymbol][utils.wrapperSymbol] = obj;
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
   if (Impl.init) {
-    Impl.init(obj[implSymbol], privateData);
+    Impl.init(wrapper[implSymbol]);
   }
-  return obj;
+  return wrapper;
 };
 
-exports.install = function install(globalObject) {
+exports.new = globalObject => {
+  let wrapper = utils.makeWrapper(HTMLSelectElement, globalObject);
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
+    value: Object.create(Impl.implementation.prototype),
+    configurable: true
+  });
+
+  wrapper = makeProxy(wrapper, globalObject);
+
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
+  if (Impl.init) {
+    Impl.init(wrapper[implSymbol]);
+  }
+  return wrapper[implSymbol];
+};
+
+const exposed = new Set(["Window"]);
+
+exports.install = globalObject => {
   if (globalObject.HTMLElement === undefined) {
     throw new Error("Internal error: attempting to evaluate HTMLSelectElement before HTMLElement");
   }
@@ -84,430 +89,166 @@ exports.install = function install(globalObject) {
     }
 
     item(index) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'item' on 'HTMLSelectElement': 1 argument required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["unsigned long"](curArg, {
-          context: "Failed to execute 'item' on 'HTMLSelectElement': parameter 1"
-        });
-        args.push(curArg);
-      }
-      return utils.tryWrapperForImpl(esValue[implSymbol].item(...args));
+      return utils.tryWrapperForImpl(
+        esValue[implSymbol].item(...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v)))
+      );
     }
 
     namedItem(name) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'namedItem' on 'HTMLSelectElement': 1 argument required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
-          context: "Failed to execute 'namedItem' on 'HTMLSelectElement': parameter 1"
-        });
-        args.push(curArg);
-      }
-      return utils.tryWrapperForImpl(esValue[implSymbol].namedItem(...args));
+      return utils.tryWrapperForImpl(
+        esValue[implSymbol].namedItem(
+          ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+        )
+      );
     }
 
     add(element) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'add' on 'HTMLSelectElement': 1 argument required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        if (HTMLOptionElement.is(curArg) || HTMLOptGroupElement.is(curArg)) {
-          curArg = utils.implForWrapper(curArg);
-        } else {
-          throw new TypeError(
-            "Failed to execute 'add' on 'HTMLSelectElement': parameter 1" + " is not of any supported type."
-          );
-        }
-        args.push(curArg);
-      }
-      {
-        let curArg = arguments[1];
-        if (curArg !== undefined) {
-          if (curArg === null || curArg === undefined) {
-            curArg = null;
-          } else {
-            if (HTMLElement.is(curArg)) {
-              curArg = utils.implForWrapper(curArg);
-            } else if (typeof curArg === "number") {
-              curArg = conversions["long"](curArg, {
-                context: "Failed to execute 'add' on 'HTMLSelectElement': parameter 2"
-              });
-            } else {
-              curArg = conversions["long"](curArg, {
-                context: "Failed to execute 'add' on 'HTMLSelectElement': parameter 2"
-              });
-            }
-          }
-        } else {
-          curArg = null;
-        }
-        args.push(curArg);
-      }
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol].add(...args);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol].add(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     remove() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-      const args = [];
-      switch (arguments.length) {
-        case 0:
-          break;
-        default: {
-          let curArg = arguments[0];
-          curArg = conversions["long"](curArg, {
-            context: "Failed to execute 'remove' on 'HTMLSelectElement': parameter 1"
-          });
-          args.push(curArg);
-        }
-      }
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol].remove(...args);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const esValue = this || globalObject;
+
+      return esValue[implSymbol].remove(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     checkValidity() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].checkValidity();
     }
 
     reportValidity() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].reportValidity();
     }
 
     setCustomValidity(error) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
+      const esValue = this || globalObject;
 
-      if (arguments.length < 1) {
-        throw new TypeError(
-          "Failed to execute 'setCustomValidity' on 'HTMLSelectElement': 1 argument required, but only " +
-            arguments.length +
-            " present."
-        );
-      }
-      const args = [];
-      {
-        let curArg = arguments[0];
-        curArg = conversions["DOMString"](curArg, {
-          context: "Failed to execute 'setCustomValidity' on 'HTMLSelectElement': parameter 1"
-        });
-        args.push(curArg);
-      }
-      return esValue[implSymbol].setCustomValidity(...args);
+      return esValue[implSymbol].setCustomValidity(
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
+      );
     }
 
     get autofocus() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol].hasAttributeNS(null, "autofocus");
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol].hasAttributeNS(null, "autofocus");
     }
 
     set autofocus(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["boolean"](V, {
-        context: "Failed to set the 'autofocus' property on 'HTMLSelectElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        if (V) {
-          esValue[implSymbol].setAttributeNS(null, "autofocus", "");
-        } else {
-          esValue[implSymbol].removeAttributeNS(null, "autofocus");
-        }
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
+      if (V) {
+        esValue[implSymbol].setAttributeNS(null, "autofocus", "");
+      } else {
+        esValue[implSymbol].removeAttributeNS(null, "autofocus");
       }
     }
 
     get disabled() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol].hasAttributeNS(null, "disabled");
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol].hasAttributeNS(null, "disabled");
     }
 
     set disabled(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["boolean"](V, {
-        context: "Failed to set the 'disabled' property on 'HTMLSelectElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        if (V) {
-          esValue[implSymbol].setAttributeNS(null, "disabled", "");
-        } else {
-          esValue[implSymbol].removeAttributeNS(null, "disabled");
-        }
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
+      if (V) {
+        esValue[implSymbol].setAttributeNS(null, "disabled", "");
+      } else {
+        esValue[implSymbol].removeAttributeNS(null, "disabled");
       }
     }
 
     get form() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["form"]);
     }
 
     get multiple() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol].hasAttributeNS(null, "multiple");
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol].hasAttributeNS(null, "multiple");
     }
 
     set multiple(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["boolean"](V, {
-        context: "Failed to set the 'multiple' property on 'HTMLSelectElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        if (V) {
-          esValue[implSymbol].setAttributeNS(null, "multiple", "");
-        } else {
-          esValue[implSymbol].removeAttributeNS(null, "multiple");
-        }
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
+      if (V) {
+        esValue[implSymbol].setAttributeNS(null, "multiple", "");
+      } else {
+        esValue[implSymbol].removeAttributeNS(null, "multiple");
       }
     }
 
     get name() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "name");
-        return value === null ? "" : value;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const value = esValue[implSymbol].getAttributeNS(null, "name");
+      return value === null ? "" : value;
     }
 
     set name(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["DOMString"](V, {
-        context: "Failed to set the 'name' property on 'HTMLSelectElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "name", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "name", V);
     }
 
     get required() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol].hasAttributeNS(null, "required");
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol].hasAttributeNS(null, "required");
     }
 
     set required(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["boolean"](V, {
-        context: "Failed to set the 'required' property on 'HTMLSelectElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        if (V) {
-          esValue[implSymbol].setAttributeNS(null, "required", "");
-        } else {
-          esValue[implSymbol].removeAttributeNS(null, "required");
-        }
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
+      if (V) {
+        esValue[implSymbol].setAttributeNS(null, "required", "");
+      } else {
+        esValue[implSymbol].removeAttributeNS(null, "required");
       }
     }
 
     get size() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+      let value = esValue[implSymbol].getAttributeNS(null, "size");
+      if (value === null) {
+        return 0;
       }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        let value = esValue[implSymbol].getAttributeNS(null, "size");
-        if (value === null) {
-          return 0;
-        }
-        value = parseNonNegativeInteger_helpers_strings(value);
-        return value !== null && value >= 0 && value <= 2147483647 ? value : 0;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      value = parseNonNegativeInteger_helpers_strings(value);
+      return value !== null && value >= 0 && value <= 2147483647 ? value : 0;
     }
 
     set size(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["unsigned long"](V, {
-        context: "Failed to set the 'size' property on 'HTMLSelectElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const n = V <= 2147483647 ? V : 0;
-        esValue[implSymbol].setAttributeNS(null, "size", String(n));
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const n = V <= 2147483647 ? V : 0;
+      esValue[implSymbol].setAttributeNS(null, "size", String(n));
     }
 
     get type() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["type"];
     }
 
     get options() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.getSameObject(this, "options", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["options"]);
       });
@@ -515,45 +256,16 @@ exports.install = function install(globalObject) {
 
     get length() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol]["length"];
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol]["length"];
     }
 
     set length(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["unsigned long"](V, {
-        context: "Failed to set the 'length' property on 'HTMLSelectElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol]["length"] = V;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const esValue = this || globalObject;
+      esValue[implSymbol]["length"] = V;
     }
 
     get selectedOptions() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.getSameObject(this, "selectedOptions", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["selectedOptions"]);
       });
@@ -561,89 +273,41 @@ exports.install = function install(globalObject) {
 
     get selectedIndex() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["selectedIndex"];
     }
 
     set selectedIndex(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["long"](V, {
-        context: "Failed to set the 'selectedIndex' property on 'HTMLSelectElement': The provided value"
-      });
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["selectedIndex"] = V;
     }
 
     get value() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["value"];
     }
 
     set value(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["DOMString"](V, {
-        context: "Failed to set the 'value' property on 'HTMLSelectElement': The provided value"
-      });
-
+      const esValue = this || globalObject;
       esValue[implSymbol]["value"] = V;
     }
 
     get willValidate() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["willValidate"];
     }
 
     get validity() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["validity"]);
     }
 
     get validationMessage() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return esValue[implSymbol]["validationMessage"];
     }
 
     get labels() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
-
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
       return utils.tryWrapperForImpl(esValue[implSymbol]["labels"]);
     }
   }
@@ -770,7 +434,9 @@ class ProxyHandler {
     if (typeof P === "symbol") {
       return Reflect.set(target, P, V, receiver);
     }
-    if (target === receiver) {
+    // The `receiver` argument refers to the Proxy exotic object or an object
+    // that inherits from it, whereas `target` refers to the Proxy target:
+    if (target[implSymbol][utils.wrapperSymbol] === receiver) {
       const globalObject = this._globalObject;
 
       if (utils.isArrayIndexPropName(P)) {
@@ -785,16 +451,11 @@ class ProxyHandler {
           });
         }
 
-        ceReactionsPreSteps_helpers_custom_elements(globalObject);
-        try {
-          const creating = !(target[implSymbol].item(index) !== null);
-          if (creating) {
-            target[implSymbol][utils.indexedSetNew](index, indexedValue);
-          } else {
-            target[implSymbol][utils.indexedSetExisting](index, indexedValue);
-          }
-        } finally {
-          ceReactionsPostSteps_helpers_custom_elements(globalObject);
+        const creating = !(target[implSymbol].item(index) !== null);
+        if (creating) {
+          target[implSymbol][utils.indexedSetNew](index, indexedValue);
+        } else {
+          target[implSymbol][utils.indexedSetExisting](index, indexedValue);
         }
 
         return true;
@@ -870,16 +531,11 @@ class ProxyHandler {
         });
       }
 
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const creating = !(target[implSymbol].item(index) !== null);
-        if (creating) {
-          target[implSymbol][utils.indexedSetNew](index, indexedValue);
-        } else {
-          target[implSymbol][utils.indexedSetExisting](index, indexedValue);
-        }
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
+      const creating = !(target[implSymbol].item(index) !== null);
+      if (creating) {
+        target[implSymbol][utils.indexedSetNew](index, indexedValue);
+      } else {
+        target[implSymbol][utils.indexedSetExisting](index, indexedValue);
       }
 
       return true;
@@ -907,5 +563,3 @@ class ProxyHandler {
     return false;
   }
 }
-
-const Impl = require("../nodes/HTMLSelectElement-impl.js");

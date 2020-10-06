@@ -2,10 +2,9 @@
 
 const conversions = require("webidl-conversions");
 const utils = require("./utils.js");
+const Impl = require("../nodes/HTMLMarqueeElement-impl.js");
 
 const HTMLConstructor_helpers_html_constructor = require("../helpers/html-constructor.js").HTMLConstructor;
-const ceReactionsPreSteps_helpers_custom_elements = require("../helpers/custom-elements.js").ceReactionsPreSteps;
-const ceReactionsPostSteps_helpers_custom_elements = require("../helpers/custom-elements.js").ceReactionsPostSteps;
 const parseNonNegativeInteger_helpers_strings = require("../helpers/strings.js").parseNonNegativeInteger;
 const implSymbol = utils.implSymbol;
 const ctorRegistrySymbol = utils.ctorRegistrySymbol;
@@ -13,57 +12,59 @@ const HTMLElement = require("./HTMLElement.js");
 
 const interfaceName = "HTMLMarqueeElement";
 
-exports.is = function is(obj) {
-  return utils.isObject(obj) && utils.hasOwn(obj, implSymbol) && obj[implSymbol] instanceof Impl.implementation;
-};
-exports.isImpl = function isImpl(obj) {
-  return utils.isObject(obj) && obj instanceof Impl.implementation;
-};
-exports.convert = function convert(obj, { context = "The provided value" } = {}) {
-  if (exports.is(obj)) {
-    return utils.implForWrapper(obj);
-  }
-  throw new TypeError(`${context} is not of type 'HTMLMarqueeElement'.`);
+exports.is = utils.is.bind(utils);
+exports.isImpl = utils.isImpl.bind(utils, Impl);
+exports.convert = utils.convert.bind(utils);
+
+exports.create = (globalObject, constructorArgs, privateData) => {
+  const wrapper = utils.makeWrapper("HTMLMarqueeElement", globalObject);
+  return exports.setup(wrapper, globalObject, constructorArgs, privateData);
 };
 
-exports.create = function create(globalObject, constructorArgs, privateData) {
-  if (globalObject[ctorRegistrySymbol] === undefined) {
-    throw new Error("Internal error: invalid global object");
-  }
-
-  const ctor = globalObject[ctorRegistrySymbol]["HTMLMarqueeElement"];
-  if (ctor === undefined) {
-    throw new Error("Internal error: constructor HTMLMarqueeElement is not installed on the passed global object");
-  }
-
-  let obj = Object.create(ctor.prototype);
-  obj = exports.setup(obj, globalObject, constructorArgs, privateData);
-  return obj;
+exports.createImpl = (globalObject, constructorArgs, privateData) => {
+  const wrapper = exports.create(globalObject, constructorArgs, privateData);
+  return utils.implForWrapper(wrapper);
 };
-exports.createImpl = function createImpl(globalObject, constructorArgs, privateData) {
-  const obj = exports.create(globalObject, constructorArgs, privateData);
-  return utils.implForWrapper(obj);
-};
-exports._internalSetup = function _internalSetup(obj, globalObject) {
-  HTMLElement._internalSetup(obj, globalObject);
-};
-exports.setup = function setup(obj, globalObject, constructorArgs = [], privateData = {}) {
-  privateData.wrapper = obj;
 
-  exports._internalSetup(obj, globalObject);
-  Object.defineProperty(obj, implSymbol, {
+exports._internalSetup = (wrapper, globalObject) => {
+  HTMLElement._internalSetup(wrapper, globalObject);
+};
+
+exports.setup = (wrapper, globalObject, constructorArgs = [], privateData = {}) => {
+  privateData.wrapper = wrapper;
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
     value: new Impl.implementation(globalObject, constructorArgs, privateData),
     configurable: true
   });
 
-  obj[implSymbol][utils.wrapperSymbol] = obj;
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
   if (Impl.init) {
-    Impl.init(obj[implSymbol], privateData);
+    Impl.init(wrapper[implSymbol]);
   }
-  return obj;
+  return wrapper;
 };
 
-exports.install = function install(globalObject) {
+exports.new = globalObject => {
+  const wrapper = utils.makeWrapper(HTMLMarqueeElement, globalObject);
+
+  exports._internalSetup(wrapper, globalObject);
+  Object.defineProperty(wrapper, implSymbol, {
+    value: Object.create(Impl.implementation.prototype),
+    configurable: true
+  });
+
+  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
+  if (Impl.init) {
+    Impl.init(wrapper[implSymbol]);
+  }
+  return wrapper[implSymbol];
+};
+
+const exposed = new Set(["Window"]);
+
+exports.install = globalObject => {
   if (globalObject.HTMLElement === undefined) {
     throw new Error("Internal error: attempting to evaluate HTMLMarqueeElement before HTMLElement");
   }
@@ -75,374 +76,154 @@ exports.install = function install(globalObject) {
     get behavior() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "behavior");
-        return value === null ? "" : value;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const value = esValue[implSymbol].getAttributeNS(null, "behavior");
+      return value === null ? "" : value;
     }
 
     set behavior(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["DOMString"](V, {
-        context: "Failed to set the 'behavior' property on 'HTMLMarqueeElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "behavior", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "behavior", V);
     }
 
     get bgColor() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "bgcolor");
-        return value === null ? "" : value;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const value = esValue[implSymbol].getAttributeNS(null, "bgcolor");
+      return value === null ? "" : value;
     }
 
     set bgColor(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["DOMString"](V, {
-        context: "Failed to set the 'bgColor' property on 'HTMLMarqueeElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "bgcolor", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "bgcolor", V);
     }
 
     get direction() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "direction");
-        return value === null ? "" : value;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const value = esValue[implSymbol].getAttributeNS(null, "direction");
+      return value === null ? "" : value;
     }
 
     set direction(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["DOMString"](V, {
-        context: "Failed to set the 'direction' property on 'HTMLMarqueeElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "direction", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "direction", V);
     }
 
     get height() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "height");
-        return value === null ? "" : value;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const value = esValue[implSymbol].getAttributeNS(null, "height");
+      return value === null ? "" : value;
     }
 
     set height(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["DOMString"](V, {
-        context: "Failed to set the 'height' property on 'HTMLMarqueeElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "height", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "height", V);
     }
 
     get hspace() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+      let value = esValue[implSymbol].getAttributeNS(null, "hspace");
+      if (value === null) {
+        return 0;
       }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        let value = esValue[implSymbol].getAttributeNS(null, "hspace");
-        if (value === null) {
-          return 0;
-        }
-        value = parseNonNegativeInteger_helpers_strings(value);
-        return value !== null && value >= 0 && value <= 2147483647 ? value : 0;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      value = parseNonNegativeInteger_helpers_strings(value);
+      return value !== null && value >= 0 && value <= 2147483647 ? value : 0;
     }
 
     set hspace(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["unsigned long"](V, {
-        context: "Failed to set the 'hspace' property on 'HTMLMarqueeElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const n = V <= 2147483647 ? V : 0;
-        esValue[implSymbol].setAttributeNS(null, "hspace", String(n));
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const n = V <= 2147483647 ? V : 0;
+      esValue[implSymbol].setAttributeNS(null, "hspace", String(n));
     }
 
     get scrollAmount() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+      let value = esValue[implSymbol].getAttributeNS(null, "scrollamount");
+      if (value === null) {
+        return 0;
       }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        let value = esValue[implSymbol].getAttributeNS(null, "scrollamount");
-        if (value === null) {
-          return 0;
-        }
-        value = parseNonNegativeInteger_helpers_strings(value);
-        return value !== null && value >= 0 && value <= 2147483647 ? value : 0;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      value = parseNonNegativeInteger_helpers_strings(value);
+      return value !== null && value >= 0 && value <= 2147483647 ? value : 0;
     }
 
     set scrollAmount(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["unsigned long"](V, {
-        context: "Failed to set the 'scrollAmount' property on 'HTMLMarqueeElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const n = V <= 2147483647 ? V : 0;
-        esValue[implSymbol].setAttributeNS(null, "scrollamount", String(n));
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const n = V <= 2147483647 ? V : 0;
+      esValue[implSymbol].setAttributeNS(null, "scrollamount", String(n));
     }
 
     get scrollDelay() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+      let value = esValue[implSymbol].getAttributeNS(null, "scrolldelay");
+      if (value === null) {
+        return 0;
       }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        let value = esValue[implSymbol].getAttributeNS(null, "scrolldelay");
-        if (value === null) {
-          return 0;
-        }
-        value = parseNonNegativeInteger_helpers_strings(value);
-        return value !== null && value >= 0 && value <= 2147483647 ? value : 0;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      value = parseNonNegativeInteger_helpers_strings(value);
+      return value !== null && value >= 0 && value <= 2147483647 ? value : 0;
     }
 
     set scrollDelay(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["unsigned long"](V, {
-        context: "Failed to set the 'scrollDelay' property on 'HTMLMarqueeElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const n = V <= 2147483647 ? V : 0;
-        esValue[implSymbol].setAttributeNS(null, "scrolldelay", String(n));
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const n = V <= 2147483647 ? V : 0;
+      esValue[implSymbol].setAttributeNS(null, "scrolldelay", String(n));
     }
 
     get trueSpeed() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        return esValue[implSymbol].hasAttributeNS(null, "truespeed");
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      return esValue[implSymbol].hasAttributeNS(null, "truespeed");
     }
 
     set trueSpeed(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["boolean"](V, {
-        context: "Failed to set the 'trueSpeed' property on 'HTMLMarqueeElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        if (V) {
-          esValue[implSymbol].setAttributeNS(null, "truespeed", "");
-        } else {
-          esValue[implSymbol].removeAttributeNS(null, "truespeed");
-        }
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
+      if (V) {
+        esValue[implSymbol].setAttributeNS(null, "truespeed", "");
+      } else {
+        esValue[implSymbol].removeAttributeNS(null, "truespeed");
       }
     }
 
     get vspace() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
+      let value = esValue[implSymbol].getAttributeNS(null, "vspace");
+      if (value === null) {
+        return 0;
       }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        let value = esValue[implSymbol].getAttributeNS(null, "vspace");
-        if (value === null) {
-          return 0;
-        }
-        value = parseNonNegativeInteger_helpers_strings(value);
-        return value !== null && value >= 0 && value <= 2147483647 ? value : 0;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      value = parseNonNegativeInteger_helpers_strings(value);
+      return value !== null && value >= 0 && value <= 2147483647 ? value : 0;
     }
 
     set vspace(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["unsigned long"](V, {
-        context: "Failed to set the 'vspace' property on 'HTMLMarqueeElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const n = V <= 2147483647 ? V : 0;
-        esValue[implSymbol].setAttributeNS(null, "vspace", String(n));
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const n = V <= 2147483647 ? V : 0;
+      esValue[implSymbol].setAttributeNS(null, "vspace", String(n));
     }
 
     get width() {
       const esValue = this !== null && this !== undefined ? this : globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        const value = esValue[implSymbol].getAttributeNS(null, "width");
-        return value === null ? "" : value;
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      const value = esValue[implSymbol].getAttributeNS(null, "width");
+      return value === null ? "" : value;
     }
 
     set width(V) {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      if (!exports.is(esValue)) {
-        throw new TypeError("Illegal invocation");
-      }
-
-      V = conversions["DOMString"](V, {
-        context: "Failed to set the 'width' property on 'HTMLMarqueeElement': The provided value"
-      });
-
-      ceReactionsPreSteps_helpers_custom_elements(globalObject);
-      try {
-        esValue[implSymbol].setAttributeNS(null, "width", V);
-      } finally {
-        ceReactionsPostSteps_helpers_custom_elements(globalObject);
-      }
+      esValue[implSymbol].setAttributeNS(null, "width", V);
     }
   }
   Object.defineProperties(HTMLMarqueeElement.prototype, {
@@ -469,5 +250,3 @@ exports.install = function install(globalObject) {
     value: HTMLMarqueeElement
   });
 };
-
-const Impl = require("../nodes/HTMLMarqueeElement-impl.js");
