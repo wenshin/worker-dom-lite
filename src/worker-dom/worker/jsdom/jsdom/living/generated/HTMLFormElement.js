@@ -105,7 +105,7 @@ exports.install = globalObject => {
     }
 
     get acceptCharset() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "accept-charset");
       return value === null ? "" : value;
@@ -118,7 +118,7 @@ exports.install = globalObject => {
     }
 
     get action() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["action"];
     }
 
@@ -128,7 +128,7 @@ exports.install = globalObject => {
     }
 
     get enctype() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["enctype"];
     }
 
@@ -138,7 +138,7 @@ exports.install = globalObject => {
     }
 
     get method() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["method"];
     }
 
@@ -148,7 +148,7 @@ exports.install = globalObject => {
     }
 
     get name() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "name");
       return value === null ? "" : value;
@@ -161,7 +161,7 @@ exports.install = globalObject => {
     }
 
     get noValidate() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "novalidate");
     }
@@ -177,7 +177,7 @@ exports.install = globalObject => {
     }
 
     get target() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "target");
       return value === null ? "" : value;
@@ -190,14 +190,14 @@ exports.install = globalObject => {
     }
 
     get elements() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "elements", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["elements"]);
       });
     }
 
     get length() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["length"];
     }
   }

@@ -73,7 +73,7 @@ exports.install = globalObject => {
     }
 
     get disabled() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "disabled");
     }
@@ -89,7 +89,7 @@ exports.install = globalObject => {
     }
 
     get label() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "label");
       return value === null ? "" : value;

@@ -82,12 +82,12 @@ exports.install = globalObject => {
     }
 
     get wholeText() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["wholeText"];
     }
 
     get assignedSlot() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["assignedSlot"]);
     }
   }

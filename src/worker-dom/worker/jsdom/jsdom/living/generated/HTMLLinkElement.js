@@ -5,9 +5,6 @@ const utils = require("./utils.js");
 const Impl = require("../nodes/HTMLLinkElement-impl.js");
 
 const HTMLConstructor_helpers_html_constructor = require("../helpers/html-constructor.js").HTMLConstructor;
-const parseURLToResultingURLRecord_helpers_document_base_url = require("../helpers/document-base-url.js")
-  .parseURLToResultingURLRecord;
-const serializeURLwhatwg_url = require("whatwg-url").serializeURL;
 const implSymbol = utils.implSymbol;
 const ctorRegistrySymbol = utils.ctorRegistrySymbol;
 const HTMLElement = require("./HTMLElement.js");
@@ -76,18 +73,11 @@ exports.install = globalObject => {
     }
 
     get href() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "href");
       if (value === null) {
         return "";
-      }
-      const urlRecord = parseURLToResultingURLRecord_helpers_document_base_url(
-        value,
-        esValue[implSymbol]._ownerDocument
-      );
-      if (urlRecord !== null) {
-        return serializeURLwhatwg_url(urlRecord);
       }
       return conversions.USVString(value);
     }
@@ -99,7 +89,7 @@ exports.install = globalObject => {
     }
 
     get crossOrigin() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "crossorigin");
       return value === null ? "" : value;
@@ -112,7 +102,7 @@ exports.install = globalObject => {
     }
 
     get rel() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "rel");
       return value === null ? "" : value;
@@ -125,7 +115,7 @@ exports.install = globalObject => {
     }
 
     get relList() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "relList", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["relList"]);
       });
@@ -142,7 +132,7 @@ exports.install = globalObject => {
     }
 
     get media() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "media");
       return value === null ? "" : value;
@@ -155,7 +145,7 @@ exports.install = globalObject => {
     }
 
     get hreflang() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "hreflang");
       return value === null ? "" : value;
@@ -168,7 +158,7 @@ exports.install = globalObject => {
     }
 
     get type() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "type");
       return value === null ? "" : value;
@@ -181,7 +171,7 @@ exports.install = globalObject => {
     }
 
     get charset() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "charset");
       return value === null ? "" : value;
@@ -194,7 +184,7 @@ exports.install = globalObject => {
     }
 
     get rev() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "rev");
       return value === null ? "" : value;
@@ -207,7 +197,7 @@ exports.install = globalObject => {
     }
 
     get target() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "target");
       return value === null ? "" : value;
@@ -220,7 +210,7 @@ exports.install = globalObject => {
     }
 
     get sheet() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["sheet"]);
     }
   }

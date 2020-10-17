@@ -108,7 +108,7 @@ exports.install = globalObject => {
     }
 
     get length() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["length"];
     }
   }

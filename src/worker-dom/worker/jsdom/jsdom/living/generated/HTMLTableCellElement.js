@@ -73,7 +73,7 @@ exports.install = globalObject => {
     }
 
     get colSpan() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["colSpan"];
     }
 
@@ -83,7 +83,7 @@ exports.install = globalObject => {
     }
 
     get rowSpan() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["rowSpan"];
     }
 
@@ -93,7 +93,7 @@ exports.install = globalObject => {
     }
 
     get headers() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "headers");
       return value === null ? "" : value;
@@ -106,12 +106,12 @@ exports.install = globalObject => {
     }
 
     get cellIndex() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["cellIndex"];
     }
 
     get scope() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["scope"];
     }
 
@@ -121,7 +121,7 @@ exports.install = globalObject => {
     }
 
     get abbr() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "abbr");
       return value === null ? "" : value;
@@ -134,7 +134,7 @@ exports.install = globalObject => {
     }
 
     get align() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "align");
       return value === null ? "" : value;
@@ -147,7 +147,7 @@ exports.install = globalObject => {
     }
 
     get axis() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "axis");
       return value === null ? "" : value;
@@ -160,7 +160,7 @@ exports.install = globalObject => {
     }
 
     get height() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "height");
       return value === null ? "" : value;
@@ -173,7 +173,7 @@ exports.install = globalObject => {
     }
 
     get width() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "width");
       return value === null ? "" : value;
@@ -186,7 +186,7 @@ exports.install = globalObject => {
     }
 
     get ch() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "char");
       return value === null ? "" : value;
@@ -199,7 +199,7 @@ exports.install = globalObject => {
     }
 
     get chOff() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "charoff");
       return value === null ? "" : value;
@@ -212,7 +212,7 @@ exports.install = globalObject => {
     }
 
     get noWrap() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "nowrap");
     }
@@ -228,7 +228,7 @@ exports.install = globalObject => {
     }
 
     get vAlign() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "valign");
       return value === null ? "" : value;
@@ -241,7 +241,7 @@ exports.install = globalObject => {
     }
 
     get bgColor() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "bgcolor");
       return value === null ? "" : value;

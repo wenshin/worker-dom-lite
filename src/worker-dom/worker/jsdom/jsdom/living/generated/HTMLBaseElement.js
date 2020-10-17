@@ -73,7 +73,7 @@ exports.install = globalObject => {
     }
 
     get href() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["href"];
     }
 
@@ -83,7 +83,7 @@ exports.install = globalObject => {
     }
 
     get target() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "target");
       return value === null ? "" : value;

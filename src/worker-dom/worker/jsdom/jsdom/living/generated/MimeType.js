@@ -66,22 +66,22 @@ exports.install = globalObject => {
     }
 
     get type() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["type"];
     }
 
     get description() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["description"];
     }
 
     get suffixes() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["suffixes"];
     }
 
     get enabledPlugin() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["enabledPlugin"]);
     }
   }

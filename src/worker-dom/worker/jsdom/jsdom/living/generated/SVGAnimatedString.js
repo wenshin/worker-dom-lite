@@ -66,7 +66,7 @@ exports.install = globalObject => {
     }
 
     get baseVal() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["baseVal"];
     }
 
@@ -76,7 +76,7 @@ exports.install = globalObject => {
     }
 
     get animVal() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["animVal"];
     }
   }

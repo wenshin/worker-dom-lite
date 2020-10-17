@@ -84,24 +84,24 @@ exports.install = globalObject => {
     }
 
     get className() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "className", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["className"]);
       });
     }
 
     get ownerSVGElement() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["ownerSVGElement"]);
     }
 
     get viewportElement() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["viewportElement"]);
     }
 
     get style() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "style", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["style"]);
       });
@@ -118,7 +118,7 @@ exports.install = globalObject => {
     }
 
     get onclick() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["onclick"]);
     }
 
@@ -128,7 +128,7 @@ exports.install = globalObject => {
     }
 
     get oninput() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["oninput"]);
     }
 
@@ -138,14 +138,14 @@ exports.install = globalObject => {
     }
 
     get dataset() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "dataset", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["dataset"]);
       });
     }
 
     get nonce() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "nonce");
       return value === null ? "" : value;
@@ -158,7 +158,7 @@ exports.install = globalObject => {
     }
 
     get tabIndex() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["tabIndex"];
     }
 

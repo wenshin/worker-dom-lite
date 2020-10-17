@@ -73,7 +73,7 @@ exports.install = globalObject => {
     }
 
     get target() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "target");
       return value === null ? "" : value;
@@ -86,7 +86,7 @@ exports.install = globalObject => {
     }
 
     get download() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "download");
       return value === null ? "" : value;
@@ -99,7 +99,7 @@ exports.install = globalObject => {
     }
 
     get rel() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "rel");
       return value === null ? "" : value;
@@ -112,7 +112,7 @@ exports.install = globalObject => {
     }
 
     get relList() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "relList", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["relList"]);
       });
@@ -129,7 +129,7 @@ exports.install = globalObject => {
     }
 
     get hreflang() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "hreflang");
       return value === null ? "" : value;
@@ -142,7 +142,7 @@ exports.install = globalObject => {
     }
 
     get type() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "type");
       return value === null ? "" : value;
@@ -155,7 +155,7 @@ exports.install = globalObject => {
     }
 
     get text() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["text"];
     }
 
@@ -165,7 +165,7 @@ exports.install = globalObject => {
     }
 
     get coords() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "coords");
       return value === null ? "" : value;
@@ -178,7 +178,7 @@ exports.install = globalObject => {
     }
 
     get charset() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "charset");
       return value === null ? "" : value;
@@ -191,7 +191,7 @@ exports.install = globalObject => {
     }
 
     get name() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "name");
       return value === null ? "" : value;
@@ -204,7 +204,7 @@ exports.install = globalObject => {
     }
 
     get rev() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "rev");
       return value === null ? "" : value;
@@ -217,7 +217,7 @@ exports.install = globalObject => {
     }
 
     get shape() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "shape");
       return value === null ? "" : value;
@@ -230,7 +230,7 @@ exports.install = globalObject => {
     }
 
     get href() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["href"];
     }
 
@@ -245,12 +245,12 @@ exports.install = globalObject => {
     }
 
     get origin() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["origin"];
     }
 
     get protocol() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["protocol"];
     }
 
@@ -260,7 +260,7 @@ exports.install = globalObject => {
     }
 
     get username() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["username"];
     }
 
@@ -270,7 +270,7 @@ exports.install = globalObject => {
     }
 
     get password() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["password"];
     }
 
@@ -280,7 +280,7 @@ exports.install = globalObject => {
     }
 
     get host() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["host"];
     }
 
@@ -290,7 +290,7 @@ exports.install = globalObject => {
     }
 
     get hostname() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["hostname"];
     }
 
@@ -300,7 +300,7 @@ exports.install = globalObject => {
     }
 
     get port() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["port"];
     }
 
@@ -310,7 +310,7 @@ exports.install = globalObject => {
     }
 
     get pathname() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["pathname"];
     }
 
@@ -320,7 +320,7 @@ exports.install = globalObject => {
     }
 
     get search() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["search"];
     }
 
@@ -330,7 +330,7 @@ exports.install = globalObject => {
     }
 
     get hash() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["hash"];
     }
 

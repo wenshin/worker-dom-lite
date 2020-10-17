@@ -66,27 +66,27 @@ exports.install = globalObject => {
     }
 
     get startContainer() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["startContainer"]);
     }
 
     get startOffset() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["startOffset"];
     }
 
     get endContainer() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["endContainer"]);
     }
 
     get endOffset() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["endOffset"];
     }
 
     get collapsed() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["collapsed"];
     }
   }

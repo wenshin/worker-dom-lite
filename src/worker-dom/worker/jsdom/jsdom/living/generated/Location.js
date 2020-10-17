@@ -47,7 +47,7 @@ exports._internalSetup = (wrapper, globalObject) => {
         return esValue[implSymbol].reload();
       },
       get href() {
-        const esValue = this !== null && this !== undefined ? this : globalObject;
+        const esValue = this || globalObject;
         return esValue[implSymbol]["href"];
       },
       set href(V) {
@@ -59,11 +59,11 @@ exports._internalSetup = (wrapper, globalObject) => {
         return esValue[implSymbol]["href"];
       },
       get origin() {
-        const esValue = this !== null && this !== undefined ? this : globalObject;
+        const esValue = this || globalObject;
         return esValue[implSymbol]["origin"];
       },
       get protocol() {
-        const esValue = this !== null && this !== undefined ? this : globalObject;
+        const esValue = this || globalObject;
         return esValue[implSymbol]["protocol"];
       },
       set protocol(V) {
@@ -71,7 +71,7 @@ exports._internalSetup = (wrapper, globalObject) => {
         esValue[implSymbol]["protocol"] = V;
       },
       get host() {
-        const esValue = this !== null && this !== undefined ? this : globalObject;
+        const esValue = this || globalObject;
         return esValue[implSymbol]["host"];
       },
       set host(V) {
@@ -79,7 +79,7 @@ exports._internalSetup = (wrapper, globalObject) => {
         esValue[implSymbol]["host"] = V;
       },
       get hostname() {
-        const esValue = this !== null && this !== undefined ? this : globalObject;
+        const esValue = this || globalObject;
         return esValue[implSymbol]["hostname"];
       },
       set hostname(V) {
@@ -87,7 +87,7 @@ exports._internalSetup = (wrapper, globalObject) => {
         esValue[implSymbol]["hostname"] = V;
       },
       get port() {
-        const esValue = this !== null && this !== undefined ? this : globalObject;
+        const esValue = this || globalObject;
         return esValue[implSymbol]["port"];
       },
       set port(V) {
@@ -95,7 +95,7 @@ exports._internalSetup = (wrapper, globalObject) => {
         esValue[implSymbol]["port"] = V;
       },
       get pathname() {
-        const esValue = this !== null && this !== undefined ? this : globalObject;
+        const esValue = this || globalObject;
         return esValue[implSymbol]["pathname"];
       },
       set pathname(V) {
@@ -103,7 +103,7 @@ exports._internalSetup = (wrapper, globalObject) => {
         esValue[implSymbol]["pathname"] = V;
       },
       get search() {
-        const esValue = this !== null && this !== undefined ? this : globalObject;
+        const esValue = this || globalObject;
         return esValue[implSymbol]["search"];
       },
       set search(V) {
@@ -111,7 +111,7 @@ exports._internalSetup = (wrapper, globalObject) => {
         esValue[implSymbol]["search"] = V;
       },
       get hash() {
-        const esValue = this !== null && this !== undefined ? this : globalObject;
+        const esValue = this || globalObject;
         return esValue[implSymbol]["hash"];
       },
       set hash(V) {

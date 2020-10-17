@@ -5,9 +5,6 @@ const utils = require("./utils.js");
 const Impl = require("../nodes/HTMLFrameElement-impl.js");
 
 const HTMLConstructor_helpers_html_constructor = require("../helpers/html-constructor.js").HTMLConstructor;
-const parseURLToResultingURLRecord_helpers_document_base_url = require("../helpers/document-base-url.js")
-  .parseURLToResultingURLRecord;
-const serializeURLwhatwg_url = require("whatwg-url").serializeURL;
 const implSymbol = utils.implSymbol;
 const ctorRegistrySymbol = utils.ctorRegistrySymbol;
 const HTMLElement = require("./HTMLElement.js");
@@ -76,7 +73,7 @@ exports.install = globalObject => {
     }
 
     get name() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "name");
       return value === null ? "" : value;
@@ -89,7 +86,7 @@ exports.install = globalObject => {
     }
 
     get scrolling() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "scrolling");
       return value === null ? "" : value;
@@ -102,18 +99,11 @@ exports.install = globalObject => {
     }
 
     get src() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "src");
       if (value === null) {
         return "";
-      }
-      const urlRecord = parseURLToResultingURLRecord_helpers_document_base_url(
-        value,
-        esValue[implSymbol]._ownerDocument
-      );
-      if (urlRecord !== null) {
-        return serializeURLwhatwg_url(urlRecord);
       }
       return conversions.USVString(value);
     }
@@ -125,7 +115,7 @@ exports.install = globalObject => {
     }
 
     get frameBorder() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "frameborder");
       return value === null ? "" : value;
@@ -138,18 +128,11 @@ exports.install = globalObject => {
     }
 
     get longDesc() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "longdesc");
       if (value === null) {
         return "";
-      }
-      const urlRecord = parseURLToResultingURLRecord_helpers_document_base_url(
-        value,
-        esValue[implSymbol]._ownerDocument
-      );
-      if (urlRecord !== null) {
-        return serializeURLwhatwg_url(urlRecord);
       }
       return conversions.USVString(value);
     }
@@ -161,7 +144,7 @@ exports.install = globalObject => {
     }
 
     get noResize() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "noresize");
     }
@@ -177,17 +160,17 @@ exports.install = globalObject => {
     }
 
     get contentDocument() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["contentDocument"]);
     }
 
     get contentWindow() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["contentWindow"]);
     }
 
     get marginHeight() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "marginheight");
       return value === null ? "" : value;
@@ -200,7 +183,7 @@ exports.install = globalObject => {
     }
 
     get marginWidth() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "marginwidth");
       return value === null ? "" : value;

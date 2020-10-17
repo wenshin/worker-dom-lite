@@ -74,7 +74,7 @@ exports.install = globalObject => {
     }
 
     get width() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       let value = esValue[implSymbol].getAttributeNS(null, "width");
       if (value === null) {

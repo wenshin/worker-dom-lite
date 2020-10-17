@@ -74,7 +74,7 @@ exports.install = globalObject => {
     }
 
     get behavior() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "behavior");
       return value === null ? "" : value;
@@ -87,7 +87,7 @@ exports.install = globalObject => {
     }
 
     get bgColor() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "bgcolor");
       return value === null ? "" : value;
@@ -100,7 +100,7 @@ exports.install = globalObject => {
     }
 
     get direction() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "direction");
       return value === null ? "" : value;
@@ -113,7 +113,7 @@ exports.install = globalObject => {
     }
 
     get height() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "height");
       return value === null ? "" : value;
@@ -126,7 +126,7 @@ exports.install = globalObject => {
     }
 
     get hspace() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       let value = esValue[implSymbol].getAttributeNS(null, "hspace");
       if (value === null) {
@@ -144,7 +144,7 @@ exports.install = globalObject => {
     }
 
     get scrollAmount() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       let value = esValue[implSymbol].getAttributeNS(null, "scrollamount");
       if (value === null) {
@@ -162,7 +162,7 @@ exports.install = globalObject => {
     }
 
     get scrollDelay() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       let value = esValue[implSymbol].getAttributeNS(null, "scrolldelay");
       if (value === null) {
@@ -180,7 +180,7 @@ exports.install = globalObject => {
     }
 
     get trueSpeed() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "truespeed");
     }
@@ -196,7 +196,7 @@ exports.install = globalObject => {
     }
 
     get vspace() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       let value = esValue[implSymbol].getAttributeNS(null, "vspace");
       if (value === null) {
@@ -214,7 +214,7 @@ exports.install = globalObject => {
     }
 
     get width() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "width");
       return value === null ? "" : value;

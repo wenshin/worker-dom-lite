@@ -73,22 +73,22 @@ exports.install = globalObject => {
     }
 
     get deltaX() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["deltaX"];
     }
 
     get deltaY() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["deltaY"];
     }
 
     get deltaZ() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["deltaZ"];
     }
 
     get deltaMode() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["deltaMode"];
     }
   }

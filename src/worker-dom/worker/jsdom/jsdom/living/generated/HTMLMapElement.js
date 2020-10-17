@@ -73,7 +73,7 @@ exports.install = globalObject => {
     }
 
     get name() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "name");
       return value === null ? "" : value;
@@ -86,7 +86,7 @@ exports.install = globalObject => {
     }
 
     get areas() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "areas", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["areas"]);
       });

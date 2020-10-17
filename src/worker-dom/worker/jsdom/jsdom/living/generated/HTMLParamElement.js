@@ -73,7 +73,7 @@ exports.install = globalObject => {
     }
 
     get name() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "name");
       return value === null ? "" : value;
@@ -86,7 +86,7 @@ exports.install = globalObject => {
     }
 
     get value() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "value");
       return value === null ? "" : value;
@@ -99,7 +99,7 @@ exports.install = globalObject => {
     }
 
     get type() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "type");
       return value === null ? "" : value;
@@ -112,7 +112,7 @@ exports.install = globalObject => {
     }
 
     get valueType() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "valuetype");
       return value === null ? "" : value;

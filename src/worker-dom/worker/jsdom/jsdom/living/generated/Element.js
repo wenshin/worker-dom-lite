@@ -1,21 +1,21 @@
-'use strict';
+"use strict";
 
-const conversions = require('webidl-conversions');
-const utils = require('./utils.js');
-const Impl = require('../nodes/Element-impl.js');
+const conversions = require("webidl-conversions");
+const utils = require("./utils.js");
+const Impl = require("../nodes/Element-impl.js");
 
-const Node = require('./Node.js');
+const Node = require("./Node.js");
 const implSymbol = utils.implSymbol;
 const ctorRegistrySymbol = utils.ctorRegistrySymbol;
 
-const interfaceName = 'Element';
+const interfaceName = "Element";
 
 exports.is = utils.is.bind(utils);
 exports.isImpl = utils.isImpl.bind(utils, Impl);
 exports.convert = utils.convert.bind(utils);
 
 exports.create = (globalObject, constructorArgs, privateData) => {
-  const wrapper = utils.makeWrapper('Element', globalObject);
+  const wrapper = utils.makeWrapper("Element", globalObject);
   return exports.setup(wrapper, globalObject, constructorArgs, privateData);
 };
 
@@ -44,7 +44,7 @@ exports.setup = (wrapper, globalObject, constructorArgs = [], privateData = {}) 
   return wrapper;
 };
 
-exports.new = (globalObject) => {
+exports.new = globalObject => {
   const wrapper = utils.makeWrapper(Element, globalObject);
 
   exports._internalSetup(wrapper, globalObject);
@@ -60,15 +60,15 @@ exports.new = (globalObject) => {
   return wrapper[implSymbol];
 };
 
-const exposed = new Set([ 'Window' ]);
+const exposed = new Set(["Window"]);
 
-exports.install = (globalObject) => {
+exports.install = globalObject => {
   if (globalObject.Node === undefined) {
-    throw new Error('Internal error: attempting to evaluate Element before Node');
+    throw new Error("Internal error: attempting to evaluate Element before Node");
   }
   class Element extends globalObject.Node {
     constructor() {
-      throw new TypeError('Illegal constructor');
+      throw new TypeError("Illegal constructor");
     }
 
     hasAttributes() {
@@ -87,7 +87,7 @@ exports.install = (globalObject) => {
       const esValue = this || globalObject;
 
       return esValue[implSymbol].getAttribute(
-        ...Array.prototype.map.call(arguments, (v) => (v && v[implSymbol] ? v[implSymbol] : v))
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
       );
     }
 
@@ -95,7 +95,7 @@ exports.install = (globalObject) => {
       const esValue = this || globalObject;
 
       return esValue[implSymbol].getAttributeNS(
-        ...Array.prototype.map.call(arguments, (v) => (v && v[implSymbol] ? v[implSymbol] : v))
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
       );
     }
 
@@ -103,7 +103,7 @@ exports.install = (globalObject) => {
       const esValue = this || globalObject;
 
       return esValue[implSymbol].setAttribute(
-        ...Array.prototype.map.call(arguments, (v) => (v && v[implSymbol] ? v[implSymbol] : v))
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
       );
     }
 
@@ -111,7 +111,7 @@ exports.install = (globalObject) => {
       const esValue = this || globalObject;
 
       return esValue[implSymbol].setAttributeNS(
-        ...Array.prototype.map.call(arguments, (v) => (v && v[implSymbol] ? v[implSymbol] : v))
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
       );
     }
 
@@ -119,7 +119,7 @@ exports.install = (globalObject) => {
       const esValue = this || globalObject;
 
       return esValue[implSymbol].removeAttribute(
-        ...Array.prototype.map.call(arguments, (v) => (v && v[implSymbol] ? v[implSymbol] : v))
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
       );
     }
 
@@ -127,7 +127,7 @@ exports.install = (globalObject) => {
       const esValue = this || globalObject;
 
       return esValue[implSymbol].removeAttributeNS(
-        ...Array.prototype.map.call(arguments, (v) => (v && v[implSymbol] ? v[implSymbol] : v))
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
       );
     }
 
@@ -135,7 +135,7 @@ exports.install = (globalObject) => {
       const esValue = this || globalObject;
 
       return esValue[implSymbol].toggleAttribute(
-        ...Array.prototype.map.call(arguments, (v) => (v && v[implSymbol] ? v[implSymbol] : v))
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
       );
     }
 
@@ -143,7 +143,7 @@ exports.install = (globalObject) => {
       const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttribute(
-        ...Array.prototype.map.call(arguments, (v) => (v && v[implSymbol] ? v[implSymbol] : v))
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
       );
     }
 
@@ -151,7 +151,7 @@ exports.install = (globalObject) => {
       const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(
-        ...Array.prototype.map.call(arguments, (v) => (v && v[implSymbol] ? v[implSymbol] : v))
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
       );
     }
 
@@ -160,7 +160,7 @@ exports.install = (globalObject) => {
 
       return utils.tryWrapperForImpl(
         esValue[implSymbol].getElementsByTagName(
-          ...Array.prototype.map.call(arguments, (v) => (v && v[implSymbol] ? v[implSymbol] : v))
+          ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
         )
       );
     }
@@ -170,7 +170,7 @@ exports.install = (globalObject) => {
 
       return utils.tryWrapperForImpl(
         esValue[implSymbol].getElementsByTagNameNS(
-          ...Array.prototype.map.call(arguments, (v) => (v && v[implSymbol] ? v[implSymbol] : v))
+          ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
         )
       );
     }
@@ -180,7 +180,7 @@ exports.install = (globalObject) => {
 
       return utils.tryWrapperForImpl(
         esValue[implSymbol].getElementsByClassName(
-          ...Array.prototype.map.call(arguments, (v) => (v && v[implSymbol] ? v[implSymbol] : v))
+          ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
         )
       );
     }
@@ -201,7 +201,7 @@ exports.install = (globalObject) => {
       const esValue = this || globalObject;
 
       return esValue[implSymbol].before(
-        ...Array.prototype.map.call(arguments, (v) => (v && v[implSymbol] ? v[implSymbol] : v))
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
       );
     }
 
@@ -209,7 +209,7 @@ exports.install = (globalObject) => {
       const esValue = this || globalObject;
 
       return esValue[implSymbol].after(
-        ...Array.prototype.map.call(arguments, (v) => (v && v[implSymbol] ? v[implSymbol] : v))
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
       );
     }
 
@@ -217,7 +217,7 @@ exports.install = (globalObject) => {
       const esValue = this || globalObject;
 
       return esValue[implSymbol].replaceWith(
-        ...Array.prototype.map.call(arguments, (v) => (v && v[implSymbol] ? v[implSymbol] : v))
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
       );
     }
 
@@ -231,7 +231,7 @@ exports.install = (globalObject) => {
       const esValue = this || globalObject;
 
       return esValue[implSymbol].prepend(
-        ...Array.prototype.map.call(arguments, (v) => (v && v[implSymbol] ? v[implSymbol] : v))
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
       );
     }
 
@@ -239,7 +239,7 @@ exports.install = (globalObject) => {
       const esValue = this || globalObject;
 
       return esValue[implSymbol].append(
-        ...Array.prototype.map.call(arguments, (v) => (v && v[implSymbol] ? v[implSymbol] : v))
+        ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
       );
     }
 
@@ -248,7 +248,7 @@ exports.install = (globalObject) => {
 
       return utils.tryWrapperForImpl(
         esValue[implSymbol].querySelector(
-          ...Array.prototype.map.call(arguments, (v) => (v && v[implSymbol] ? v[implSymbol] : v))
+          ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
         )
       );
     }
@@ -258,168 +258,162 @@ exports.install = (globalObject) => {
 
       return utils.tryWrapperForImpl(
         esValue[implSymbol].querySelectorAll(
-          ...Array.prototype.map.call(arguments, (v) => (v && v[implSymbol] ? v[implSymbol] : v))
+          ...Array.prototype.map.call(arguments, v => (v && v[implSymbol] ? v[implSymbol] : v))
         )
       );
     }
 
     get localName() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return esValue[implSymbol]['localName'];
+      const esValue = this || globalObject;
+      return esValue[implSymbol]["localName"];
     }
 
     get tagName() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return esValue[implSymbol]['tagName'];
+      const esValue = this || globalObject;
+      return esValue[implSymbol]["tagName"];
     }
 
     get id() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      const value = esValue[implSymbol].getAttributeNS(null, 'id');
-      return value === null ? '' : value;
+      const value = esValue[implSymbol].getAttributeNS(null, "id");
+      return value === null ? "" : value;
     }
 
     set id(V) {
       const esValue = this || globalObject;
 
-      esValue[implSymbol].setAttributeNS(null, 'id', V);
+      esValue[implSymbol].setAttributeNS(null, "id", V);
     }
 
     get className() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      const value = esValue[implSymbol].getAttributeNS(null, 'class');
-      return value === null ? '' : value;
+      const value = esValue[implSymbol].getAttributeNS(null, "class");
+      return value === null ? "" : value;
     }
 
     set className(V) {
       const esValue = this || globalObject;
 
-      esValue[implSymbol].setAttributeNS(null, 'class', V);
+      esValue[implSymbol].setAttributeNS(null, "class", V);
     }
 
     get classList() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return utils.getSameObject(this, 'classList', () => {
-        return utils.tryWrapperForImpl(esValue[implSymbol]['classList']);
+      const esValue = this || globalObject;
+      return utils.getSameObject(this, "classList", () => {
+        return utils.tryWrapperForImpl(esValue[implSymbol]["classList"]);
       });
     }
 
     set classList(V) {
       const esValue = this || globalObject;
 
-      const Q = esValue['classList'];
+      const Q = esValue["classList"];
       if (!utils.isObject(Q)) {
         throw new TypeError("Property 'classList' is not an object");
       }
-      Reflect.set(Q, 'value', V);
+      Reflect.set(Q, "value", V);
     }
 
     get slot() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      const value = esValue[implSymbol].getAttributeNS(null, 'slot');
-      return value === null ? '' : value;
+      const value = esValue[implSymbol].getAttributeNS(null, "slot");
+      return value === null ? "" : value;
     }
 
     set slot(V) {
       const esValue = this || globalObject;
 
-      esValue[implSymbol].setAttributeNS(null, 'slot', V);
+      esValue[implSymbol].setAttributeNS(null, "slot", V);
     }
 
     get scrollTop() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return esValue[implSymbol]['scrollTop'];
+      const esValue = this || globalObject;
+      return esValue[implSymbol]["scrollTop"];
     }
 
     set scrollTop(V) {
       const esValue = this || globalObject;
-      esValue[implSymbol]['scrollTop'] = V;
+      esValue[implSymbol]["scrollTop"] = V;
     }
 
     get scrollLeft() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return esValue[implSymbol]['scrollLeft'];
+      const esValue = this || globalObject;
+      return esValue[implSymbol]["scrollLeft"];
     }
 
     set scrollLeft(V) {
       const esValue = this || globalObject;
-      esValue[implSymbol]['scrollLeft'] = V;
+      esValue[implSymbol]["scrollLeft"] = V;
     }
 
     get scrollWidth() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return esValue[implSymbol]['scrollWidth'];
+      const esValue = this || globalObject;
+      return esValue[implSymbol]["scrollWidth"];
     }
 
     get scrollHeight() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return esValue[implSymbol]['scrollHeight'];
+      const esValue = this || globalObject;
+      return esValue[implSymbol]["scrollHeight"];
     }
 
     get clientTop() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return esValue[implSymbol]['clientTop'];
+      const esValue = this || globalObject;
+      return esValue[implSymbol]["clientTop"];
     }
 
     get clientLeft() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return esValue[implSymbol]['clientLeft'];
+      const esValue = this || globalObject;
+      return esValue[implSymbol]["clientLeft"];
     }
 
     get clientWidth() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return esValue[implSymbol]['clientWidth'];
+      const esValue = this || globalObject;
+      return esValue[implSymbol]["clientWidth"];
     }
 
     get clientHeight() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return esValue[implSymbol]['clientHeight'];
+      const esValue = this || globalObject;
+      return esValue[implSymbol]["clientHeight"];
     }
 
     get previousElementSibling() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return utils.tryWrapperForImpl(esValue[implSymbol]['previousElementSibling']);
+      const esValue = this || globalObject;
+      return utils.tryWrapperForImpl(esValue[implSymbol]["previousElementSibling"]);
     }
 
     get nextElementSibling() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return utils.tryWrapperForImpl(esValue[implSymbol]['nextElementSibling']);
+      const esValue = this || globalObject;
+      return utils.tryWrapperForImpl(esValue[implSymbol]["nextElementSibling"]);
     }
 
     get children() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return utils.getSameObject(this, 'children', () => {
-        return utils.tryWrapperForImpl(esValue[implSymbol]['children']);
+      const esValue = this || globalObject;
+      return utils.getSameObject(this, "children", () => {
+        return utils.tryWrapperForImpl(esValue[implSymbol]["children"]);
       });
     }
 
     get firstElementChild() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return utils.tryWrapperForImpl(esValue[implSymbol]['firstElementChild']);
+      const esValue = this || globalObject;
+      return utils.tryWrapperForImpl(esValue[implSymbol]["firstElementChild"]);
     }
 
     get lastElementChild() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return utils.tryWrapperForImpl(esValue[implSymbol]['lastElementChild']);
+      const esValue = this || globalObject;
+      return utils.tryWrapperForImpl(esValue[implSymbol]["lastElementChild"]);
     }
 
     get childElementCount() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return esValue[implSymbol]['childElementCount'];
+      const esValue = this || globalObject;
+      return esValue[implSymbol]["childElementCount"];
     }
 
     get assignedSlot() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return utils.tryWrapperForImpl(esValue[implSymbol]['assignedSlot']);
-    }
-
-    alignElement(params) {
       const esValue = this || globalObject;
-
-      return esValue[implSymbol]['alignElement'](params);
+      return utils.tryWrapperForImpl(esValue[implSymbol]["assignedSlot"]);
     }
   }
   Object.defineProperties(Element.prototype, {
@@ -468,7 +462,7 @@ exports.install = (globalObject) => {
     lastElementChild: { enumerable: true },
     childElementCount: { enumerable: true },
     assignedSlot: { enumerable: true },
-    [Symbol.toStringTag]: { value: 'Element', configurable: true },
+    [Symbol.toStringTag]: { value: "Element", configurable: true },
     [Symbol.unscopables]: {
       value: {
         slot: true,

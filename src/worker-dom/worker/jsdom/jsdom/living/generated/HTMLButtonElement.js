@@ -93,7 +93,7 @@ exports.install = globalObject => {
     }
 
     get autofocus() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "autofocus");
     }
@@ -109,7 +109,7 @@ exports.install = globalObject => {
     }
 
     get disabled() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "disabled");
     }
@@ -125,12 +125,12 @@ exports.install = globalObject => {
     }
 
     get form() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["form"]);
     }
 
     get formNoValidate() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "formnovalidate");
     }
@@ -146,7 +146,7 @@ exports.install = globalObject => {
     }
 
     get formTarget() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "formtarget");
       return value === null ? "" : value;
@@ -159,7 +159,7 @@ exports.install = globalObject => {
     }
 
     get name() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "name");
       return value === null ? "" : value;
@@ -172,7 +172,7 @@ exports.install = globalObject => {
     }
 
     get type() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["type"];
     }
 
@@ -182,7 +182,7 @@ exports.install = globalObject => {
     }
 
     get value() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "value");
       return value === null ? "" : value;
@@ -195,22 +195,22 @@ exports.install = globalObject => {
     }
 
     get willValidate() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["willValidate"];
     }
 
     get validity() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["validity"]);
     }
 
     get validationMessage() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["validationMessage"];
     }
 
     get labels() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["labels"]);
     }
   }

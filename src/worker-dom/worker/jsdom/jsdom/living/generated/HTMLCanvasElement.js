@@ -100,7 +100,7 @@ exports.install = globalObject => {
     }
 
     get width() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["width"];
     }
 
@@ -110,7 +110,7 @@ exports.install = globalObject => {
     }
 
     get height() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["height"];
     }
 

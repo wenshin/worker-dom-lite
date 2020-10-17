@@ -90,22 +90,22 @@ exports.install = globalObject => {
     }
 
     get url() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["url"];
     }
 
     get readyState() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["readyState"];
     }
 
     get bufferedAmount() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["bufferedAmount"];
     }
 
     get onopen() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["onopen"]);
     }
 
@@ -115,7 +115,7 @@ exports.install = globalObject => {
     }
 
     get onerror() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["onerror"]);
     }
 
@@ -125,7 +125,7 @@ exports.install = globalObject => {
     }
 
     get onclose() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["onclose"]);
     }
 
@@ -135,17 +135,17 @@ exports.install = globalObject => {
     }
 
     get extensions() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["extensions"];
     }
 
     get protocol() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["protocol"];
     }
 
     get onmessage() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["onmessage"]);
     }
 
@@ -155,7 +155,7 @@ exports.install = globalObject => {
     }
 
     get binaryType() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["binaryType"]);
     }
 

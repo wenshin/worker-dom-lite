@@ -72,7 +72,7 @@ exports.install = globalObject => {
     }
 
     get signal() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "signal", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["signal"]);
       });

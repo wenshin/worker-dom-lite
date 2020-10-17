@@ -73,7 +73,7 @@ exports.install = globalObject => {
     }
 
     get align() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "align");
       return value === null ? "" : value;
@@ -86,7 +86,7 @@ exports.install = globalObject => {
     }
 
     get color() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "color");
       return value === null ? "" : value;
@@ -99,7 +99,7 @@ exports.install = globalObject => {
     }
 
     get noShade() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "noshade");
     }
@@ -115,7 +115,7 @@ exports.install = globalObject => {
     }
 
     get size() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "size");
       return value === null ? "" : value;
@@ -128,7 +128,7 @@ exports.install = globalObject => {
     }
 
     get width() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "width");
       return value === null ? "" : value;

@@ -135,7 +135,7 @@ exports.install = globalObject => {
     }
 
     get caption() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["caption"]);
     }
 
@@ -145,7 +145,7 @@ exports.install = globalObject => {
     }
 
     get tHead() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["tHead"]);
     }
 
@@ -155,7 +155,7 @@ exports.install = globalObject => {
     }
 
     get tFoot() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["tFoot"]);
     }
 
@@ -165,21 +165,21 @@ exports.install = globalObject => {
     }
 
     get tBodies() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "tBodies", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["tBodies"]);
       });
     }
 
     get rows() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "rows", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["rows"]);
       });
     }
 
     get align() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "align");
       return value === null ? "" : value;
@@ -192,7 +192,7 @@ exports.install = globalObject => {
     }
 
     get border() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "border");
       return value === null ? "" : value;
@@ -205,7 +205,7 @@ exports.install = globalObject => {
     }
 
     get frame() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "frame");
       return value === null ? "" : value;
@@ -218,7 +218,7 @@ exports.install = globalObject => {
     }
 
     get rules() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "rules");
       return value === null ? "" : value;
@@ -231,7 +231,7 @@ exports.install = globalObject => {
     }
 
     get summary() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "summary");
       return value === null ? "" : value;
@@ -244,7 +244,7 @@ exports.install = globalObject => {
     }
 
     get width() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "width");
       return value === null ? "" : value;
@@ -257,7 +257,7 @@ exports.install = globalObject => {
     }
 
     get bgColor() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "bgcolor");
       return value === null ? "" : value;
@@ -270,7 +270,7 @@ exports.install = globalObject => {
     }
 
     get cellPadding() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "cellpadding");
       return value === null ? "" : value;
@@ -283,7 +283,7 @@ exports.install = globalObject => {
     }
 
     get cellSpacing() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "cellspacing");
       return value === null ? "" : value;

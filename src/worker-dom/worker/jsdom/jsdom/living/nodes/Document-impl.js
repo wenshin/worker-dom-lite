@@ -1,6 +1,6 @@
 'use strict';
 
-const { CookieJar } = require('tough-cookie');
+// const { CookieJar } = require('tough-cookie');
 
 const NodeImpl = require('./Node-impl').implementation;
 const idlUtils = require('../generated/utils');
@@ -142,9 +142,9 @@ class DocumentImpl extends NodeImpl {
     this._cookieJar = privateData.options.cookieJar;
     this._parseOptions = privateData.options.parseOptions;
     this._scriptingDisabled = privateData.options.scriptingDisabled;
-    if (this._cookieJar === undefined) {
-      this._cookieJar = new CookieJar(null, { looseMode: true });
-    }
+    // if (this._cookieJar === undefined) {
+    //   this._cookieJar = new CookieJar(null, { looseMode: true });
+    // }
 
     this.contentType = privateData.options.contentType;
     this._encoding = privateData.options.encoding;

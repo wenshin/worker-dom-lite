@@ -73,7 +73,7 @@ exports.install = globalObject => {
     }
 
     get disabled() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "disabled");
     }
@@ -89,12 +89,12 @@ exports.install = globalObject => {
     }
 
     get form() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["form"]);
     }
 
     get label() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["label"];
     }
 
@@ -104,7 +104,7 @@ exports.install = globalObject => {
     }
 
     get defaultSelected() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "selected");
     }
@@ -120,7 +120,7 @@ exports.install = globalObject => {
     }
 
     get selected() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["selected"];
     }
 
@@ -130,7 +130,7 @@ exports.install = globalObject => {
     }
 
     get value() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["value"];
     }
 
@@ -140,7 +140,7 @@ exports.install = globalObject => {
     }
 
     get text() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["text"];
     }
 
@@ -150,7 +150,7 @@ exports.install = globalObject => {
     }
 
     get index() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["index"];
     }
   }

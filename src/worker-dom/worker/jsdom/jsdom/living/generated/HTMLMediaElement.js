@@ -5,9 +5,6 @@ const utils = require("./utils.js");
 const Impl = require("../nodes/HTMLMediaElement-impl.js");
 
 const TextTrackKind = require("./TextTrackKind.js");
-const parseURLToResultingURLRecord_helpers_document_base_url = require("../helpers/document-base-url.js")
-  .parseURLToResultingURLRecord;
-const serializeURLwhatwg_url = require("whatwg-url").serializeURL;
 const implSymbol = utils.implSymbol;
 const ctorRegistrySymbol = utils.ctorRegistrySymbol;
 const HTMLElement = require("./HTMLElement.js");
@@ -118,18 +115,11 @@ exports.install = globalObject => {
     }
 
     get src() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "src");
       if (value === null) {
         return "";
-      }
-      const urlRecord = parseURLToResultingURLRecord_helpers_document_base_url(
-        value,
-        esValue[implSymbol]._ownerDocument
-      );
-      if (urlRecord !== null) {
-        return serializeURLwhatwg_url(urlRecord);
       }
       return conversions.USVString(value);
     }
@@ -141,12 +131,12 @@ exports.install = globalObject => {
     }
 
     get currentSrc() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["currentSrc"];
     }
 
     get crossOrigin() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "crossorigin");
       return value === null ? "" : value;
@@ -159,12 +149,12 @@ exports.install = globalObject => {
     }
 
     get networkState() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["networkState"];
     }
 
     get preload() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "preload");
       return value === null ? "" : value;
@@ -177,22 +167,22 @@ exports.install = globalObject => {
     }
 
     get buffered() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["buffered"]);
     }
 
     get readyState() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["readyState"];
     }
 
     get seeking() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["seeking"];
     }
 
     get currentTime() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["currentTime"];
     }
 
@@ -202,17 +192,17 @@ exports.install = globalObject => {
     }
 
     get duration() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["duration"];
     }
 
     get paused() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["paused"];
     }
 
     get defaultPlaybackRate() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["defaultPlaybackRate"];
     }
 
@@ -222,7 +212,7 @@ exports.install = globalObject => {
     }
 
     get playbackRate() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["playbackRate"];
     }
 
@@ -232,22 +222,22 @@ exports.install = globalObject => {
     }
 
     get played() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["played"]);
     }
 
     get seekable() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["seekable"]);
     }
 
     get ended() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["ended"];
     }
 
     get autoplay() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "autoplay");
     }
@@ -263,7 +253,7 @@ exports.install = globalObject => {
     }
 
     get loop() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "loop");
     }
@@ -279,7 +269,7 @@ exports.install = globalObject => {
     }
 
     get controls() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "controls");
     }
@@ -295,7 +285,7 @@ exports.install = globalObject => {
     }
 
     get volume() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["volume"];
     }
 
@@ -305,7 +295,7 @@ exports.install = globalObject => {
     }
 
     get muted() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["muted"];
     }
 
@@ -315,7 +305,7 @@ exports.install = globalObject => {
     }
 
     get defaultMuted() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "muted");
     }
@@ -331,21 +321,21 @@ exports.install = globalObject => {
     }
 
     get audioTracks() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "audioTracks", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["audioTracks"]);
       });
     }
 
     get videoTracks() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "videoTracks", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["videoTracks"]);
       });
     }
 
     get textTracks() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "textTracks", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["textTracks"]);
       });

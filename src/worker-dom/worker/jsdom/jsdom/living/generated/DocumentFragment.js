@@ -118,24 +118,24 @@ exports.install = globalObject => {
     }
 
     get children() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "children", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["children"]);
       });
     }
 
     get firstElementChild() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["firstElementChild"]);
     }
 
     get lastElementChild() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["lastElementChild"]);
     }
 
     get childElementCount() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["childElementCount"];
     }
   }

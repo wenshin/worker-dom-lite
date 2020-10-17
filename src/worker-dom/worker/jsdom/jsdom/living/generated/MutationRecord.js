@@ -66,53 +66,53 @@ exports.install = globalObject => {
     }
 
     get type() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["type"];
     }
 
     get target() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "target", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["target"]);
       });
     }
 
     get addedNodes() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "addedNodes", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["addedNodes"]);
       });
     }
 
     get removedNodes() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "removedNodes", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["removedNodes"]);
       });
     }
 
     get previousSibling() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["previousSibling"]);
     }
 
     get nextSibling() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["nextSibling"]);
     }
 
     get attributeName() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["attributeName"];
     }
 
     get attributeNamespace() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["attributeNamespace"];
     }
 
     get oldValue() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["oldValue"];
     }
   }

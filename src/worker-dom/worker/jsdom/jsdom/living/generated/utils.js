@@ -1,3 +1,5 @@
+'use strict';
+
 // Returns "Type(value) is Object" in ES terminology.
 function isObject(value) {
   return (typeof value === 'object' && value !== null) || typeof value === 'function';
@@ -43,6 +45,7 @@ function tryImplForWrapper(wrapper) {
 
 const iterInternalSymbol = Symbol('internal');
 const IteratorPrototype = Object.getPrototypeOf(Object.getPrototypeOf([][Symbol.iterator]()));
+const AsyncIteratorPrototype = Object.getPrototypeOf(Object.getPrototypeOf(async function*() {}).prototype);
 
 function isArrayIndexPropName(P) {
   if (typeof P !== 'string') {
@@ -146,6 +149,7 @@ module.exports = {
   tryImplForWrapper,
   iterInternalSymbol,
   IteratorPrototype,
+  AsyncIteratorPrototype,
   isArrayBuffer,
   isArrayIndexPropName,
   supportsPropertyIndex,

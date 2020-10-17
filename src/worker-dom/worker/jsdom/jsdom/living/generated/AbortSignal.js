@@ -72,12 +72,12 @@ exports.install = globalObject => {
     }
 
     get aborted() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["aborted"];
     }
 
     get onabort() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["onabort"]);
     }
 

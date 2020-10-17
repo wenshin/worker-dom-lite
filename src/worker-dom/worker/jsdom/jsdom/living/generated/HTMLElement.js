@@ -1,22 +1,22 @@
-"use strict";
+'use strict';
 
-const conversions = require("webidl-conversions");
-const utils = require("./utils.js");
-const Impl = require("../nodes/HTMLElement-impl.js");
+const conversions = require('webidl-conversions');
+const utils = require('./utils.js');
+const Impl = require('../nodes/HTMLElement-impl.js');
 
-const HTMLConstructor_helpers_html_constructor = require("../helpers/html-constructor.js").HTMLConstructor;
+const HTMLConstructor_helpers_html_constructor = require('../helpers/html-constructor.js').HTMLConstructor;
 const implSymbol = utils.implSymbol;
 const ctorRegistrySymbol = utils.ctorRegistrySymbol;
-const Element = require("./Element.js");
+const Element = require('./Element.js');
 
-const interfaceName = "HTMLElement";
+const interfaceName = 'HTMLElement';
 
 exports.is = utils.is.bind(utils);
 exports.isImpl = utils.isImpl.bind(utils, Impl);
 exports.convert = utils.convert.bind(utils);
 
 exports.create = (globalObject, constructorArgs, privateData) => {
-  const wrapper = utils.makeWrapper("HTMLElement", globalObject);
+  const wrapper = utils.makeWrapper('HTMLElement', globalObject);
   return exports.setup(wrapper, globalObject, constructorArgs, privateData);
 };
 
@@ -45,7 +45,7 @@ exports.setup = (wrapper, globalObject, constructorArgs = [], privateData = {}) 
   return wrapper;
 };
 
-exports.new = globalObject => {
+exports.new = (globalObject) => {
   const wrapper = utils.makeWrapper(HTMLElement, globalObject);
 
   exports._internalSetup(wrapper, globalObject);
@@ -61,11 +61,11 @@ exports.new = globalObject => {
   return wrapper[implSymbol];
 };
 
-const exposed = new Set(["Window"]);
+const exposed = new Set([ 'Window' ]);
 
-exports.install = globalObject => {
+exports.install = (globalObject) => {
   if (globalObject.Element === undefined) {
-    throw new Error("Internal error: attempting to evaluate HTMLElement before Element");
+    throw new Error('Internal error: attempting to evaluate HTMLElement before Element');
   }
   class HTMLElement extends globalObject.Element {
     constructor() {
@@ -91,134 +91,139 @@ exports.install = globalObject => {
     }
 
     get hidden() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      return esValue[implSymbol].hasAttributeNS(null, "hidden");
+      return esValue[implSymbol].hasAttributeNS(null, 'hidden');
     }
 
     set hidden(V) {
       const esValue = this || globalObject;
 
       if (V) {
-        esValue[implSymbol].setAttributeNS(null, "hidden", "");
+        esValue[implSymbol].setAttributeNS(null, 'hidden', '');
       } else {
-        esValue[implSymbol].removeAttributeNS(null, "hidden");
+        esValue[implSymbol].removeAttributeNS(null, 'hidden');
       }
     }
 
     get accessKey() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      const value = esValue[implSymbol].getAttributeNS(null, "accesskey");
-      return value === null ? "" : value;
+      const value = esValue[implSymbol].getAttributeNS(null, 'accesskey');
+      return value === null ? '' : value;
     }
 
     set accessKey(V) {
       const esValue = this || globalObject;
 
-      esValue[implSymbol].setAttributeNS(null, "accesskey", V);
+      esValue[implSymbol].setAttributeNS(null, 'accesskey', V);
     }
 
     get draggable() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return esValue[implSymbol]["draggable"];
+      const esValue = this || globalObject;
+      return esValue[implSymbol]['draggable'];
     }
 
     set draggable(V) {
       const esValue = this || globalObject;
-      esValue[implSymbol]["draggable"] = V;
+      esValue[implSymbol]['draggable'] = V;
     }
 
     get offsetParent() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return utils.tryWrapperForImpl(esValue[implSymbol]["offsetParent"]);
+      const esValue = this || globalObject;
+      return utils.tryWrapperForImpl(esValue[implSymbol]['offsetParent']);
     }
 
     get offsetTop() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return esValue[implSymbol]["offsetTop"];
+      const esValue = this || globalObject;
+      return esValue[implSymbol]['offsetTop'];
     }
 
     get offsetLeft() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return esValue[implSymbol]["offsetLeft"];
+      const esValue = this || globalObject;
+      return esValue[implSymbol]['offsetLeft'];
     }
 
     get offsetWidth() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return esValue[implSymbol]["offsetWidth"];
+      const esValue = this || globalObject;
+      return esValue[implSymbol]['offsetWidth'];
     }
 
     get offsetHeight() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return esValue[implSymbol]["offsetHeight"];
+      const esValue = this || globalObject;
+      return esValue[implSymbol]['offsetHeight'];
     }
 
     get style() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return utils.getSameObject(this, "style", () => {
-        return utils.tryWrapperForImpl(esValue[implSymbol]["style"]);
+      const esValue = this || globalObject;
+      return utils.getSameObject(this, 'style', () => {
+        return utils.tryWrapperForImpl(esValue[implSymbol]['style']);
       });
     }
 
     set style(V) {
       const esValue = this || globalObject;
 
-      const Q = esValue["style"];
+      const Q = esValue['style'];
       if (!utils.isObject(Q)) {
         throw new TypeError("Property 'style' is not an object");
       }
-      Reflect.set(Q, "cssText", V);
+      Reflect.set(Q, 'cssText', V);
     }
 
     get onclick() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return utils.tryWrapperForImpl(esValue[implSymbol]["onclick"]);
+      const esValue = this || globalObject;
+      return utils.tryWrapperForImpl(esValue[implSymbol]['onclick']);
     }
 
     set onclick(V) {
       const esValue = this || globalObject;
-      esValue[implSymbol]["onclick"] = V;
+      esValue[implSymbol]['onclick'] = V;
     }
 
     get oninput() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return utils.tryWrapperForImpl(esValue[implSymbol]["oninput"]);
+      const esValue = this || globalObject;
+      return utils.tryWrapperForImpl(esValue[implSymbol]['oninput']);
     }
 
     set oninput(V) {
       const esValue = this || globalObject;
-      esValue[implSymbol]["oninput"] = V;
+      esValue[implSymbol]['oninput'] = V;
     }
 
     get dataset() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return utils.getSameObject(this, "dataset", () => {
-        return utils.tryWrapperForImpl(esValue[implSymbol]["dataset"]);
+      const esValue = this || globalObject;
+      return utils.getSameObject(this, 'dataset', () => {
+        return utils.tryWrapperForImpl(esValue[implSymbol]['dataset']);
       });
     }
 
     get nonce() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
-      const value = esValue[implSymbol].getAttributeNS(null, "nonce");
-      return value === null ? "" : value;
+      const value = esValue[implSymbol].getAttributeNS(null, 'nonce');
+      return value === null ? '' : value;
     }
 
     set nonce(V) {
       const esValue = this || globalObject;
 
-      esValue[implSymbol].setAttributeNS(null, "nonce", V);
+      esValue[implSymbol].setAttributeNS(null, 'nonce', V);
     }
 
     get tabIndex() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
-      return esValue[implSymbol]["tabIndex"];
+      const esValue = this || globalObject;
+      return esValue[implSymbol]['tabIndex'];
     }
 
     set tabIndex(V) {
       const esValue = this || globalObject;
-      esValue[implSymbol]["tabIndex"] = V;
+      esValue[implSymbol]['tabIndex'] = V;
+    }
+
+    alignElement() {
+      const esValue = this || globalObject;
+      return esValue[implSymbol].alignElement(...arguments);
     }
   }
   Object.defineProperties(HTMLElement.prototype, {
@@ -239,7 +244,7 @@ exports.install = globalObject => {
     dataset: { enumerable: true },
     nonce: { enumerable: true },
     tabIndex: { enumerable: true },
-    [Symbol.toStringTag]: { value: "HTMLElement", configurable: true }
+    [Symbol.toStringTag]: { value: 'HTMLElement', configurable: true }
   });
   if (globalObject[ctorRegistrySymbol] === undefined) {
     globalObject[ctorRegistrySymbol] = Object.create(null);

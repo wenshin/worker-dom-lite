@@ -1,13 +1,10 @@
-"use strict";
-
-const whatwgEncoding = require("whatwg-encoding");
-const MIMEType = require("whatwg-mimetype");
-const DOMException = require("domexception/webidl2js-wrapper");
-const EventTargetImpl = require("../events/EventTarget-impl").implementation;
-const ProgressEvent = require("../generated/ProgressEvent");
-const { setupForSimpleEventAccessors } = require("../helpers/create-event-accessor");
-const { fireAnEvent } = require("../helpers/events");
-const { copyToArrayBufferInNewRealm } = require("../helpers/binary-data");
+const MIMEType = require('whatwg-mimetype');
+const DOMException = require('domexception/webidl2js-wrapper');
+const EventTargetImpl = require('../events/EventTarget-impl').implementation;
+const ProgressEvent = require('../generated/ProgressEvent');
+const { setupForSimpleEventAccessors } = require('../helpers/create-event-accessor');
+const { fireAnEvent } = require('../helpers/events');
+const { copyToArrayBufferInNewRealm } = require('../helpers/binary-data');
 
 const READY_STATES = Object.freeze({
   EMPTY: 0,
@@ -15,7 +12,7 @@ const READY_STATES = Object.freeze({
   DONE: 2
 });
 
-const events = ["loadstart", "progress", "load", "abort", "error", "loadend"];
+const events = [ 'loadstart', 'progress', 'load', 'abort', 'error', 'loadend' ];
 
 class FileReaderImpl extends EventTargetImpl {
   constructor(globalObject, args, privateData) {
@@ -31,16 +28,16 @@ class FileReaderImpl extends EventTargetImpl {
   }
 
   readAsArrayBuffer(file) {
-    this._readFile(file, "buffer");
+    this._readFile(file, 'buffer');
   }
   readAsBinaryString(file) {
-    this._readFile(file, "binaryString");
+    this._readFile(file, 'binaryString');
   }
   readAsDataURL(file) {
-    this._readFile(file, "dataURL");
+    this._readFile(file, 'dataURL');
   }
   readAsText(file, encoding) {
-    this._readFile(file, "text", whatwgEncoding.labelToName(encoding) || "UTF-8");
+    this._readFile(file, 'text', 'UTF-8');
   }
 
   abort() {
@@ -55,8 +52,8 @@ class FileReaderImpl extends EventTargetImpl {
     }
 
     this._terminated = true;
-    this._fireProgressEvent("abort");
-    this._fireProgressEvent("loadend");
+    this._fireProgressEvent('abort');
+    this._fireProgressEvent('loadend');
   }
 
   _fireProgressEvent(name, props) {
@@ -65,10 +62,7 @@ class FileReaderImpl extends EventTargetImpl {
 
   _readFile(file, format, encoding) {
     if (this.readyState === READY_STATES.LOADING) {
-      throw DOMException.create(this._globalObject, [
-        "The object is in an invalid state.",
-        "InvalidStateError"
-      ]);
+      throw DOMException.create(this._globalObject, [ 'The object is in an invalid state.', 'InvalidStateError' ]);
     }
 
     this.readyState = READY_STATES.LOADING;
@@ -79,13 +73,13 @@ class FileReaderImpl extends EventTargetImpl {
         return;
       }
 
-      this._fireProgressEvent("loadstart");
+      this._fireProgressEvent('loadstart');
 
       let data = file._buffer;
       if (!data) {
         data = Buffer.alloc(0);
       }
-      this._fireProgressEvent("progress", {
+      this._fireProgressEvent('progress', {
         lengthComputable: !isNaN(file.size),
         total: file.size,
         loaded: data.length
@@ -99,28 +93,29 @@ class FileReaderImpl extends EventTargetImpl {
 
         switch (format) {
           default:
-          case "buffer": {
+          case 'buffer': {
             this.result = copyToArrayBufferInNewRealm(data, this._globalObject);
             break;
           }
-          case "binaryString": {
-            this.result = data.toString("binary");
+          case 'binaryString': {
+            this.result = data.toString('binary');
             break;
           }
-          case "dataURL": {
+          case 'dataURL': {
             // Spec seems very unclear here; see https://github.com/w3c/FileAPI/issues/104.
-            const contentType = MIMEType.parse(file.type) || "application/octet-stream";
-            this.result = `data:${contentType};base64,${data.toString("base64")}`;
+            const contentType = MIMEType.parse(file.type) || 'application/octet-stream';
+            this.result = `data:${contentType};base64,${data.toString('base64')}`;
             break;
           }
-          case "text": {
-            this.result = whatwgEncoding.decode(data, encoding);
+          case 'text': {
+            // this.result = whatwgEncoding.decode(data, encoding);
+            this.result = '';
             break;
           }
         }
         this.readyState = READY_STATES.DONE;
-        this._fireProgressEvent("load");
-        this._fireProgressEvent("loadend");
+        this._fireProgressEvent('load');
+        this._fireProgressEvent('loadend');
       });
     });
   }

@@ -111,22 +111,22 @@ exports.install = globalObject => {
     }
 
     get readyState() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["readyState"];
     }
 
     get result() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["result"]);
     }
 
     get error() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["error"]);
     }
 
     get onloadstart() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["onloadstart"]);
     }
 
@@ -136,7 +136,7 @@ exports.install = globalObject => {
     }
 
     get onprogress() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["onprogress"]);
     }
 
@@ -146,7 +146,7 @@ exports.install = globalObject => {
     }
 
     get onload() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["onload"]);
     }
 
@@ -156,7 +156,7 @@ exports.install = globalObject => {
     }
 
     get onabort() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["onabort"]);
     }
 
@@ -166,7 +166,7 @@ exports.install = globalObject => {
     }
 
     get onerror() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["onerror"]);
     }
 
@@ -176,7 +176,7 @@ exports.install = globalObject => {
     }
 
     get onloadend() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["onloadend"]);
     }
 

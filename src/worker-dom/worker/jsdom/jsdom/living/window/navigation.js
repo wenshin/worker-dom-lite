@@ -1,13 +1,13 @@
-"use strict";
-const whatwgURL = require("whatwg-url");
-const notImplemented = require("../../browser/not-implemented.js");
-const reportException = require("../helpers/runtime-script-errors.js");
-const idlUtils = require("../generated/utils.js");
+'use strict';
+const whatwgURL = require('whatwg-url'); // not used
+const notImplemented = require('../../browser/not-implemented.js');
+const reportException = require('../helpers/runtime-script-errors.js');
+const idlUtils = require('../generated/utils.js');
 
 exports.evaluateJavaScriptURL = (window, urlRecord) => {
   const urlString = whatwgURL.serializeURL(urlRecord);
   const scriptSource = whatwgURL.percentDecode(Buffer.from(urlString)).toString();
-  if (window._runScripts === "dangerously") {
+  if (window._runScripts === 'dangerously') {
     try {
       return window.eval(scriptSource);
     } catch (e) {
@@ -42,10 +42,10 @@ exports.navigate = (window, newURL, flags) => {
   // const navigationType = 'other';
 
   // NOT IMPLEMENTED: if resource is a response...
-  if (newURL.scheme === "javascript") {
+  if (newURL.scheme === 'javascript') {
     setTimeout(() => {
       const result = exports.evaluateJavaScriptURL(window, newURL);
-      if (typeof result === "string") {
+      if (typeof result === 'string') {
         notImplemented("string results from 'javascript:' URLs", window);
       }
     }, 0);
@@ -73,7 +73,7 @@ function navigateToFragment(window, newURL, flags) {
 // https://html.spec.whatwg.org/#process-a-navigate-fetch
 function navigateFetch(window) {
   // TODO:
-  notImplemented("navigation (except hash changes)", window);
+  notImplemented('navigation (except hash changes)', window);
 }
 
 // https://url.spec.whatwg.org/#concept-url-equals

@@ -73,17 +73,17 @@ exports.install = globalObject => {
     }
 
     get lengthComputable() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["lengthComputable"];
     }
 
     get loaded() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["loaded"];
     }
 
     get total() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["total"];
     }
   }

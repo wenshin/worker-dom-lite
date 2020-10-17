@@ -73,17 +73,17 @@ exports.install = globalObject => {
     }
 
     get wasClean() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["wasClean"];
     }
 
     get code() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["code"];
     }
 
     get reason() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["reason"];
     }
   }

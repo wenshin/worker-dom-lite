@@ -10,7 +10,7 @@ const nodeFilter = require('./node-filter');
 // We cannot "refactor" this to something less duplicative because that would break bundlers which depend on static
 // analysis of require()s.
 const generatedInterfaces = {
-  DOMException: require('domexception/webidl2js-wrapper'),
+  // DOMException: require('domexception/webidl2js-wrapper'),
 
   // URL: require('whatwg-url/webidl2js-wrapper').URL,
   // URLSearchParams: require('whatwg-url/webidl2js-wrapper').URLSearchParams,
@@ -41,7 +41,7 @@ const generatedInterfaces = {
 
   HTMLElement: require('./generated/HTMLElement.js'),
   HTMLHeadElement: require('./generated/HTMLHeadElement.js'),
-  HTMLTitleElement: require('./generated/HTMLTitleElement.js'),
+  // HTMLTitleElement: require('./generated/HTMLTitleElement.js'),
   HTMLBaseElement: require('./generated/HTMLBaseElement.js'),
   HTMLLinkElement: require('./generated/HTMLLinkElement.js'),
   // HTMLMetaElement: require('./generated/HTMLMetaElement.js'),
@@ -98,7 +98,7 @@ const generatedInterfaces = {
   // HTMLTimeElement: require('./generated/HTMLTimeElement.js'),
   HTMLTableRowElement: require('./generated/HTMLTableRowElement.js'),
   HTMLTableSectionElement: require('./generated/HTMLTableSectionElement.js'),
-  HTMLTemplateElement: require('./generated/HTMLTemplateElement.js'),
+  // HTMLTemplateElement: require('./generated/HTMLTemplateElement.js'),
   HTMLTextAreaElement: require('./generated/HTMLTextAreaElement.js'),
   HTMLUnknownElement: require('./generated/HTMLUnknownElement.js'),
   // HTMLFrameElement: require('./generated/HTMLFrameElement.js'),
@@ -145,7 +145,7 @@ const generatedInterfaces = {
   // History: require('./generated/History'),
   // Screen: require('./generated/Screen'),
   // Performance: require('./generated/Performance'),
-  Navigator: require('./generated/Navigator'),
+  // Navigator: require('./generated/Navigator'),
 
   // PluginArray: require('./generated/PluginArray'),
   // MimeTypeArray: require('./generated/MimeTypeArray'),

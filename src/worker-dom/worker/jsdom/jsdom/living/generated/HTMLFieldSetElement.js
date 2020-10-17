@@ -93,7 +93,7 @@ exports.install = globalObject => {
     }
 
     get disabled() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "disabled");
     }
@@ -109,12 +109,12 @@ exports.install = globalObject => {
     }
 
     get form() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["form"]);
     }
 
     get name() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "name");
       return value === null ? "" : value;
@@ -127,31 +127,31 @@ exports.install = globalObject => {
     }
 
     get type() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["type"];
     }
 
     get elements() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "elements", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["elements"]);
       });
     }
 
     get willValidate() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["willValidate"];
     }
 
     get validity() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "validity", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["validity"]);
       });
     }
 
     get validationMessage() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["validationMessage"];
     }
   }

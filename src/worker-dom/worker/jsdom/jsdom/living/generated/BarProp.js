@@ -66,7 +66,7 @@ exports.install = globalObject => {
     }
 
     get visible() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["visible"];
     }
   }

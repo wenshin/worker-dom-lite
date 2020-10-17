@@ -252,29 +252,29 @@ exports.install = globalObject => {
     }
 
     get implementation() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "implementation", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["implementation"]);
       });
     }
 
     get compatMode() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["compatMode"];
     }
 
     get documentElement() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["documentElement"]);
     }
 
     get readyState() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["readyState"]);
     }
 
     get body() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["body"]);
     }
 
@@ -284,17 +284,17 @@ exports.install = globalObject => {
     }
 
     get head() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["head"]);
     }
 
     get defaultView() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["defaultView"]);
     }
 
     get onreadystatechange() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["onreadystatechange"]);
     }
 
@@ -304,17 +304,17 @@ exports.install = globalObject => {
     }
 
     get hidden() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["hidden"];
     }
 
     get visibilityState() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["visibilityState"]);
     }
 
     get onvisibilitychange() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["onvisibilitychange"]);
     }
 
@@ -324,7 +324,7 @@ exports.install = globalObject => {
     }
 
     get onclick() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["onclick"]);
     }
 
@@ -334,7 +334,7 @@ exports.install = globalObject => {
     }
 
     get oninput() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["oninput"]);
     }
 
@@ -344,29 +344,29 @@ exports.install = globalObject => {
     }
 
     get activeElement() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["activeElement"]);
     }
 
     get children() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "children", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["children"]);
       });
     }
 
     get firstElementChild() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["firstElementChild"]);
     }
 
     get lastElementChild() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["lastElementChild"]);
     }
 
     get childElementCount() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["childElementCount"];
     }
   }

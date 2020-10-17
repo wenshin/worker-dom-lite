@@ -239,7 +239,7 @@ exports.install = globalObject => {
     }
 
     get commonAncestorContainer() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["commonAncestorContainer"]);
     }
   }

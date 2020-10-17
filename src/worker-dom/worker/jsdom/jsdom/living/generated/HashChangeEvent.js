@@ -73,12 +73,12 @@ exports.install = globalObject => {
     }
 
     get oldURL() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["oldURL"];
     }
 
     get newURL() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["newURL"];
     }
   }

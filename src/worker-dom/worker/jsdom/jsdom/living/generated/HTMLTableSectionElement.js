@@ -91,14 +91,14 @@ exports.install = globalObject => {
     }
 
     get rows() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "rows", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["rows"]);
       });
     }
 
     get align() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "align");
       return value === null ? "" : value;
@@ -111,7 +111,7 @@ exports.install = globalObject => {
     }
 
     get ch() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "char");
       return value === null ? "" : value;
@@ -124,7 +124,7 @@ exports.install = globalObject => {
     }
 
     get chOff() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "charoff");
       return value === null ? "" : value;
@@ -137,7 +137,7 @@ exports.install = globalObject => {
     }
 
     get vAlign() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "valign");
       return value === null ? "" : value;

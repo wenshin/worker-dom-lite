@@ -73,7 +73,7 @@ exports.install = globalObject => {
     }
 
     get persisted() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["persisted"];
     }
   }

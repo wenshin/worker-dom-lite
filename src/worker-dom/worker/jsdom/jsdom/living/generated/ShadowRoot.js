@@ -72,17 +72,17 @@ exports.install = globalObject => {
     }
 
     get mode() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["mode"]);
     }
 
     get host() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["host"]);
     }
 
     get innerHTML() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["innerHTML"];
     }
 
@@ -92,7 +92,7 @@ exports.install = globalObject => {
     }
 
     get activeElement() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["activeElement"]);
     }
   }

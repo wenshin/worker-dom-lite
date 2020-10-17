@@ -72,14 +72,14 @@ exports.install = globalObject => {
     }
 
     get requiredExtensions() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "requiredExtensions", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["requiredExtensions"]);
       });
     }
 
     get systemLanguage() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "systemLanguage", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["systemLanguage"]);
       });

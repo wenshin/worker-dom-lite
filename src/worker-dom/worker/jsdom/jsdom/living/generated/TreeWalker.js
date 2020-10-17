@@ -109,24 +109,24 @@ exports.install = globalObject => {
     }
 
     get root() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "root", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["root"]);
       });
     }
 
     get whatToShow() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["whatToShow"];
     }
 
     get filter() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["filter"]);
     }
 
     get currentNode() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["currentNode"]);
     }
 

@@ -142,7 +142,7 @@ exports.install = globalObject => {
     }
 
     get data() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["data"];
     }
 
@@ -152,17 +152,17 @@ exports.install = globalObject => {
     }
 
     get length() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["length"];
     }
 
     get previousElementSibling() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["previousElementSibling"]);
     }
 
     get nextElementSibling() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["nextElementSibling"]);
     }
   }

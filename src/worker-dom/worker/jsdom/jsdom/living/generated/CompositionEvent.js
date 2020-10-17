@@ -81,7 +81,7 @@ exports.install = globalObject => {
     }
 
     get data() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["data"];
     }
   }

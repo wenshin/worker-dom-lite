@@ -1,89 +1,87 @@
-"use strict";
+'use strict';
+// this file not used
 
-const HTTP_STATUS_CODES = require("http").STATUS_CODES;
-const { spawnSync } = require("child_process");
-const { URL } = require("whatwg-url");
-const whatwgEncoding = require("whatwg-encoding");
-const tough = require("tough-cookie");
-const MIMEType = require("whatwg-mimetype");
+const HTTP_STATUS_CODES = require('http').STATUS_CODES;
+const { spawnSync } = require('child_process');
+const { URL } = require('whatwg-url');
+const whatwgEncoding = require('whatwg-encoding');
+const tough = require('tough-cookie');
+const MIMEType = require('whatwg-mimetype');
 
-const xhrUtils = require("./xhr-utils");
-const DOMException = require("domexception/webidl2js-wrapper");
-const { documentBaseURLSerialized } = require("../helpers/document-base-url");
-const { asciiCaseInsensitiveMatch } = require("../helpers/strings");
-const idlUtils = require("../generated/utils");
-const Document = require("../generated/Document");
-const Blob = require("../generated/Blob");
-const FormData = require("../generated/FormData");
-const XMLHttpRequestEventTargetImpl = require("./XMLHttpRequestEventTarget-impl").implementation;
-const XMLHttpRequestUpload = require("../generated/XMLHttpRequestUpload");
-const ProgressEvent = require("../generated/ProgressEvent");
-const { isArrayBuffer } = require("../generated/utils");
-const { parseIntoDocument } = require("../../browser/parser");
-const { fragmentSerialization } = require("../domparsing/serialization");
-const { setupForSimpleEventAccessors } = require("../helpers/create-event-accessor");
-const { parseJSONFromBytes } = require("../helpers/json");
-const { fireAnEvent } = require("../helpers/events");
-const { copyToArrayBufferInNewRealm } = require("../helpers/binary-data");
+const xhrUtils = require('./xhr-utils');
+const DOMException = require('domexception/webidl2js-wrapper');
+const { documentBaseURLSerialized } = require('../helpers/document-base-url');
+const { asciiCaseInsensitiveMatch } = require('../helpers/strings');
+const idlUtils = require('../generated/utils');
+const Document = require('../generated/Document');
+const Blob = require('../generated/Blob');
+const FormData = require('../generated/FormData');
+const XMLHttpRequestEventTargetImpl = require('./XMLHttpRequestEventTarget-impl').implementation;
+const XMLHttpRequestUpload = require('../generated/XMLHttpRequestUpload');
+const ProgressEvent = require('../generated/ProgressEvent');
+const { isArrayBuffer } = require('../generated/utils');
+const { parseIntoDocument } = require('../../browser/parser');
+const { fragmentSerialization } = require('../domparsing/serialization');
+const { setupForSimpleEventAccessors } = require('../helpers/create-event-accessor');
+const { parseJSONFromBytes } = require('../helpers/json');
+const { fireAnEvent } = require('../helpers/events');
+const { copyToArrayBufferInNewRealm } = require('../helpers/binary-data');
 
 const { READY_STATES } = xhrUtils;
 
-const syncWorkerFile = require.resolve ? require.resolve("./xhr-sync-worker.js") : null;
+const syncWorkerFile = require.resolve ? require.resolve('./xhr-sync-worker.js') : null;
 
 const tokenRegexp = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
 const fieldValueRegexp = /^[ \t]*(?:[\x21-\x7E\x80-\xFF](?:[ \t][\x21-\x7E\x80-\xFF])?)*[ \t]*$/;
 
 const forbiddenRequestHeaders = new Set([
-  "accept-charset",
-  "accept-encoding",
-  "access-control-request-headers",
-  "access-control-request-method",
-  "connection",
-  "content-length",
-  "cookie",
-  "cookie2",
-  "date",
-  "dnt",
-  "expect",
-  "host",
-  "keep-alive",
-  "origin",
-  "referer",
-  "te",
-  "trailer",
-  "transfer-encoding",
-  "upgrade",
-  "via"
+  'accept-charset',
+  'accept-encoding',
+  'access-control-request-headers',
+  'access-control-request-method',
+  'connection',
+  'content-length',
+  'cookie',
+  'cookie2',
+  'date',
+  'dnt',
+  'expect',
+  'host',
+  'keep-alive',
+  'origin',
+  'referer',
+  'te',
+  'trailer',
+  'transfer-encoding',
+  'upgrade',
+  'via'
 ]);
-const forbiddenResponseHeaders = new Set([
-  "set-cookie",
-  "set-cookie2"
-]);
+const forbiddenResponseHeaders = new Set([ 'set-cookie', 'set-cookie2' ]);
 const uniqueResponseHeaders = new Set([
-  "content-type",
-  "content-length",
-  "user-agent",
-  "referer",
-  "host",
-  "authorization",
-  "proxy-authorization",
-  "if-modified-since",
-  "if-unmodified-since",
-  "from",
-  "location",
-  "max-forwards"
+  'content-type',
+  'content-length',
+  'user-agent',
+  'referer',
+  'host',
+  'authorization',
+  'proxy-authorization',
+  'if-modified-since',
+  'if-unmodified-since',
+  'from',
+  'location',
+  'max-forwards'
 ]);
 const corsSafeResponseHeaders = new Set([
-  "cache-control",
-  "content-language",
-  "content-type",
-  "expires",
-  "last-modified",
-  "pragma"
+  'cache-control',
+  'content-language',
+  'content-type',
+  'expires',
+  'last-modified',
+  'pragma'
 ]);
 
-const allowedRequestMethods = new Set(["OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE"]);
-const forbiddenRequestMethods = new Set(["TRACK", "TRACE", "CONNECT"]);
+const allowedRequestMethods = new Set([ 'OPTIONS', 'GET', 'HEAD', 'POST', 'PUT', 'DELETE' ]);
+const forbiddenRequestMethods = new Set([ 'TRACK', 'TRACE', 'CONNECT' ]);
 
 class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
   constructor(window) {
@@ -95,9 +93,9 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
     this.upload = XMLHttpRequestUpload.createImpl(window);
 
     this.readyState = READY_STATES.UNSENT;
-    this.responseURL = "";
+    this.responseURL = '';
     this.status = 0;
-    this.statusText = "";
+    this.statusText = '';
 
     this.flag = {
       synchronous: false,
@@ -105,10 +103,10 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
       mimeType: null,
       auth: null,
       method: undefined,
-      responseType: "",
+      responseType: '',
       requestHeaders: {},
       referrer: _ownerDocument.URL,
-      uri: "",
+      uri: '',
       timeout: 0,
       body: undefined,
       formData: false,
@@ -139,7 +137,7 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
       responseHeaders: {},
       filteredResponseHeaders: [],
 
-      error: "",
+      error: '',
       uploadComplete: false,
       uploadListener: false,
 
@@ -159,12 +157,12 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
   set responseType(responseType) {
     const { flag } = this;
     if (this.readyState === READY_STATES.LOADING || this.readyState === READY_STATES.DONE) {
-      throw DOMException.create(this._globalObject, ["The object is in an invalid state.", "InvalidStateError"]);
+      throw DOMException.create(this._globalObject, [ 'The object is in an invalid state.', 'InvalidStateError' ]);
     }
     if (this.readyState === READY_STATES.OPENED && flag.synchronous) {
       throw DOMException.create(this._globalObject, [
-        "The object does not support the operation or argument.",
-        "InvalidAccessError"
+        'The object does not support the operation or argument.',
+        'InvalidAccessError'
       ]);
     }
     flag.responseType = responseType;
@@ -178,39 +176,36 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
     }
     let res;
 
-    const responseBuffer = properties.responseBuffer ?
-      properties.responseBuffer.slice(0, properties.totalReceivedChunkSize) :
-      null;
+    const responseBuffer = properties.responseBuffer
+      ? properties.responseBuffer.slice(0, properties.totalReceivedChunkSize)
+      : null;
 
     switch (this.responseType) {
-      case "":
-      case "text": {
+      case '':
+      case 'text': {
         res = this.responseText;
         break;
       }
-      case "arraybuffer": {
+      case 'arraybuffer': {
         if (!responseBuffer) {
           return null;
         }
         res = copyToArrayBufferInNewRealm(responseBuffer, this._globalObject);
         break;
       }
-      case "blob": {
+      case 'blob': {
         if (!responseBuffer) {
           return null;
         }
         const contentType = finalMIMEType(this);
-        res = Blob.createImpl(this._globalObject, [
-          [new Uint8Array(responseBuffer)],
-          { type: contentType || "" }
-        ]);
+        res = Blob.createImpl(this._globalObject, [ [ new Uint8Array(responseBuffer) ], { type: contentType || '' } ]);
         break;
       }
-      case "document": {
+      case 'document': {
         res = this.responseXML;
         break;
       }
-      case "json": {
+      case 'json': {
         if (this.readyState !== READY_STATES.DONE || !responseBuffer) {
           res = null;
         }
@@ -229,24 +224,24 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
   }
   get responseText() {
     const { properties } = this;
-    if (this.responseType !== "" && this.responseType !== "text") {
-      throw DOMException.create(this._globalObject, ["The object is in an invalid state.", "InvalidStateError"]);
+    if (this.responseType !== '' && this.responseType !== 'text') {
+      throw DOMException.create(this._globalObject, [ 'The object is in an invalid state.', 'InvalidStateError' ]);
     }
     if (this.readyState !== READY_STATES.LOADING && this.readyState !== READY_STATES.DONE) {
-      return "";
+      return '';
     }
     if (properties.responseTextCache) {
       return properties.responseTextCache;
     }
-    const responseBuffer = properties.responseBuffer ?
-      properties.responseBuffer.slice(0, properties.totalReceivedChunkSize) :
-      null;
+    const responseBuffer = properties.responseBuffer
+      ? properties.responseBuffer.slice(0, properties.totalReceivedChunkSize)
+      : null;
 
     if (!responseBuffer) {
-      return "";
+      return '';
     }
 
-    const fallbackEncoding = finalCharset(this) || whatwgEncoding.getBOMEncoding(responseBuffer) || "UTF-8";
+    const fallbackEncoding = finalCharset(this) || whatwgEncoding.getBOMEncoding(responseBuffer) || 'UTF-8';
     const res = whatwgEncoding.decode(responseBuffer, fallbackEncoding);
 
     properties.responseTextCache = res;
@@ -254,8 +249,8 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
   }
   get responseXML() {
     const { flag, properties } = this;
-    if (this.responseType !== "" && this.responseType !== "document") {
-      throw DOMException.create(this._globalObject, ["The object is in an invalid state.", "InvalidStateError"]);
+    if (this.responseType !== '' && this.responseType !== 'document') {
+      throw DOMException.create(this._globalObject, [ 'The object is in an invalid state.', 'InvalidStateError' ]);
     }
     if (this.readyState !== READY_STATES.DONE) {
       return null;
@@ -263,9 +258,9 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
     if (properties.responseXMLCache) {
       return properties.responseXMLCache;
     }
-    const responseBuffer = properties.responseBuffer ?
-      properties.responseBuffer.slice(0, properties.totalReceivedChunkSize) :
-      null;
+    const responseBuffer = properties.responseBuffer
+      ? properties.responseBuffer.slice(0, properties.totalReceivedChunkSize)
+      : null;
 
     if (!responseBuffer) {
       return null;
@@ -283,11 +278,11 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
       }
     }
 
-    if (this.responseType === "" && isHTML) {
+    if (this.responseType === '' && isHTML) {
       return null;
     }
 
-    const encoding = finalCharset(this) || whatwgEncoding.getBOMEncoding(responseBuffer) || "UTF-8";
+    const encoding = finalCharset(this) || whatwgEncoding.getBOMEncoding(responseBuffer) || 'UTF-8';
     const resText = whatwgEncoding.decode(responseBuffer, encoding);
 
     if (!resText) {
@@ -296,9 +291,9 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
     const res = Document.createImpl(this._globalObject, [], {
       options: {
         url: flag.uri,
-        lastModified: new Date(getResponseHeader(this, "last-modified")),
-        parsingMode: isHTML ? "html" : "xml",
-        cookieJar: { setCookieSync: () => undefined, getCookieStringSync: () => "" },
+        lastModified: new Date(getResponseHeader(this, 'last-modified')),
+        parsingMode: isHTML ? 'html' : 'xml',
+        cookieJar: { setCookieSync: () => undefined, getCookieStringSync: () => '' },
         encoding,
         parseOptions: this._ownerDocument._parseOptions
       }
@@ -321,8 +316,8 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
     const { flag, properties } = this;
     if (flag.synchronous) {
       throw DOMException.create(this._globalObject, [
-        "The object does not support the operation or argument.",
-        "InvalidAccessError"
+        'The object does not support the operation or argument.',
+        'InvalidAccessError'
       ]);
     }
     flag.timeout = val;
@@ -330,7 +325,7 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
     if (val > 0 && properties.timeoutFn) {
       properties.timeoutId = setTimeout(
         properties.timeoutFn,
-        Math.max(0, val - ((new Date()).getTime() - properties.timeoutStart))
+        Math.max(0, val - (new Date().getTime() - properties.timeoutStart))
       );
     } else {
       properties.timeoutFn = null;
@@ -344,10 +339,10 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
   set withCredentials(val) {
     const { flag, properties } = this;
     if (!(this.readyState === READY_STATES.UNSENT || this.readyState === READY_STATES.OPENED)) {
-      throw DOMException.create(this._globalObject, ["The object is in an invalid state.", "InvalidStateError"]);
+      throw DOMException.create(this._globalObject, [ 'The object is in an invalid state.', 'InvalidStateError' ]);
     }
     if (properties.send) {
-      throw DOMException.create(this._globalObject, ["The object is in an invalid state.", "InvalidStateError"]);
+      throw DOMException.create(this._globalObject, [ 'The object is in an invalid state.', 'InvalidStateError' ]);
     }
     flag.withCredentials = val;
   }
@@ -374,10 +369,12 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
       return;
     }
 
-    if ((this.readyState === READY_STATES.OPENED && properties.send) ||
-        this.readyState === READY_STATES.HEADERS_RECEIVED ||
-        this.readyState === READY_STATES.LOADING) {
-      xhrUtils.requestErrorSteps(this, "abort");
+    if (
+      (this.readyState === READY_STATES.OPENED && properties.send) ||
+      this.readyState === READY_STATES.HEADERS_RECEIVED ||
+      this.readyState === READY_STATES.LOADING
+    ) {
+      xhrUtils.requestErrorSteps(this, 'abort');
     }
 
     if (this.readyState === READY_STATES.DONE) {
@@ -389,12 +386,12 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
   getAllResponseHeaders() {
     const { properties, readyState } = this;
     if (readyState === READY_STATES.UNSENT || readyState === READY_STATES.OPENED) {
-      return "";
+      return '';
     }
     return Object.keys(properties.responseHeaders)
-      .filter(key => properties.filteredResponseHeaders.indexOf(key) === -1)
-      .map(key => [key.toLowerCase(), properties.responseHeaders[key]].join(": "))
-      .join("\r\n");
+      .filter((key) => properties.filteredResponseHeaders.indexOf(key) === -1)
+      .map((key) => [ key.toLowerCase(), properties.responseHeaders[key] ].join(': '))
+      .join('\r\n');
   }
 
   getResponseHeader(header) {
@@ -403,7 +400,7 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
       return null;
     }
     const lcHeader = header.toLowerCase();
-    if (properties.filteredResponseHeaders.find(filtered => lcHeader === filtered.toLowerCase())) {
+    if (properties.filteredResponseHeaders.find((filtered) => lcHeader === filtered.toLowerCase())) {
       return null;
     }
     return getResponseHeader(this, lcHeader);
@@ -412,43 +409,43 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
   open(method, uri, asynchronous, user, password) {
     const { flag, properties, _ownerDocument } = this;
     if (!_ownerDocument) {
-      throw DOMException.create(this._globalObject, ["The object is in an invalid state.", "InvalidStateError"]);
+      throw DOMException.create(this._globalObject, [ 'The object is in an invalid state.', 'InvalidStateError' ]);
     }
 
     if (!tokenRegexp.test(method)) {
       throw DOMException.create(this._globalObject, [
-        "The string did not match the expected pattern.",
-        "SyntaxError"
+        'The string did not match the expected pattern.',
+        'SyntaxError'
       ]);
     }
     const upperCaseMethod = method.toUpperCase();
     if (forbiddenRequestMethods.has(upperCaseMethod)) {
-      throw DOMException.create(this._globalObject, ["The operation is insecure.", "SecurityError"]);
+      throw DOMException.create(this._globalObject, [ 'The operation is insecure.', 'SecurityError' ]);
     }
 
     const { client } = properties;
-    if (client && typeof client.abort === "function") {
+    if (client && typeof client.abort === 'function') {
       client.abort();
     }
 
     if (allowedRequestMethods.has(upperCaseMethod)) {
       method = upperCaseMethod;
     }
-    if (typeof asynchronous !== "undefined") {
+    if (typeof asynchronous !== 'undefined') {
       flag.synchronous = !asynchronous;
     } else {
       flag.synchronous = false;
     }
     if (flag.responseType && flag.synchronous) {
       throw DOMException.create(this._globalObject, [
-        "The object does not support the operation or argument.",
-        "InvalidAccessError"
+        'The object does not support the operation or argument.',
+        'InvalidAccessError'
       ]);
     }
     if (flag.synchronous && flag.timeout) {
       throw DOMException.create(this._globalObject, [
-        "The object does not support the operation or argument.",
-        "InvalidAccessError"
+        'The object does not support the operation or argument.',
+        'InvalidAccessError'
       ]);
     }
     flag.method = method;
@@ -458,8 +455,8 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
       urlObj = new URL(uri, documentBaseURLSerialized(_ownerDocument));
     } catch (e) {
       throw DOMException.create(this._globalObject, [
-        "The string did not match the expected pattern.",
-        "SyntaxError"
+        'The string did not match the expected pattern.',
+        'SyntaxError'
       ]);
     }
 
@@ -468,8 +465,8 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
         user,
         pass: password
       };
-      urlObj.username = "";
-      urlObj.password = "";
+      urlObj.username = '';
+      urlObj.password = '';
     }
 
     flag.uri = urlObj.href;
@@ -479,24 +476,24 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
     properties.send = false;
     properties.uploadListener = false;
     properties.abortError = false;
-    this.responseURL = "";
+    this.responseURL = '';
     readyStateChange(this, READY_STATES.OPENED);
   }
 
   overrideMimeType(mime) {
     const { readyState } = this;
     if (readyState === READY_STATES.LOADING || readyState === READY_STATES.DONE) {
-      throw DOMException.create(this._globalObject, ["The object is in an invalid state.", "InvalidStateError"]);
+      throw DOMException.create(this._globalObject, [ 'The object is in an invalid state.', 'InvalidStateError' ]);
     }
 
-    this.flag.overrideMIMEType = "application/octet-stream";
+    this.flag.overrideMIMEType = 'application/octet-stream';
 
     // Waiting for better spec: https://github.com/whatwg/xhr/issues/157
     const parsed = MIMEType.parse(mime);
     if (parsed) {
       this.flag.overrideMIMEType = parsed.essence;
 
-      const charset = parsed.parameters.get("charset");
+      const charset = parsed.parameters.get('charset');
       if (charset) {
         this.flag.overrideCharset = whatwgEncoding.labelToName(charset);
       }
@@ -508,17 +505,17 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
     const { flag, properties, upload, _ownerDocument } = this;
     // Not per spec, but per tests: https://github.com/whatwg/xhr/issues/65
     if (!_ownerDocument) {
-      throw DOMException.create(this._globalObject, ["The object is in an invalid state.", "InvalidStateError"]);
+      throw DOMException.create(this._globalObject, [ 'The object is in an invalid state.', 'InvalidStateError' ]);
     }
 
     if (this.readyState !== READY_STATES.OPENED || properties.send) {
-      throw DOMException.create(this._globalObject, ["The object is in an invalid state.", "InvalidStateError"]);
+      throw DOMException.create(this._globalObject, [ 'The object is in an invalid state.', 'InvalidStateError' ]);
     }
 
     properties.beforeSend = true;
 
     try {
-      if (flag.method === "GET" || flag.method === "HEAD") {
+      if (flag.method === 'GET' || flag.method === 'HEAD') {
         body = null;
       }
 
@@ -527,12 +524,12 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
         let mimeType = null;
 
         if (Document.isImpl(body)) {
-          encoding = "UTF-8";
-          mimeType = (body._parsingMode === "html" ? "text/html" : "application/xml") + ";charset=UTF-8";
+          encoding = 'UTF-8';
+          mimeType = (body._parsingMode === 'html' ? 'text/html' : 'application/xml') + ';charset=UTF-8';
           flag.body = fragmentSerialization(body, { requireWellFormed: false });
         } else {
-          if (typeof body === "string") {
-            encoding = "UTF-8";
+          if (typeof body === 'string') {
+            encoding = 'UTF-8';
           }
           const { buffer, formData, contentType } = extractBody(body);
           mimeType = contentType;
@@ -540,18 +537,18 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
           flag.formData = Boolean(formData);
         }
 
-        const existingContentType = xhrUtils.getRequestHeader(flag.requestHeaders, "content-type");
+        const existingContentType = xhrUtils.getRequestHeader(flag.requestHeaders, 'content-type');
         if (mimeType !== null && existingContentType === null) {
-          flag.requestHeaders["Content-Type"] = mimeType;
+          flag.requestHeaders['Content-Type'] = mimeType;
         } else if (existingContentType !== null && encoding !== null) {
           // Waiting for better spec: https://github.com/whatwg/xhr/issues/188. This seems like a good guess at what
           // the spec will be, in the meantime.
           const parsed = MIMEType.parse(existingContentType);
           if (parsed) {
-            const charset = parsed.parameters.get("charset");
+            const charset = parsed.parameters.get('charset');
             if (charset && !asciiCaseInsensitiveMatch(charset, encoding) && encoding !== null) {
-              parsed.parameters.set("charset", encoding);
-              xhrUtils.updateRequestHeader(flag.requestHeaders, "content-type", parsed.toString());
+              parsed.parameters.set('charset', encoding);
+              xhrUtils.updateRequestHeader(flag.requestHeaders, 'content-type', parsed.toString());
             }
           }
         }
@@ -560,7 +557,7 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
       if (properties.beforeSend) {
         properties.beforeSend = false;
       } else {
-        throw DOMException.create(this._globalObject, ["The object is in an invalid state.", "InvalidStateError"]);
+        throw DOMException.create(this._globalObject, [ 'The object is in an invalid state.', 'InvalidStateError' ]);
       }
     }
 
@@ -574,25 +571,21 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
     }
 
     if (flag.synchronous) {
-      const flagStr = JSON.stringify(flag, function (k, v) {
-        if (this === flag && k === "requestManager") {
+      const flagStr = JSON.stringify(flag, function(k, v) {
+        if (this === flag && k === 'requestManager') {
           return null;
         }
-        if (this === flag && k === "pool" && v) {
+        if (this === flag && k === 'pool' && v) {
           return { maxSockets: v.maxSockets };
         }
         return v;
       });
-      const res = spawnSync(
-        process.execPath,
-        [syncWorkerFile],
-        { input: flagStr, maxBuffer: Infinity }
-      );
+      const res = spawnSync(process.execPath, [ syncWorkerFile ], { input: flagStr, maxBuffer: Infinity });
       if (res.status !== 0) {
         throw new Error(res.stderr.toString());
       }
       if (res.error) {
-        if (typeof res.error === "string") {
+        if (typeof res.error === 'string') {
           res.error = new Error(res.error);
         }
         throw res.error;
@@ -604,10 +597,7 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
         resProp.responseBuffer = Buffer.from(resProp.responseBuffer.data);
       }
       if (resProp.cookieJar) {
-        resProp.cookieJar = tough.CookieJar.deserializeSync(
-          resProp.cookieJar,
-          _ownerDocument._cookieJar.store
-        );
+        resProp.cookieJar = tough.CookieJar.deserializeSync(resProp.cookieJar, _ownerDocument._cookieJar.store);
       }
 
       this.readyState = READY_STATES.LOADING;
@@ -618,10 +608,10 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
 
       if (resProp.error) {
         xhrUtils.dispatchError(this);
-        throw DOMException.create(this._globalObject, [resProp.error, "NetworkError"]);
+        throw DOMException.create(this._globalObject, [ resProp.error, 'NetworkError' ]);
       } else {
         const { responseBuffer } = properties;
-        const contentLength = getResponseHeader(this, "content-length") || "0";
+        const contentLength = getResponseHeader(this, 'content-length') || '0';
         const bufferLength = parseInt(contentLength) || responseBuffer.length;
         const progressObj = { lengthComputable: false };
         if (bufferLength !== 0) {
@@ -629,15 +619,15 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
           progressObj.loaded = bufferLength;
           progressObj.lengthComputable = true;
         }
-        fireAnEvent("progress", this, ProgressEvent, progressObj);
+        fireAnEvent('progress', this, ProgressEvent, progressObj);
         readyStateChange(this, READY_STATES.DONE);
-        fireAnEvent("load", this, ProgressEvent, progressObj);
-        fireAnEvent("loadend", this, ProgressEvent, progressObj);
+        fireAnEvent('load', this, ProgressEvent, progressObj);
+        fireAnEvent('loadend', this, ProgressEvent, progressObj);
       }
     } else {
       properties.send = true;
 
-      fireAnEvent("loadstart", this, ProgressEvent);
+      fireAnEvent('loadstart', this, ProgressEvent);
 
       const client = xhrUtils.createClient(this);
 
@@ -648,65 +638,68 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
 
       properties.origin = flag.origin;
 
-      client.on("error", err => {
+      client.on('error', (err) => {
         client.removeAllListeners();
         properties.error = err;
         xhrUtils.dispatchError(this);
       });
 
-      client.on("response", res => receiveResponse(this, res));
+      client.on('response', (res) => receiveResponse(this, res));
 
-      client.on("redirect", () => {
+      client.on('redirect', () => {
         const { response } = client;
         const destUrlObj = new URL(response.request.headers.Referer);
 
         const urlObj = new URL(response.request.uri.href);
 
         if (destUrlObj.origin !== urlObj.origin && destUrlObj.origin !== flag.origin) {
-          properties.origin = "null";
+          properties.origin = 'null';
         }
 
         response.request.headers.Origin = properties.origin;
 
-        if (flag.origin !== destUrlObj.origin &&
-            destUrlObj.protocol !== "data:") {
+        if (flag.origin !== destUrlObj.origin && destUrlObj.protocol !== 'data:') {
           if (!xhrUtils.validCORSHeaders(this, response, flag, properties, flag.origin)) {
             return;
           }
           if (urlObj.username || urlObj.password) {
-            properties.error = "Userinfo forbidden in cors redirect";
+            properties.error = 'Userinfo forbidden in cors redirect';
             xhrUtils.dispatchError(this);
           }
         }
       });
-      if (body !== null && body !== "") {
+      if (body !== null && body !== '') {
         properties.uploadComplete = false;
         setDispatchProgressEvents(this);
       } else {
         properties.uploadComplete = true;
       }
       if (this.timeout > 0) {
-        properties.timeoutStart = (new Date()).getTime();
+        properties.timeoutStart = new Date().getTime();
         properties.timeoutFn = () => {
           client.abort();
-          if (!(this.readyState === READY_STATES.UNSENT ||
+          if (
+            !(
+              this.readyState === READY_STATES.UNSENT ||
               (this.readyState === READY_STATES.OPENED && !properties.send) ||
-              this.readyState === READY_STATES.DONE)) {
+              this.readyState === READY_STATES.DONE
+            )
+          ) {
             properties.send = false;
             let stateChanged = false;
             if (!properties.uploadComplete) {
-              fireAnEvent("progress", upload, ProgressEvent);
+              fireAnEvent('progress', upload, ProgressEvent);
               readyStateChange(this, READY_STATES.DONE);
-              fireAnEvent("timeout", upload, ProgressEvent);
-              fireAnEvent("loadend", upload, ProgressEvent);
+              fireAnEvent('timeout', upload, ProgressEvent);
+              fireAnEvent('loadend', upload, ProgressEvent);
               stateChanged = true;
             }
-            fireAnEvent("progress", this, ProgressEvent);
+            fireAnEvent('progress', this, ProgressEvent);
             if (!stateChanged) {
               readyStateChange(this, READY_STATES.DONE);
             }
-            fireAnEvent("timeout", this, ProgressEvent);
-            fireAnEvent("loadend", this, ProgressEvent);
+            fireAnEvent('timeout', this, ProgressEvent);
+            fireAnEvent('loadend', this, ProgressEvent);
           }
           this.readyState = READY_STATES.UNSENT;
         };
@@ -719,21 +712,21 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
     const { flag, properties } = this;
 
     if (this.readyState !== READY_STATES.OPENED || properties.send) {
-      throw DOMException.create(this._globalObject, ["The object is in an invalid state.", "InvalidStateError"]);
+      throw DOMException.create(this._globalObject, [ 'The object is in an invalid state.', 'InvalidStateError' ]);
     }
 
     value = normalizeHeaderValue(value);
 
     if (!tokenRegexp.test(header) || !fieldValueRegexp.test(value)) {
       throw DOMException.create(this._globalObject, [
-        "The string did not match the expected pattern.",
-        "SyntaxError"
+        'The string did not match the expected pattern.',
+        'SyntaxError'
       ]);
     }
 
     const lcHeader = header.toLowerCase();
 
-    if (forbiddenRequestHeaders.has(lcHeader) || lcHeader.startsWith("sec-") || lcHeader.startsWith("proxy-")) {
+    if (forbiddenRequestHeaders.has(lcHeader) || lcHeader.startsWith('sec-') || lcHeader.startsWith('proxy-')) {
       return;
     }
 
@@ -742,7 +735,7 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
     while (n--) {
       const key = keys[n];
       if (key.toLowerCase() === lcHeader) {
-        flag.requestHeaders[key] += ", " + value;
+        flag.requestHeaders[key] += ', ' + value;
         return;
       }
     }
@@ -750,7 +743,7 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
   }
 }
 
-setupForSimpleEventAccessors(XMLHttpRequestImpl.prototype, ["readystatechange"]);
+setupForSimpleEventAccessors(XMLHttpRequestImpl.prototype, [ 'readystatechange' ]);
 
 function readyStateChange(xhr, readyState) {
   if (xhr.readyState === readyState) {
@@ -759,7 +752,7 @@ function readyStateChange(xhr, readyState) {
 
   xhr.readyState = readyState;
 
-  fireAnEvent("readystatechange", xhr);
+  fireAnEvent('readystatechange', xhr);
 }
 
 function receiveResponse(xhr, response) {
@@ -783,7 +776,7 @@ function receiveResponse(xhr, response) {
       }
       headers[k] = v;
     } else if (headerMap[kl] !== undefined) {
-      headers[headerMap[kl]] += ", " + v;
+      headers[headerMap[kl]] += ', ' + v;
     } else {
       headers[k] = v;
     }
@@ -791,12 +784,11 @@ function receiveResponse(xhr, response) {
   }
 
   const destUrlObj = new URL(response.request.uri.href);
-  if (properties.origin !== destUrlObj.origin &&
-      destUrlObj.protocol !== "data:") {
+  if (properties.origin !== destUrlObj.origin && destUrlObj.protocol !== 'data:') {
     if (!xhrUtils.validCORSHeaders(xhr, response, flag, properties, properties.origin)) {
       return;
     }
-    const acehStr = response.headers["access-control-expose-headers"];
+    const acehStr = response.headers['access-control-expose-headers'];
     const aceh = new Set(acehStr ? acehStr.trim().toLowerCase().split(xhrUtils.headerListSeparatorRegexp) : []);
     for (const header in headers) {
       const lcHeader = header.toLowerCase();
@@ -816,12 +808,12 @@ function receiveResponse(xhr, response) {
   xhr.responseURL = destUrlObj.href;
 
   xhr.status = statusCode;
-  xhr.statusText = response.statusMessage || HTTP_STATUS_CODES[statusCode] || "";
+  xhr.statusText = response.statusMessage || HTTP_STATUS_CODES[statusCode] || '';
 
   properties.responseHeaders = headers;
   properties.filteredResponseHeaders = filteredResponseHeaders;
 
-  const contentLength = getResponseHeader(xhr, "content-length") || "0";
+  const contentLength = getResponseHeader(xhr, 'content-length') || '0';
   const bufferLength = parseInt(contentLength) || 0;
   const progressObj = { lengthComputable: false };
   let lastProgressReported;
@@ -844,12 +836,12 @@ function receiveResponse(xhr, response) {
 
   // Can't use the client since the client gets the post-ungzipping bytes (which can be greater than the
   // Content-Length).
-  response.on("data", chunk => {
+  response.on('data', (chunk) => {
     byteOffset += chunk.length;
     progressObj.loaded = byteOffset;
   });
 
-  properties.client.on("data", chunk => {
+  properties.client.on('data', (chunk) => {
     properties.totalReceivedChunkSize += chunk.length;
     if (properties.totalReceivedChunkSize >= properties.bufferStepSize) {
       properties.bufferStepSize *= 2;
@@ -868,26 +860,26 @@ function receiveResponse(xhr, response) {
     if (xhr.readyState === READY_STATES.HEADERS_RECEIVED) {
       xhr.readyState = READY_STATES.LOADING;
     }
-    fireAnEvent("readystatechange", xhr);
+    fireAnEvent('readystatechange', xhr);
 
     if (progressObj.total !== progressObj.loaded || properties.totalReceivedChunkSize === byteOffset) {
       if (lastProgressReported !== progressObj.loaded) {
         // This is a necessary check in the gzip case where we can be getting new data from the client, as it
         // un-gzips, but no new data has been gotten from the response, so we should not fire a progress event.
         lastProgressReported = progressObj.loaded;
-        fireAnEvent("progress", xhr, ProgressEvent, progressObj);
+        fireAnEvent('progress', xhr, ProgressEvent, progressObj);
       }
     }
   });
-  properties.client.on("end", () => {
+  properties.client.on('end', () => {
     clearTimeout(properties.timeoutId);
     properties.timeoutFn = null;
     properties.timeoutStart = 0;
     properties.client = null;
-    fireAnEvent("progress", xhr, ProgressEvent, progressObj);
+    fireAnEvent('progress', xhr, ProgressEvent, progressObj);
     readyStateChange(xhr, READY_STATES.DONE);
-    fireAnEvent("load", xhr, ProgressEvent, progressObj);
-    fireAnEvent("loadend", xhr, ProgressEvent, progressObj);
+    fireAnEvent('load', xhr, ProgressEvent, progressObj);
+    fireAnEvent('loadend', xhr, ProgressEvent, progressObj);
   });
 }
 
@@ -897,7 +889,7 @@ function setDispatchProgressEvents(xhr) {
 
   let total = 0;
   let lengthComputable = false;
-  const length = client.headers && parseInt(xhrUtils.getRequestHeader(client.headers, "content-length"));
+  const length = client.headers && parseInt(xhrUtils.getRequestHeader(client.headers, 'content-length'));
   if (length) {
     total = length;
     lengthComputable = true;
@@ -909,11 +901,11 @@ function setDispatchProgressEvents(xhr) {
   };
 
   if (properties.uploadListener) {
-    fireAnEvent("loadstart", upload, ProgressEvent, initProgress);
+    fireAnEvent('loadstart', upload, ProgressEvent, initProgress);
   }
 
-  client.on("request", req => {
-    req.on("response", () => {
+  client.on('request', (req) => {
+    req.on('response', () => {
       properties.uploadComplete = true;
 
       if (!properties.uploadListener) {
@@ -925,16 +917,16 @@ function setDispatchProgressEvents(xhr) {
         total,
         loaded: total
       };
-      fireAnEvent("progress", upload, ProgressEvent, progress);
-      fireAnEvent("load", upload, ProgressEvent, progress);
-      fireAnEvent("loadend", upload, ProgressEvent, progress);
+      fireAnEvent('progress', upload, ProgressEvent, progress);
+      fireAnEvent('load', upload, ProgressEvent, progress);
+      fireAnEvent('loadend', upload, ProgressEvent, progress);
     });
   });
 }
 
 function finalMIMEType(xhr) {
   const { flag } = xhr;
-  return flag.overrideMIMEType || getResponseHeader(xhr, "content-type");
+  return flag.overrideMIMEType || getResponseHeader(xhr, 'content-type');
 }
 
 function finalCharset(xhr) {
@@ -942,9 +934,9 @@ function finalCharset(xhr) {
   if (flag.overrideCharset) {
     return flag.overrideCharset;
   }
-  const parsedContentType = MIMEType.parse(getResponseHeader(xhr, "content-type"));
+  const parsedContentType = MIMEType.parse(getResponseHeader(xhr, 'content-type'));
   if (parsedContentType) {
-    return whatwgEncoding.labelToName(parsedContentType.parameters.get("charset"));
+    return whatwgEncoding.labelToName(parsedContentType.parameters.get('charset'));
   }
   return null;
 }
@@ -963,7 +955,7 @@ function getResponseHeader(xhr, lcHeader) {
 }
 
 function normalizeHeaderValue(value) {
-  return value.replace(/^[\x09\x0A\x0D\x20]+/, "").replace(/[\x09\x0A\x0D\x20]+$/, "");
+  return value.replace(/^[\x09\x0A\x0D\x20]+/, '').replace(/[\x09\x0A\x0D\x20]+$/, '');
 }
 
 function extractBody(bodyInit) {
@@ -975,7 +967,7 @@ function extractBody(bodyInit) {
   if (Blob.isImpl(bodyInit)) {
     return {
       buffer: bodyInit._buffer,
-      contentType: bodyInit.type === "" ? null : bodyInit.type
+      contentType: bodyInit.type === '' ? null : bodyInit.type
     };
   } else if (isArrayBuffer(bodyInit)) {
     return {
@@ -1014,8 +1006,8 @@ function extractBody(bodyInit) {
 
   // Must be a string
   return {
-    buffer: Buffer.from(bodyInit, "utf-8"),
-    contentType: "text/plain;charset=UTF-8"
+    buffer: Buffer.from(bodyInit, 'utf-8'),
+    contentType: 'text/plain;charset=UTF-8'
   };
 }
 

@@ -73,7 +73,7 @@ exports.install = globalObject => {
     }
 
     get clear() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "clear");
       return value === null ? "" : value;

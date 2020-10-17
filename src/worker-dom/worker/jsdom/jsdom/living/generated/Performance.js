@@ -84,7 +84,7 @@ exports.install = globalObject => {
     }
 
     get timeOrigin() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["timeOrigin"]);
     }
   }

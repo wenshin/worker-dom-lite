@@ -128,7 +128,7 @@ exports.install = globalObject => {
     }
 
     get onreadystatechange() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["onreadystatechange"]);
     }
 
@@ -138,12 +138,12 @@ exports.install = globalObject => {
     }
 
     get readyState() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["readyState"];
     }
 
     get timeout() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["timeout"];
     }
 
@@ -153,7 +153,7 @@ exports.install = globalObject => {
     }
 
     get withCredentials() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["withCredentials"];
     }
 
@@ -163,29 +163,29 @@ exports.install = globalObject => {
     }
 
     get upload() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.getSameObject(this, "upload", () => {
         return utils.tryWrapperForImpl(esValue[implSymbol]["upload"]);
       });
     }
 
     get responseURL() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["responseURL"];
     }
 
     get status() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["status"];
     }
 
     get statusText() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["statusText"];
     }
 
     get responseType() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["responseType"]);
     }
 
@@ -195,17 +195,17 @@ exports.install = globalObject => {
     }
 
     get response() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["response"];
     }
 
     get responseText() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["responseText"];
     }
 
     get responseXML() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["responseXML"]);
     }
   }

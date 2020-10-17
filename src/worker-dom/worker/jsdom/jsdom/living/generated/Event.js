@@ -29,7 +29,7 @@ exports._internalSetup = (wrapper, globalObject) => {
     wrapper,
     Object.getOwnPropertyDescriptors({
       get isTrusted() {
-        const esValue = this !== null && this !== undefined ? this : globalObject;
+        const esValue = this || globalObject;
         return esValue[implSymbol]["isTrusted"];
       }
     })
@@ -111,32 +111,32 @@ exports.install = globalObject => {
     }
 
     get type() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["type"];
     }
 
     get target() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["target"]);
     }
 
     get srcElement() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["srcElement"]);
     }
 
     get currentTarget() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["currentTarget"]);
     }
 
     get eventPhase() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["eventPhase"];
     }
 
     get cancelBubble() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["cancelBubble"];
     }
 
@@ -146,17 +146,17 @@ exports.install = globalObject => {
     }
 
     get bubbles() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["bubbles"];
     }
 
     get cancelable() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["cancelable"];
     }
 
     get returnValue() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["returnValue"];
     }
 
@@ -166,17 +166,17 @@ exports.install = globalObject => {
     }
 
     get defaultPrevented() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["defaultPrevented"];
     }
 
     get composed() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["composed"];
     }
 
     get timeStamp() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["timeStamp"];
     }
   }

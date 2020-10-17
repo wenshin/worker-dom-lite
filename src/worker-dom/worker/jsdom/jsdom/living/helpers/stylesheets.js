@@ -1,13 +1,12 @@
-"use strict";
-const cssom = require("cssom");
-const whatwgEncoding = require("whatwg-encoding");
-const whatwgURL = require("whatwg-url");
+'use strict';
+const cssom = require('cssom');
+// const whatwgURL = require('whatwg-url');
 
 // TODO: this should really implement https://html.spec.whatwg.org/multipage/links.html#link-type-stylesheet
 // It (and the things it calls) is nowhere close right now.
 exports.fetchStylesheet = (elementImpl, urlString) => {
-  const parsedURL = whatwgURL.parseURL(urlString);
-  return fetchStylesheetInternal(elementImpl, urlString, parsedURL);
+  // const parsedURL = whatwgURL.parseURL(urlString);
+  return fetchStylesheetInternal(elementImpl, urlString, urlString);
 };
 
 // https://drafts.csswg.org/cssom/#remove-a-css-style-sheet
@@ -31,16 +30,16 @@ exports.createStylesheet = (sheetText, elementImpl, baseURL) => {
     sheet = cssom.parse(sheetText);
   } catch (e) {
     if (elementImpl._ownerDocument._defaultView) {
-      const error = new Error("Could not parse CSS stylesheet");
+      const error = new Error('Could not parse CSS stylesheet');
       error.detail = sheetText;
-      error.type = "css parsing";
+      error.type = 'css parsing';
 
-      elementImpl._ownerDocument._defaultView._virtualConsole.emit("jsdomError", error);
+      elementImpl._ownerDocument._defaultView._virtualConsole.emit('jsdomError', error);
     }
     return;
   }
 
-  scanForImportRules(elementImpl, sheet.cssRules, baseURL);
+  // scanForImportRules(elementImpl, sheet.cssRules, baseURL);
 
   addStylesheet(sheet, elementImpl);
 };
@@ -57,15 +56,16 @@ function addStylesheet(sheet, elementImpl) {
 
 function fetchStylesheetInternal(elementImpl, urlString, parsedURL) {
   const document = elementImpl._ownerDocument;
-  let defaultEncoding = document._encoding;
+  // let defaultEncoding = document._encoding;
   const resourceLoader = document._resourceLoader;
 
-  if (elementImpl.localName === "link" && elementImpl.hasAttributeNS(null, "charset")) {
-    defaultEncoding = whatwgEncoding.labelToName(elementImpl.getAttributeNS(null, "charset"));
+  if (elementImpl.localName === 'link' && elementImpl.hasAttributeNS(null, 'charset')) {
+    // defaultEncoding = whatwgEncoding.labelToName(elementImpl.getAttributeNS(null, 'charset'));
   }
 
   function onStylesheetLoad(data) {
-    const css = whatwgEncoding.decode(data, defaultEncoding);
+    // const css = whatwgEncoding.decode(data, defaultEncoding);
+    const css = '';
 
     // TODO: MIME type checking?
     if (elementImpl.sheet) {
@@ -82,32 +82,34 @@ function fetchStylesheetInternal(elementImpl, urlString, parsedURL) {
 
 // TODO this is actually really messed up and overwrites the sheet on elementImpl
 // Tracking in https://github.com/jsdom/jsdom/issues/2124
-function scanForImportRules(elementImpl, cssRules, baseURL) {
-  if (!cssRules) {
-    return;
-  }
+// function scanForImportRules(elementImpl, cssRules, baseURL) {
+//   if (!cssRules) {
+//     return;
+//   }
 
-  for (let i = 0; i < cssRules.length; ++i) {
-    if (cssRules[i].cssRules) {
-      // @media rule: keep searching inside it.
-      scanForImportRules(elementImpl, cssRules[i].cssRules, baseURL);
-    } else if (cssRules[i].href) {
-      // @import rule: fetch the resource and evaluate it.
-      // See http://dev.w3.org/csswg/cssom/#css-import-rule
-      //     If loading of the style sheet fails its cssRules list is simply
-      //     empty. I.e. an @import rule always has an associated style sheet.
-      const parsed = whatwgURL.parseURL(cssRules[i].href, { baseURL });
-      if (parsed === null) {
-        const window = elementImpl._ownerDocument._defaultView;
-        if (window) {
-          const error = new Error(`Could not parse CSS @import URL ${cssRules[i].href} relative to base URL ` +
-                                  `"${whatwgURL.serializeURL(baseURL)}"`);
-          error.type = "css @import URL parsing";
-          window._virtualConsole.emit("jsdomError", error);
-        }
-      } else {
-        fetchStylesheetInternal(elementImpl, whatwgURL.serializeURL(parsed), parsed);
-      }
-    }
-  }
-}
+//   for (let i = 0; i < cssRules.length; ++i) {
+//     if (cssRules[i].cssRules) {
+//       // @media rule: keep searching inside it.
+//       scanForImportRules(elementImpl, cssRules[i].cssRules, baseURL);
+//     } else if (cssRules[i].href) {
+//       // @import rule: fetch the resource and evaluate it.
+//       // See http://dev.w3.org/csswg/cssom/#css-import-rule
+//       //     If loading of the style sheet fails its cssRules list is simply
+//       //     empty. I.e. an @import rule always has an associated style sheet.
+//       const parsed = whatwgURL.parseURL(cssRules[i].href, { baseURL });
+//       if (parsed === null) {
+//         const window = elementImpl._ownerDocument._defaultView;
+//         if (window) {
+//           const error = new Error(
+//             `Could not parse CSS @import URL ${cssRules[i].href} relative to base URL ` +
+//               `"${whatwgURL.serializeURL(baseURL)}"`
+//           );
+//           error.type = 'css @import URL parsing';
+//           window._virtualConsole.emit('jsdomError', error);
+//         }
+//       } else {
+//         fetchStylesheetInternal(elementImpl, whatwgURL.serializeURL(parsed), parsed);
+//       }
+//     }
+//   }
+// }

@@ -7,9 +7,6 @@ const Impl = require("../nodes/HTMLInputElement-impl.js");
 const HTMLConstructor_helpers_html_constructor = require("../helpers/html-constructor.js").HTMLConstructor;
 const SelectionMode = require("./SelectionMode.js");
 const FileList = require("./FileList.js");
-const parseURLToResultingURLRecord_helpers_document_base_url = require("../helpers/document-base-url.js")
-  .parseURLToResultingURLRecord;
-const serializeURLwhatwg_url = require("whatwg-url").serializeURL;
 const implSymbol = utils.implSymbol;
 const ctorRegistrySymbol = utils.ctorRegistrySymbol;
 const HTMLElement = require("./HTMLElement.js");
@@ -136,7 +133,7 @@ exports.install = globalObject => {
     }
 
     get alt() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "alt");
       return value === null ? "" : value;
@@ -149,7 +146,7 @@ exports.install = globalObject => {
     }
 
     get autocomplete() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "autocomplete");
       return value === null ? "" : value;
@@ -162,7 +159,7 @@ exports.install = globalObject => {
     }
 
     get autofocus() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "autofocus");
     }
@@ -178,7 +175,7 @@ exports.install = globalObject => {
     }
 
     get defaultChecked() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "checked");
     }
@@ -194,7 +191,7 @@ exports.install = globalObject => {
     }
 
     get checked() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["checked"];
     }
 
@@ -204,7 +201,7 @@ exports.install = globalObject => {
     }
 
     get disabled() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "disabled");
     }
@@ -220,7 +217,7 @@ exports.install = globalObject => {
     }
 
     get files() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["files"]);
     }
 
@@ -230,7 +227,7 @@ exports.install = globalObject => {
     }
 
     get formNoValidate() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "formnovalidate");
     }
@@ -246,7 +243,7 @@ exports.install = globalObject => {
     }
 
     get formTarget() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "formtarget");
       return value === null ? "" : value;
@@ -259,7 +256,7 @@ exports.install = globalObject => {
     }
 
     get indeterminate() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["indeterminate"];
     }
 
@@ -269,7 +266,7 @@ exports.install = globalObject => {
     }
 
     get inputMode() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "inputmode");
       return value === null ? "" : value;
@@ -282,12 +279,12 @@ exports.install = globalObject => {
     }
 
     get list() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["list"]);
     }
 
     get max() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "max");
       return value === null ? "" : value;
@@ -300,7 +297,7 @@ exports.install = globalObject => {
     }
 
     get maxLength() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["maxLength"];
     }
 
@@ -310,7 +307,7 @@ exports.install = globalObject => {
     }
 
     get min() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "min");
       return value === null ? "" : value;
@@ -323,7 +320,7 @@ exports.install = globalObject => {
     }
 
     get minLength() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["minLength"];
     }
 
@@ -333,7 +330,7 @@ exports.install = globalObject => {
     }
 
     get multiple() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "multiple");
     }
@@ -349,7 +346,7 @@ exports.install = globalObject => {
     }
 
     get name() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "name");
       return value === null ? "" : value;
@@ -362,7 +359,7 @@ exports.install = globalObject => {
     }
 
     get pattern() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "pattern");
       return value === null ? "" : value;
@@ -375,7 +372,7 @@ exports.install = globalObject => {
     }
 
     get placeholder() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "placeholder");
       return value === null ? "" : value;
@@ -388,7 +385,7 @@ exports.install = globalObject => {
     }
 
     get readOnly() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "readonly");
     }
@@ -404,7 +401,7 @@ exports.install = globalObject => {
     }
 
     get required() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       return esValue[implSymbol].hasAttributeNS(null, "required");
     }
@@ -420,7 +417,7 @@ exports.install = globalObject => {
     }
 
     get size() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["size"];
     }
 
@@ -430,18 +427,11 @@ exports.install = globalObject => {
     }
 
     get src() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "src");
       if (value === null) {
         return "";
-      }
-      const urlRecord = parseURLToResultingURLRecord_helpers_document_base_url(
-        value,
-        esValue[implSymbol]._ownerDocument
-      );
-      if (urlRecord !== null) {
-        return serializeURLwhatwg_url(urlRecord);
       }
       return conversions.USVString(value);
     }
@@ -453,7 +443,7 @@ exports.install = globalObject => {
     }
 
     get step() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "step");
       return value === null ? "" : value;
@@ -466,7 +456,7 @@ exports.install = globalObject => {
     }
 
     get type() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["type"];
     }
 
@@ -476,7 +466,7 @@ exports.install = globalObject => {
     }
 
     get defaultValue() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "value");
       return value === null ? "" : value;
@@ -489,7 +479,7 @@ exports.install = globalObject => {
     }
 
     get value() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["value"];
     }
 
@@ -499,7 +489,7 @@ exports.install = globalObject => {
     }
 
     get valueAsDate() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["valueAsDate"];
     }
 
@@ -509,7 +499,7 @@ exports.install = globalObject => {
     }
 
     get valueAsNumber() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["valueAsNumber"];
     }
 
@@ -519,27 +509,27 @@ exports.install = globalObject => {
     }
 
     get willValidate() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["willValidate"];
     }
 
     get validity() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["validity"]);
     }
 
     get validationMessage() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["validationMessage"];
     }
 
     get labels() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["labels"]);
     }
 
     get selectionStart() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["selectionStart"];
     }
 
@@ -549,7 +539,7 @@ exports.install = globalObject => {
     }
 
     get selectionEnd() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["selectionEnd"];
     }
 
@@ -559,7 +549,7 @@ exports.install = globalObject => {
     }
 
     get selectionDirection() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["selectionDirection"];
     }
 
@@ -569,7 +559,7 @@ exports.install = globalObject => {
     }
 
     get align() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "align");
       return value === null ? "" : value;
@@ -582,7 +572,7 @@ exports.install = globalObject => {
     }
 
     get useMap() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
 
       const value = esValue[implSymbol].getAttributeNS(null, "usemap");
       return value === null ? "" : value;

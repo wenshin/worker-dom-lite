@@ -73,7 +73,7 @@ exports.install = globalObject => {
     }
 
     get content() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["content"]);
     }
   }

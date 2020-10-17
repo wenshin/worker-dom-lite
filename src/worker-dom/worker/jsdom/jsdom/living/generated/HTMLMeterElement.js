@@ -73,7 +73,7 @@ exports.install = globalObject => {
     }
 
     get value() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["value"];
     }
 
@@ -83,7 +83,7 @@ exports.install = globalObject => {
     }
 
     get min() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["min"];
     }
 
@@ -93,7 +93,7 @@ exports.install = globalObject => {
     }
 
     get max() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["max"];
     }
 
@@ -103,7 +103,7 @@ exports.install = globalObject => {
     }
 
     get low() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["low"];
     }
 
@@ -113,7 +113,7 @@ exports.install = globalObject => {
     }
 
     get high() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["high"];
     }
 
@@ -123,7 +123,7 @@ exports.install = globalObject => {
     }
 
     get optimum() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return esValue[implSymbol]["optimum"];
     }
 
@@ -133,7 +133,7 @@ exports.install = globalObject => {
     }
 
     get labels() {
-      const esValue = this !== null && this !== undefined ? this : globalObject;
+      const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["labels"]);
     }
   }
