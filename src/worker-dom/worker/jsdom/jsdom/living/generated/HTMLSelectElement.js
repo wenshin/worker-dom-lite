@@ -18,15 +18,6 @@ exports.is = utils.is.bind(utils);
 exports.isImpl = utils.isImpl.bind(utils, Impl);
 exports.convert = utils.convert.bind(utils);
 
-function makeProxy(wrapper, globalObject) {
-  let proxyHandler = proxyHandlerCache.get(globalObject);
-  if (proxyHandler === undefined) {
-    proxyHandler = new ProxyHandler(globalObject);
-    proxyHandlerCache.set(globalObject, proxyHandler);
-  }
-  return new Proxy(wrapper, proxyHandler);
-}
-
 exports.create = (globalObject, constructorArgs, privateData) => {
   const wrapper = utils.makeWrapper("HTMLSelectElement", globalObject);
   return exports.setup(wrapper, globalObject, constructorArgs, privateData);
@@ -41,41 +32,9 @@ exports._internalSetup = (wrapper, globalObject) => {
   HTMLElement._internalSetup(wrapper, globalObject);
 };
 
-exports.setup = (wrapper, globalObject, constructorArgs = [], privateData = {}) => {
-  privateData.wrapper = wrapper;
-
-  exports._internalSetup(wrapper, globalObject);
-  Object.defineProperty(wrapper, implSymbol, {
-    value: new Impl.implementation(globalObject, constructorArgs, privateData),
-    configurable: true
-  });
-
-  wrapper = makeProxy(wrapper, globalObject);
-
-  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
-  if (Impl.init) {
-    Impl.init(wrapper[implSymbol]);
-  }
-  return wrapper;
-};
-
-exports.new = globalObject => {
-  let wrapper = utils.makeWrapper(HTMLSelectElement, globalObject);
-
-  exports._internalSetup(wrapper, globalObject);
-  Object.defineProperty(wrapper, implSymbol, {
-    value: Object.create(Impl.implementation.prototype),
-    configurable: true
-  });
-
-  wrapper = makeProxy(wrapper, globalObject);
-
-  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
-  if (Impl.init) {
-    Impl.init(wrapper[implSymbol]);
-  }
-  return wrapper[implSymbol];
-};
+exports.setup = utils.getSetUp(exports, Impl, (wrapper, globalObject) => {
+  wrapper = new Proxy(wrapper, proxyHandler);
+});
 
 const exposed = new Set(["Window"]);
 
@@ -350,216 +309,24 @@ exports.install = globalObject => {
     value: HTMLSelectElement
   });
 };
-
-const proxyHandlerCache = new WeakMap();
-class ProxyHandler {
-  constructor(globalObject) {
-    this._globalObject = globalObject;
-  }
-
-  get(target, P, receiver) {
-    if (typeof P === "symbol") {
-      return Reflect.get(target, P, receiver);
-    }
-    const desc = this.getOwnPropertyDescriptor(target, P);
-    if (desc === undefined) {
-      const parent = Object.getPrototypeOf(target);
-      if (parent === null) {
-        return undefined;
-      }
-      return Reflect.get(target, P, receiver);
-    }
-    if (!desc.get && !desc.set) {
-      return desc.value;
-    }
-    const getter = desc.get;
-    if (getter === undefined) {
-      return undefined;
-    }
-    return Reflect.apply(getter, receiver, []);
-  }
-
-  has(target, P) {
-    if (typeof P === "symbol") {
-      return Reflect.has(target, P);
-    }
-    const desc = this.getOwnPropertyDescriptor(target, P);
-    if (desc !== undefined) {
-      return true;
-    }
-    const parent = Object.getPrototypeOf(target);
-    if (parent !== null) {
-      return Reflect.has(parent, P);
-    }
-    return false;
-  }
-
-  ownKeys(target) {
-    const keys = new Set();
-
-    for (const key of target[implSymbol][utils.supportedPropertyIndices]) {
-      keys.add(`${key}`);
-    }
-
-    for (const key of Reflect.ownKeys(target)) {
-      keys.add(key);
-    }
-    return [...keys];
-  }
-
-  getOwnPropertyDescriptor(target, P) {
-    if (typeof P === "symbol") {
-      return Reflect.getOwnPropertyDescriptor(target, P);
-    }
-    let ignoreNamedProps = false;
-
-    if (utils.isArrayIndexPropName(P)) {
-      const index = P >>> 0;
-      const indexedValue = target[implSymbol].item(index);
-      if (indexedValue !== null) {
-        return {
-          writable: true,
-          enumerable: true,
-          configurable: true,
-          value: utils.tryWrapperForImpl(indexedValue)
-        };
-      }
-      ignoreNamedProps = true;
-    }
-
-    return Reflect.getOwnPropertyDescriptor(target, P);
-  }
-
-  set(target, P, V, receiver) {
-    if (typeof P === "symbol") {
-      return Reflect.set(target, P, V, receiver);
-    }
-    // The `receiver` argument refers to the Proxy exotic object or an object
-    // that inherits from it, whereas `target` refers to the Proxy target:
-    if (target[implSymbol][utils.wrapperSymbol] === receiver) {
-      const globalObject = this._globalObject;
-
-      if (utils.isArrayIndexPropName(P)) {
-        const index = P >>> 0;
-        let indexedValue = V;
-
-        if (indexedValue === null || indexedValue === undefined) {
-          indexedValue = null;
-        } else {
-          indexedValue = HTMLOptionElement.convert(indexedValue, {
-            context: "Failed to set the " + index + " property on 'HTMLSelectElement': The provided value"
-          });
-        }
-
-        const creating = !(target[implSymbol].item(index) !== null);
-        if (creating) {
-          target[implSymbol][utils.indexedSetNew](index, indexedValue);
-        } else {
-          target[implSymbol][utils.indexedSetExisting](index, indexedValue);
-        }
-
-        return true;
-      }
-    }
-    let ownDesc;
-
-    if (utils.isArrayIndexPropName(P)) {
-      const index = P >>> 0;
-      const indexedValue = target[implSymbol].item(index);
-      if (indexedValue !== null) {
-        ownDesc = {
-          writable: true,
-          enumerable: true,
-          configurable: true,
-          value: utils.tryWrapperForImpl(indexedValue)
-        };
-      }
-    }
-
-    if (ownDesc === undefined) {
-      ownDesc = Reflect.getOwnPropertyDescriptor(target, P);
-    }
-    if (ownDesc === undefined) {
-      const parent = Reflect.getPrototypeOf(target);
-      if (parent !== null) {
-        return Reflect.set(parent, P, V, receiver);
-      }
-      ownDesc = { writable: true, enumerable: true, configurable: true, value: undefined };
-    }
-    if (!ownDesc.writable) {
-      return false;
-    }
-    if (!utils.isObject(receiver)) {
-      return false;
-    }
-    const existingDesc = Reflect.getOwnPropertyDescriptor(receiver, P);
-    let valueDesc;
-    if (existingDesc !== undefined) {
-      if (existingDesc.get || existingDesc.set) {
-        return false;
-      }
-      if (!existingDesc.writable) {
-        return false;
-      }
-      valueDesc = { value: V };
-    } else {
-      valueDesc = { writable: true, enumerable: true, configurable: true, value: V };
-    }
-    return Reflect.defineProperty(receiver, P, valueDesc);
-  }
-
-  defineProperty(target, P, desc) {
-    if (typeof P === "symbol") {
-      return Reflect.defineProperty(target, P, desc);
-    }
-
-    const globalObject = this._globalObject;
-
-    if (utils.isArrayIndexPropName(P)) {
-      if (desc.get || desc.set) {
-        return false;
-      }
-
-      const index = P >>> 0;
-      let indexedValue = desc.value;
-
-      if (indexedValue === null || indexedValue === undefined) {
-        indexedValue = null;
-      } else {
-        indexedValue = HTMLOptionElement.convert(indexedValue, {
-          context: "Failed to set the " + index + " property on 'HTMLSelectElement': The provided value"
-        });
-      }
-
-      const creating = !(target[implSymbol].item(index) !== null);
-      if (creating) {
-        target[implSymbol][utils.indexedSetNew](index, indexedValue);
-      } else {
-        target[implSymbol][utils.indexedSetExisting](index, indexedValue);
-      }
-
-      return true;
-    }
-
-    return Reflect.defineProperty(target, P, desc);
-  }
-
-  deleteProperty(target, P) {
-    if (typeof P === "symbol") {
-      return Reflect.deleteProperty(target, P);
-    }
-
-    const globalObject = this._globalObject;
-
-    if (utils.isArrayIndexPropName(P)) {
-      const index = P >>> 0;
-      return !(target[implSymbol].item(index) !== null);
-    }
-
-    return Reflect.deleteProperty(target, P);
-  }
-
-  preventExtensions() {
-    return false;
-  }
-}
+const idlInfo = {
+  needsPerGlobalProxyHandler: true,
+  supportsIndexedProperties: true,
+  supportsNamedProperties: false,
+  hasIndexedSetter: true,
+  hasNamedSetter: false,
+  hasNamedDeleter: false,
+  overrideBuiltins: false,
+  indexedName: "item",
+  indexedUnsupported: {
+    type: "extended-attribute",
+    name: "WebIDL2JSValueAsUnsupported",
+    rhs: { type: "identifier", value: "null" },
+    arguments: []
+  },
+  indexedUnsupportedValue: "null",
+  namedName: "",
+  namedUnsupported: null,
+  namedUnsupportedValue: null
+};
+const proxyHandler = utils.getProxyHandler(idlInfo);

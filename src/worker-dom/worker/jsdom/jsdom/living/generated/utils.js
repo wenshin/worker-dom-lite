@@ -132,6 +132,96 @@ const asyncIteratorReturn = Symbol('async iterator return steps');
 const asyncIteratorInit = Symbol('async iterator initialization steps');
 const asyncIteratorEOI = Symbol('async iterator end of iteration');
 
+function getProxyHandler(idlInfo) {
+  return {
+    get(target, P, receiver) {
+      const impl = target[implSymbol];
+      if (impl) {
+        return Reflect.get(impl, P, receiver);
+      }
+      return Reflect.get(target, P, receiver);
+    },
+    has(target, P) {
+      return Reflect.has(target);
+    },
+    ownKeys(target) {
+      return Reflect.ownKeys(target);
+    },
+    getOwnPropertyDescriptor(target, P) {
+      return Reflect.getOwnPropertyDescriptor(target, P);
+    },
+    set(target, P, V, receiver) {
+      const impl = target[implSymbol];
+      if (impl) {
+        return Reflect.defineProperty(impl, P, V, receiver);
+      }
+      return Reflect.defineProperty(target, P, V, receiver);
+    },
+    defineProperty(target, P, desc) {
+      const impl = target[implSymbol];
+      if (impl) {
+        return Reflect.defineProperty(impl, P, desc);
+      }
+      return Reflect.defineProperty(target, P, desc);
+    },
+
+    deleteProperty(target, P) {
+      const impl = target[implSymbol];
+      if (impl) {
+        return Reflect.deleteProperty(impl, P, desc);
+      }
+      return Reflect.deleteProperty(target, P, desc);
+    },
+
+    preventExtensions() {
+      return false;
+    }
+  };
+}
+
+// const isSupportsPropertyIndex = (idlInfo, O, index, indexedValue) => {
+//   if (idlInfo.indexedUnsupportedValue) {
+//     const func = idlInfo.indexedName ? idlInfo.indexedName : indexedGet;
+//     const value = indexedValue || O[implSymbol][func](index);
+//     return value !== idlInfo.indexedUnsupportedValue;
+//   }
+//   return O[implSymbol][supportsPropertyIndex](index);
+// };
+
+// const isSupportsPropertyName = (idlInfo, O, P, namedValue) => {
+//   if (idlInfo.namedUnsupportedValue) {
+//     const func = idlInfo.namedName ? idlInfo.namedName : namedGet;
+//     const value = namedValue || O[implSymbol][func](P);
+//     return value !== idlInfo.namedUnsupportedValue;
+//   }
+//   return O[implSymbol][supportsPropertyName](P);
+// };
+
+// const isNamedPropertyVisible = (idlInfo, P, O, supports = false) => {
+//   let hasProp = idlInfo.overrideBuiltins ? !hasOwn(O, P) : !(P in O);
+//   return supports ? hasProp : isSupportsPropertyName(O, P) && hasProp;
+// };
+
+function getSetUp(exports, Impl, setWrapperToProxy) {
+  return (wrapper, globalObject, constructorArgs = [], privateData = {}) => {
+    privateData.wrapper = wrapper;
+
+    exports._internalSetup(wrapper, globalObject);
+    Object.defineProperty(wrapper, implSymbol, {
+      value: new Impl.implementation(globalObject, constructorArgs, privateData),
+      configurable: true
+    });
+
+    setWrapperToProxy && setWrapperToProxy(wrapper, globalObject);
+
+    wrapper[implSymbol][wrapperSymbol] = wrapper;
+    if (Impl.init) {
+      Impl.init(wrapper[implSymbol]);
+    }
+    return wrapper;
+  };
+}
+
 module.exports = {
   is,
   isImpl,
@@ -142,6 +232,8 @@ module.exports = {
   wrapperSymbol,
   implSymbol,
   getSameObject,
+  getSetUp,
+  getProxyHandler,
   ctorRegistrySymbol,
   wrapperForImpl,
   implForWrapper,
@@ -153,8 +245,11 @@ module.exports = {
   isArrayBuffer,
   isArrayIndexPropName,
   supportsPropertyIndex,
+  // isSupportsPropertyIndex,
   supportedPropertyIndices,
   supportsPropertyName,
+  // isSupportsPropertyName,
+  // isNamedPropertyVisible,
   supportedPropertyNames,
   indexedGet,
   indexedSetNew,

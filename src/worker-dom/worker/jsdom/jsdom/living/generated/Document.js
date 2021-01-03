@@ -30,37 +30,7 @@ exports._internalSetup = (wrapper, globalObject) => {
   Node._internalSetup(wrapper, globalObject);
 };
 
-exports.setup = (wrapper, globalObject, constructorArgs = [], privateData = {}) => {
-  privateData.wrapper = wrapper;
-
-  exports._internalSetup(wrapper, globalObject);
-  Object.defineProperty(wrapper, implSymbol, {
-    value: new Impl.implementation(globalObject, constructorArgs, privateData),
-    configurable: true
-  });
-
-  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
-  if (Impl.init) {
-    Impl.init(wrapper[implSymbol]);
-  }
-  return wrapper;
-};
-
-exports.new = globalObject => {
-  const wrapper = utils.makeWrapper(Document, globalObject);
-
-  exports._internalSetup(wrapper, globalObject);
-  Object.defineProperty(wrapper, implSymbol, {
-    value: Object.create(Impl.implementation.prototype),
-    configurable: true
-  });
-
-  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
-  if (Impl.init) {
-    Impl.init(wrapper[implSymbol]);
-  }
-  return wrapper[implSymbol];
-};
+exports.setup = utils.getSetUp(exports, Impl);
 
 const exposed = new Set(["Window"]);
 
@@ -199,12 +169,6 @@ exports.install = globalObject => {
       );
     }
 
-    hasFocus() {
-      const esValue = this || globalObject;
-
-      return esValue[implSymbol].hasFocus();
-    }
-
     getElementById(elementId) {
       const esValue = this || globalObject;
 
@@ -266,11 +230,6 @@ exports.install = globalObject => {
     get documentElement() {
       const esValue = this || globalObject;
       return utils.tryWrapperForImpl(esValue[implSymbol]["documentElement"]);
-    }
-
-    get readyState() {
-      const esValue = this || globalObject;
-      return utils.tryWrapperForImpl(esValue[implSymbol]["readyState"]);
     }
 
     get body() {
@@ -384,7 +343,6 @@ exports.install = globalObject => {
     createAttribute: { enumerable: true },
     createAttributeNS: { enumerable: true },
     getElementsByName: { enumerable: true },
-    hasFocus: { enumerable: true },
     getElementById: { enumerable: true },
     prepend: { enumerable: true },
     append: { enumerable: true },
@@ -393,7 +351,6 @@ exports.install = globalObject => {
     implementation: { enumerable: true },
     compatMode: { enumerable: true },
     documentElement: { enumerable: true },
-    readyState: { enumerable: true },
     body: { enumerable: true },
     head: { enumerable: true },
     defaultView: { enumerable: true },

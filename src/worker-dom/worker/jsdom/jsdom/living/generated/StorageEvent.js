@@ -30,37 +30,7 @@ exports._internalSetup = (wrapper, globalObject) => {
   Event._internalSetup(wrapper, globalObject);
 };
 
-exports.setup = (wrapper, globalObject, constructorArgs = [], privateData = {}) => {
-  privateData.wrapper = wrapper;
-
-  exports._internalSetup(wrapper, globalObject);
-  Object.defineProperty(wrapper, implSymbol, {
-    value: new Impl.implementation(globalObject, constructorArgs, privateData),
-    configurable: true
-  });
-
-  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
-  if (Impl.init) {
-    Impl.init(wrapper[implSymbol]);
-  }
-  return wrapper;
-};
-
-exports.new = globalObject => {
-  const wrapper = utils.makeWrapper(StorageEvent, globalObject);
-
-  exports._internalSetup(wrapper, globalObject);
-  Object.defineProperty(wrapper, implSymbol, {
-    value: Object.create(Impl.implementation.prototype),
-    configurable: true
-  });
-
-  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
-  if (Impl.init) {
-    Impl.init(wrapper[implSymbol]);
-  }
-  return wrapper[implSymbol];
-};
+exports.setup = utils.getSetUp(exports, Impl);
 
 const exposed = new Set(["Window"]);
 

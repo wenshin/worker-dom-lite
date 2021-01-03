@@ -29,37 +29,7 @@ exports._internalSetup = (wrapper, globalObject) => {
   HTMLElement._internalSetup(wrapper, globalObject);
 };
 
-exports.setup = (wrapper, globalObject, constructorArgs = [], privateData = {}) => {
-  privateData.wrapper = wrapper;
-
-  exports._internalSetup(wrapper, globalObject);
-  Object.defineProperty(wrapper, implSymbol, {
-    value: new Impl.implementation(globalObject, constructorArgs, privateData),
-    configurable: true
-  });
-
-  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
-  if (Impl.init) {
-    Impl.init(wrapper[implSymbol]);
-  }
-  return wrapper;
-};
-
-exports.new = globalObject => {
-  const wrapper = utils.makeWrapper(HTMLAnchorElement, globalObject);
-
-  exports._internalSetup(wrapper, globalObject);
-  Object.defineProperty(wrapper, implSymbol, {
-    value: Object.create(Impl.implementation.prototype),
-    configurable: true
-  });
-
-  wrapper[implSymbol][utils.wrapperSymbol] = wrapper;
-  if (Impl.init) {
-    Impl.init(wrapper[implSymbol]);
-  }
-  return wrapper[implSymbol];
-};
+exports.setup = utils.getSetUp(exports, Impl);
 
 const exposed = new Set(["Window"]);
 
@@ -243,101 +213,6 @@ exports.install = globalObject => {
       const esValue = this || globalObject;
       return esValue[implSymbol]["href"];
     }
-
-    get origin() {
-      const esValue = this || globalObject;
-      return esValue[implSymbol]["origin"];
-    }
-
-    get protocol() {
-      const esValue = this || globalObject;
-      return esValue[implSymbol]["protocol"];
-    }
-
-    set protocol(V) {
-      const esValue = this || globalObject;
-      esValue[implSymbol]["protocol"] = V;
-    }
-
-    get username() {
-      const esValue = this || globalObject;
-      return esValue[implSymbol]["username"];
-    }
-
-    set username(V) {
-      const esValue = this || globalObject;
-      esValue[implSymbol]["username"] = V;
-    }
-
-    get password() {
-      const esValue = this || globalObject;
-      return esValue[implSymbol]["password"];
-    }
-
-    set password(V) {
-      const esValue = this || globalObject;
-      esValue[implSymbol]["password"] = V;
-    }
-
-    get host() {
-      const esValue = this || globalObject;
-      return esValue[implSymbol]["host"];
-    }
-
-    set host(V) {
-      const esValue = this || globalObject;
-      esValue[implSymbol]["host"] = V;
-    }
-
-    get hostname() {
-      const esValue = this || globalObject;
-      return esValue[implSymbol]["hostname"];
-    }
-
-    set hostname(V) {
-      const esValue = this || globalObject;
-      esValue[implSymbol]["hostname"] = V;
-    }
-
-    get port() {
-      const esValue = this || globalObject;
-      return esValue[implSymbol]["port"];
-    }
-
-    set port(V) {
-      const esValue = this || globalObject;
-      esValue[implSymbol]["port"] = V;
-    }
-
-    get pathname() {
-      const esValue = this || globalObject;
-      return esValue[implSymbol]["pathname"];
-    }
-
-    set pathname(V) {
-      const esValue = this || globalObject;
-      esValue[implSymbol]["pathname"] = V;
-    }
-
-    get search() {
-      const esValue = this || globalObject;
-      return esValue[implSymbol]["search"];
-    }
-
-    set search(V) {
-      const esValue = this || globalObject;
-      esValue[implSymbol]["search"] = V;
-    }
-
-    get hash() {
-      const esValue = this || globalObject;
-      return esValue[implSymbol]["hash"];
-    }
-
-    set hash(V) {
-      const esValue = this || globalObject;
-      esValue[implSymbol]["hash"] = V;
-    }
   }
   Object.defineProperties(HTMLAnchorElement.prototype, {
     target: { enumerable: true },
@@ -354,16 +229,6 @@ exports.install = globalObject => {
     shape: { enumerable: true },
     href: { enumerable: true },
     toString: { enumerable: true },
-    origin: { enumerable: true },
-    protocol: { enumerable: true },
-    username: { enumerable: true },
-    password: { enumerable: true },
-    host: { enumerable: true },
-    hostname: { enumerable: true },
-    port: { enumerable: true },
-    pathname: { enumerable: true },
-    search: { enumerable: true },
-    hash: { enumerable: true },
     [Symbol.toStringTag]: { value: "HTMLAnchorElement", configurable: true }
   });
   if (globalObject[ctorRegistrySymbol] === undefined) {
