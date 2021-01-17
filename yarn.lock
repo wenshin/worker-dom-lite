@@ -3942,6 +3942,11 @@ domhandler@^2.3.0:
   dependencies:
     domelementtype "1"
 
+dompurify@1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-1.0.7.tgz#33e5c4a5fc84df93b58ca162d1d3f28537aa3ec2"
+  integrity sha512-1xK0JEda/jvIm3SgqHXKvRCh3AbEKCyBbUAGpNCMVIljBD145cPvBR66JSj3O4SdscFUx5NXsDkJpz6vDT8KLg==
+
 domutils@1.5.1:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/domutils/-/domutils-1.5.1.tgz#dcd8488a26f563d61079e48c9f7b7e32373682cf"
@@ -11489,6 +11494,13 @@ workbox-window@^4.3.1:
   integrity sha512-C5gWKh6I58w3GeSc0wp2Ne+rqVw8qwcmZnQGpjiek8A2wpbxSJb1FdCoQVO+jDJs35bFgo/WETgl1fqgsxN0Hg==
   dependencies:
     workbox-core "^4.3.1"
+
+worker-dom@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/worker-dom/-/worker-dom-0.1.0.tgz#024f84804c97e5de75bc40c30ce0730798aeaecf"
+  integrity sha512-+UVJk9mc6CetcFWvdW8TXUT7f5o4awNvGZaopjFDGifVCBKCt+WL/bWl76chliJGYrxZkGB8b5fDaDHlCBi2nw==
+  dependencies:
+    dompurify "1.0.7"
 
 worker-farm@^1.7.0:
   version "1.7.0"

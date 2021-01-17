@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { registerSubclass, definePropertyBackedAttributes } from './Element';
+import { registerSubclass } from './Element';
 import { HTMLElement } from './HTMLElement';
 import { reflectProperties } from './enhanceElement';
 import { DOMTokenList } from './DOMTokenList';
@@ -28,9 +28,6 @@ export class HTMLIFrameElement extends HTMLElement {
   }
 }
 registerSubclass('iframe', HTMLIFrameElement);
-definePropertyBackedAttributes(HTMLIFrameElement, {
-  sandbox: [(el): string | null => el.sandbox.value, (el, value: string) => (el.sandbox.value = value)],
-});
 // Reflected properties
 // HTMLIFrameElement.allow => string, reflected attribute
 // HTMLIFrameElement.allowFullscreen => boolean, reflected attribute
@@ -43,17 +40,17 @@ definePropertyBackedAttributes(HTMLIFrameElement, {
 // HTMLIFrameElement.width => string, reflected attribute
 reflectProperties(
   [
-    { allow: [''] },
-    { allowFullscreen: [false] },
-    { csp: [''] },
-    { height: [''] },
-    { name: [''] },
-    { referrerPolicy: [''] },
-    { src: [''] },
-    { srcdoc: [''] },
-    { width: [''] },
+    { allow: [ '' ] },
+    { allowFullscreen: [ false ] },
+    { csp: [ '' ] },
+    { height: [ '' ] },
+    { name: [ '' ] },
+    { referrerPolicy: [ '' ] },
+    { src: [ '' ] },
+    { srcdoc: [ '' ] },
+    { width: [ '' ] }
   ],
-  HTMLIFrameElement,
+  HTMLIFrameElement
 );
 
 // Unimplemented Properties

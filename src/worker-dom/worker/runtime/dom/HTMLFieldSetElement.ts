@@ -18,7 +18,6 @@ import { registerSubclass } from './Element';
 import { reflectProperties } from './enhanceElement';
 import { HTMLFormControlsCollectionMixin } from './HTMLFormControlsMixin';
 import { HTMLElement } from './HTMLElement';
-import { toLower } from '../../utils';
 
 export class HTMLFieldSetElement extends HTMLElement {
   /**
@@ -26,7 +25,7 @@ export class HTMLFieldSetElement extends HTMLElement {
    * @return hardcoded string 'fieldset'
    */
   get type(): string {
-    return toLower(this.tagName);
+    return this.tagName.toUpperCase();
   }
 }
 registerSubclass('fieldset', HTMLFieldSetElement);
@@ -35,7 +34,7 @@ HTMLFormControlsCollectionMixin(HTMLFieldSetElement);
 // Reflected properties
 // HTMLFieldSetElement.name => string, reflected attribute
 // HTMLFieldSetElement.disabled => boolean, reflected attribute
-reflectProperties([{ name: [''] }, { disabled: [false] }], HTMLFieldSetElement);
+reflectProperties([ { name: [ '' ] }, { disabled: [ false ] } ], HTMLFieldSetElement);
 
 // Unimplemented properties
 // HTMLFieldSetElement.validity

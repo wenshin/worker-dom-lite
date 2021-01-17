@@ -17,7 +17,8 @@
     "react-reconciler": "^0.25.1",
     "react-scripts": "3.4.1",
     "react-transition-group": "^4.4.1",
-    "whatwg-url": "^8.1.0"
+    "whatwg-url": "^8.1.0",
+    "worker-dom": "^0.1.0"
   },
   "scripts": {
     "start": "node ./scripts/start",
@@ -26,7 +27,10 @@
     "eject": "node ./scripts/eject"
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": "react-app",
+    "rules": {
+      "no-restricted-globals": ["warn"]
+    }
   },
   "browserslist": {
     "production": [

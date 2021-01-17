@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { registerSubclass, definePropertyBackedAttributes } from './Element';
+import { registerSubclass } from './Element';
 import { HTMLElement } from './HTMLElement';
 import { DOMTokenList, synchronizedAccessor } from './DOMTokenList';
 import { reflectProperties } from './enhanceElement';
@@ -54,9 +54,6 @@ export class HTMLAnchorElement extends HTMLElement {
   }
 }
 registerSubclass('a', HTMLAnchorElement);
-definePropertyBackedAttributes(HTMLAnchorElement, {
-  rel: [(el): string | null => el.relList.value, (el, value: string) => (el.relList.value = value)],
-});
 synchronizedAccessor(HTMLAnchorElement, 'relList', 'rel');
 
 // Reflected properties, strings.
@@ -65,7 +62,10 @@ synchronizedAccessor(HTMLAnchorElement, 'relList', 'rel');
 // HTMLAnchorElement.media => string, reflected attribute
 // HTMLAnchorElement.target => string, reflected attribute
 // HTMLAnchorElement.type => string, reflected attribute
-reflectProperties([{ href: [''] }, { hreflang: [''] }, { media: [''] }, { target: [''] }, { type: [''] }], HTMLAnchorElement);
+reflectProperties(
+  [ { href: [ '' ] }, { hreflang: [ '' ] }, { media: [ '' ] }, { target: [ '' ] }, { type: [ '' ] } ],
+  HTMLAnchorElement
+);
 
 // Unimplemented
 // HTMLAnchorElement.download => string, reflected attribute

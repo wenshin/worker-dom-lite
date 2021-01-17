@@ -46,8 +46,7 @@ import { HTMLTableRowElement } from './dom/HTMLTableRowElement';
 import { HTMLTableSectionElement } from './dom/HTMLTableSectionElement';
 import { HTMLTimeElement } from './dom/HTMLTimeElement';
 import { Document } from './dom/Document';
-import { GlobalScope } from './WorkerDOMGlobalScope';
-import { initialize } from './initialize';
+// import { initialize } from './initialize';
 import { MutationObserver } from './MutationObserver';
 import { Event as WorkerDOMEvent } from './Event';
 import { Text } from './dom/Text';
@@ -58,8 +57,10 @@ import { DOMTokenList } from './dom/DOMTokenList';
 import { DocumentFragment } from './dom/DocumentFragment';
 import { Element } from './dom/Element';
 import { rafPolyfill, cafPolyfill } from './AnimationFrame';
+import { IPCObjectManager } from '../../ipc-object';
+import { Bridge } from '../../interface';
 
-const globalScope: GlobalScope = {
+const globalScope = {
   innerWidth: 0,
   innerHeight: 0,
   CharacterData,
@@ -109,25 +110,24 @@ const globalScope: GlobalScope = {
 
 const noop = () => void 0;
 
+// export const hydrate = initialize;
+
 // WorkerDOM.Document.defaultView ends up being the window object.
 // React requires the classes to exist off the window object for instanceof checks.
-export const workerDOM = (function(postMessage, addEventListener, removeEventListener) {
-  const document = new Document(globalScope);
+export function createWindow(globalExtends: { bridge: Bridge; ipcObjectManager: IPCObjectManager }) {
+  const document = new Document(
+    Object.assign(self, globalScope, {
+      $bridge: globalExtends.bridge,
+      $ipcObjectManager: globalExtends.ipcObjectManager
+    })
+  );
   // TODO(choumx): Avoid polluting Document's public API.
-  document.postMessage = postMessage;
-  document.addGlobalEventListener = addEventListener;
-  document.removeGlobalEventListener = removeEventListener;
-
-  // TODO(choumx): Remove once defaultView contains all native worker globals.
-  // Canvas's use of native OffscreenCanvas checks the existence of the property
-  // on the WorkerDOMGlobalScope.
-  globalScope.OffscreenCanvas = (self as any)['OffscreenCanvas'];
-  globalScope.ImageBitmap = (self as any)['ImageBitmap'];
+  document.postMessage = postMessage.bind(self) || noop;
+  document.addGlobalEventListener = addEventListener.bind(self);
+  document.removeGlobalEventListener = removeEventListener.bind(self) || noop;
 
   document.isConnected = true;
   document.appendChild((document.body = document.createElement('body')));
 
   return document.defaultView;
-})(postMessage.bind(self) || noop, addEventListener.bind(self) || noop, removeEventListener.bind(self) || noop);
-
-export const hydrate = initialize;
+}

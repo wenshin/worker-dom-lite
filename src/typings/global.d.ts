@@ -6,4 +6,9 @@ declare global {
     $bridge: Bridge;
     $ipcObjectManager: IPCObjectManager;
   }
+
+  const self: WorkerGlobalScope & {
+    window: Window;
+    document: Document;
+  };
 }

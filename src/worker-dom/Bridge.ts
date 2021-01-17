@@ -79,7 +79,8 @@ class BridgeImpl extends EventEmitter implements Bridge {
     this.invokeResponseHandler = {};
   }
 
-  invoke(method: string, args: any[], cb?: InvokeCallback): Promise<any> | undefined {
+  // only return type `any` can implement Bridge interface right
+  invoke<D = any>(method: string, args: any[], cb?: InvokeCallback<D>): any {
     // console.debug(this.name, 'Invoke', method, args);
     const name = getInvokeName(method);
     const payload = newPayload({ name, args });
@@ -93,7 +94,7 @@ class BridgeImpl extends EventEmitter implements Bridge {
       this.invokeResponseHandler[name][payload.id] = cb;
     } else {
       return new Promise((resolve, reject) => {
-        this.invokeResponseHandler[name][payload.id] = (err: Error | null, data: any) => {
+        this.invokeResponseHandler[name][payload.id] = (err: Error | null, data: D) => {
           if (err) {
             console.error(this.name, `InvokeResponseError: ${err.message}, ${name}, ${payload.id}`);
             reject(err);

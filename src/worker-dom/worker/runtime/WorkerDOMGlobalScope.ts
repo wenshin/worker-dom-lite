@@ -44,7 +44,7 @@ import { HTMLTableRowElement } from './dom/HTMLTableRowElement';
 import { HTMLTableSectionElement } from './dom/HTMLTableSectionElement';
 import { HTMLTimeElement } from './dom/HTMLTimeElement';
 import { Document } from './dom/Document';
-import { EventHandler, Event as WorkerDOMEvent } from './Event';
+import { Event as WorkerDOMEvent } from './Event';
 import { MutationObserver } from './MutationObserver';
 import { Storage } from './Storage';
 import { SVGElement } from './dom/SVGElement';
@@ -57,12 +57,14 @@ import { DocumentFragment } from './dom/DocumentFragment';
 import { DOMTokenList } from './dom/DOMTokenList';
 import { Element } from './dom/Element';
 import { DocumentStub } from './dom/DocumentLite';
+import { Bridge } from '../../interface';
+import { IPCCargo, IPCObjectManager } from '../../ipc-object';
 
 /**
  * Should only contain properties that exist on Window.
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Window
  */
-export interface GlobalScope {
+export interface GlobalScope extends WorkerGlobalScope {
   innerWidth: number;
   innerHeight: number;
   localStorage?: Storage;
@@ -114,12 +116,13 @@ export interface GlobalScope {
   ImageBitmap?: typeof ImageBitmap;
   requestAnimationFrame: typeof requestAnimationFrame;
   cancelAnimationFrame: typeof cancelAnimationFrame;
+  $bridge: Bridge;
+  $ipcObjectManager: IPCObjectManager;
 }
 
 export interface WorkerDOMGlobalScope extends GlobalScope {
   document: Document;
-  addEventListener: (type: string, handler: EventHandler) => void;
-  removeEventListener: (type: string, handler: EventHandler) => void;
+  $cargo: IPCCargo;
 }
 
 export interface WorkerNoDOMGlobalScope {

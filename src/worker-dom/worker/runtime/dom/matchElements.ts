@@ -15,18 +15,16 @@
  */
 
 import { Element } from './Element';
-import { toLower, toUpper } from '../../utils';
 import { Node } from './Node';
-import { NodeType } from '../../transfer/TransferrableNodes';
+import { NodeType } from '../TransferrableNodes';
 
 export type ConditionPredicate = (element: Element) => boolean;
 // To future authors: It would be great if we could enforce that elements are not modified by a ConditionPredicate.
 
-export const tagNameConditionPredicate = (tagNames: Array<string>): ConditionPredicate => (element: Element): boolean => {
-  console.assert(
-    tagNames.every((t) => t === toUpper(t)),
-    'tagNames must be all uppercase.',
-  );
+export const tagNameConditionPredicate = (tagNames: Array<string>): ConditionPredicate => (
+  element: Element
+): boolean => {
+  console.assert(tagNames.every((t) => t === t.toUpperCase()), 'tagNames must be all uppercase.');
   return tagNames.includes(element.tagName);
 };
 
@@ -88,13 +86,15 @@ export const matchAttrReference = (attrSelector: string | null, element: Element
   const endPos = caseInsensitive ? selectorLength - 3 : selectorLength - 1;
   if (equalPos !== -1) {
     const equalSuffix: string = attrSelector.charAt(equalPos - 1);
-    const possibleSuffixes: string[] = ['~', '|', '$', '^', '*'];
-    const attrString: string = possibleSuffixes.includes(equalSuffix) ? attrSelector.substring(1, equalPos - 1) : attrSelector.substring(1, equalPos);
+    const possibleSuffixes: string[] = [ '~', '|', '$', '^', '*' ];
+    const attrString: string = possibleSuffixes.includes(equalSuffix)
+      ? attrSelector.substring(1, equalPos - 1)
+      : attrSelector.substring(1, equalPos);
     const rawValue: string = attrSelector.substring(equalPos + 1, endPos);
     const rawAttrValue: string | null = element.getAttribute(attrString);
     if (rawAttrValue) {
-      const casedValue: string = caseInsensitive ? toLower(rawValue) : rawValue;
-      const casedAttrValue: string = caseInsensitive ? toLower(rawAttrValue) : rawAttrValue;
+      const casedValue: string = caseInsensitive ? rawValue.toLowerCase() : rawValue;
+      const casedAttrValue: string = caseInsensitive ? rawAttrValue.toLowerCase() : rawAttrValue;
       switch (equalSuffix) {
         case '~':
           return casedAttrValue.split(' ').indexOf(casedValue) !== -1;

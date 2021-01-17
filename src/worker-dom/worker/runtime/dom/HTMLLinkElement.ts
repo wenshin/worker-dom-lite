@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { registerSubclass, definePropertyBackedAttributes } from './Element';
+import { registerSubclass } from './Element';
 import { HTMLElement } from './HTMLElement';
 import { reflectProperties } from './enhanceElement';
 import { DOMTokenList, synchronizedAccessor } from './DOMTokenList';
@@ -27,9 +27,6 @@ export class HTMLLinkElement extends HTMLElement {
   }
 }
 registerSubclass('link', HTMLLinkElement);
-definePropertyBackedAttributes(HTMLLinkElement, {
-  rel: [(el): string | null => el.relList.value, (el, value: string) => (el.relList.value = value)],
-});
 synchronizedAccessor(HTMLLinkElement, 'relList', 'rel');
 
 // Reflected Properties
@@ -44,17 +41,17 @@ synchronizedAccessor(HTMLLinkElement, 'relList', 'rel');
 // HTMLLinkElement.type => string, reflected attribute
 reflectProperties(
   [
-    { as: [''] },
-    { crossOrigin: [''] },
-    { disabled: [false] },
-    { href: [''] },
-    { hreflang: [''] },
-    { media: [''] },
-    { referrerPolicy: [''] },
-    { sizes: [''] },
-    { type: [''] },
+    { as: [ '' ] },
+    { crossOrigin: [ '' ] },
+    { disabled: [ false ] },
+    { href: [ '' ] },
+    { hreflang: [ '' ] },
+    { media: [ '' ] },
+    { referrerPolicy: [ '' ] },
+    { sizes: [ '' ] },
+    { type: [ '' ] }
   ],
-  HTMLLinkElement,
+  HTMLLinkElement
 );
 
 // Unimplemented Properties

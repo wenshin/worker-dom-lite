@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, CSSProperties } from 'react';
+import React, { HTMLAttributes } from 'react';
 import { IPCObjectManager, IPCCargoType, IPCCargo } from '../../ipc-object';
 import { BRIDGE_READY_EVENT } from '../../Bridge';
 import { Bridge } from '../../interface';
@@ -20,12 +20,17 @@ export function packReactProps(props: any, ipcManager: IPCObjectManager): {} {
   return newProps;
 }
 
-export interface WorkerComponentProps extends HTMLAttributes<HTMLDivElement> {
+interface InternalWorkerComponentProps<T> extends HTMLAttributes<HTMLDivElement> {
   component: string;
-  props?: any;
+  props?: T;
 }
 
-export default function createComponent(bridge: Bridge, ipcObjectManager: IPCObjectManager) {
+export type WorkerComponentProps<T> = Omit<InternalWorkerComponentProps<T>, 'children'>;
+
+export default function createComponent<T extends Omit<{ [key: string]: any }, 'children'>>(
+  bridge: Bridge,
+  ipcObjectManager: IPCObjectManager
+) {
   function createElementCargo(elem: Element) {
     // shadow dom 的事件监听有问题
     const cargo = ipcObjectManager.addSource(IPCCargoType.ELEMENT, elem);
@@ -33,20 +38,19 @@ export default function createComponent(bridge: Bridge, ipcObjectManager: IPCObj
     return cargo;
   }
 
-  return class WorkerComponent extends React.PureComponent<WorkerComponentProps> {
+  return class WorkerComponent extends React.PureComponent<WorkerComponentProps<T>> {
     container: HTMLElement | null = null;
-    ipcObjectManager: IPCObjectManager;
     cargo: IPCCargo | null;
 
-    constructor(props: WorkerComponentProps) {
+    constructor(props: WorkerComponentProps<T>) {
       super(props);
-      this.ipcObjectManager = new IPCObjectManager(bridge);
       this.cargo = null;
     }
 
     componentDidMount() {
       if (!this.container) return;
-      if (this.props.children || (this.props.props && this.props.props.children)) {
+      const { props } = this.props;
+      if (this.props.children || (props && (props as any).children)) {
         throw new Error('WorkerComponent do not accept children prop');
       }
       this.cargo = createElementCargo(this.container);
@@ -54,7 +58,7 @@ export default function createComponent(bridge: Bridge, ipcObjectManager: IPCObj
         bridge.publish('component:render', {
           component: this.props.component,
           container: this.cargo,
-          props: packReactProps(this.props.props, this.ipcObjectManager)
+          props: packReactProps(this.props.props, ipcObjectManager)
         });
       });
     }
@@ -63,7 +67,7 @@ export default function createComponent(bridge: Bridge, ipcObjectManager: IPCObj
       if (!this.cargo) return;
       bridge.publish('component:update', {
         container: this.cargo,
-        props: packReactProps(this.props.props, this.ipcObjectManager)
+        props: packReactProps(this.props.props, ipcObjectManager)
       });
     }
 

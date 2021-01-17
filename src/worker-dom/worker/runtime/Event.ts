@@ -20,13 +20,6 @@
  */
 
 import { Node } from './dom/Node';
-import { TransferrableKeys } from '../transfer/TransferrableKeys';
-import { EventToWorker, MessageType } from '../transfer/Messages';
-import { TransferrableEvent, TransferrableTouchList } from '../transfer/TransferrableEvent';
-import { get } from './nodes';
-import { Document } from './dom/Document';
-import { TransferredNode } from '../transfer/TransferrableNodes';
-import { WorkerDOMGlobalScope } from './WorkerDOMGlobalScope';
 
 interface EventOptions {
   bubbles?: boolean;
@@ -73,8 +66,8 @@ export class Event {
   public timeStamp: number;
   public type: string;
   public scoped: boolean;
-  public [TransferrableKeys.stop]: boolean = false;
-  public [TransferrableKeys.end]: boolean = false;
+  public stopped: boolean = false;
+  public ended: boolean = false;
   public pageX?: number;
   public pageY?: number;
   public offsetX?: number;
@@ -88,10 +81,10 @@ export class Event {
     this.cancelable = !!opts.cancelable;
   }
   public stopPropagation(): void {
-    this[TransferrableKeys.stop] = true;
+    this.stopped = true;
   }
   public stopImmediatePropagation(): void {
-    this[TransferrableKeys.end] = this[TransferrableKeys.stop] = true;
+    this.ended = this.stopped = true;
   }
   public preventDefault(): void {
     this.defaultPrevented = true;
@@ -109,96 +102,96 @@ export class Event {
  * @param document Event intended within the scope of this document.
  * @param event
  */
-const targetFromTransfer = (document: Document, event: TransferrableEvent): Node | null => {
-  if (event[TransferrableKeys.target] !== null) {
-    const index = (event[TransferrableKeys.target] as TransferredNode)[0];
-    // If the target was sent as index 0, use the current document.
-    return get(index !== 0 ? index : document[TransferrableKeys.index]);
-  }
-  return null;
-};
+// const targetFromTransfer = (document: Document, event: TransferrableEvent): Node | null => {
+//   if (event[TransferrableKeys.target] !== null) {
+//     const index = (event[TransferrableKeys.target] as TransferredNode)[0];
+//     // If the target was sent as index 0, use the current document.
+//     return get(index !== 0 ? index : document[TransferrableKeys.index]);
+//   }
+//   return null;
+// };
 
 /**
  *
  * @param document
  * @param event
  */
-const touchListFromTransfer = (
-  document: Document,
-  event: TransferrableEvent,
-  key: TransferrableKeys.touches | TransferrableKeys.changedTouches,
-): TouchList | undefined => {
-  if (event[key] !== undefined) {
-    const touchListKeys = Object.keys(event[key] as TransferrableTouchList);
-    const list: TouchList = {
-      length: touchListKeys.length,
-      item(index: number) {
-        return this[index] || null;
-      },
-    };
+// const touchListFromTransfer = (
+//   document: Document,
+//   event: TransferrableEvent,
+//   key: TransferrableKeys.touches | TransferrableKeys.changedTouches
+// ): TouchList | undefined => {
+//   if (event[key] !== undefined) {
+//     const touchListKeys = Object.keys(event[key] as TransferrableTouchList);
+//     const list: TouchList = {
+//       length: touchListKeys.length,
+//       item(index: number) {
+//         return this[index] || null;
+//       }
+//     };
 
-    touchListKeys.forEach((touchListKey) => {
-      const numericKey = Number(touchListKey);
-      const transferredTouch = (event[key] as TransferrableTouchList)[numericKey];
-      list[numericKey] = {
-        identifier: transferredTouch[0],
-        screenX: transferredTouch[1],
-        screenY: transferredTouch[2],
-        clientX: transferredTouch[3],
-        clientY: transferredTouch[4],
-        pageX: transferredTouch[5],
-        pageY: transferredTouch[6],
-        target: get(transferredTouch[7] !== 0 ? transferredTouch[7] : document[TransferrableKeys.index]),
-      };
-    });
+//     touchListKeys.forEach((touchListKey) => {
+//       const numericKey = Number(touchListKey);
+//       const transferredTouch = (event[key] as TransferrableTouchList)[numericKey];
+//       list[numericKey] = {
+//         identifier: transferredTouch[0],
+//         screenX: transferredTouch[1],
+//         screenY: transferredTouch[2],
+//         clientX: transferredTouch[3],
+//         clientY: transferredTouch[4],
+//         pageX: transferredTouch[5],
+//         pageY: transferredTouch[6],
+//         target: get(transferredTouch[7] !== 0 ? transferredTouch[7] : document[TransferrableKeys.index])
+//       };
+//     });
 
-    return list;
-  }
-  return undefined;
-};
+//     return list;
+//   }
+//   return undefined;
+// };
 
 /**
  * When an event is dispatched from the main thread, it needs to be propagated in the worker thread.
  * Propagate adds an event listener to the worker global scope and uses the WorkerDOM Node.dispatchEvent
  * method to dispatch the transfered event in the worker thread.
  */
-export function propagate(global: WorkerDOMGlobalScope): void {
-  const document = global.document;
-  if (!document.addGlobalEventListener) {
-    return;
-  }
-  document.addGlobalEventListener('message', ({ data }: { data: EventToWorker }) => {
-    if (data[TransferrableKeys.type] !== MessageType.EVENT) {
-      return;
-    }
-    const event = data[TransferrableKeys.event] as TransferrableEvent;
-    const node = get(event[TransferrableKeys.index]);
-    if (node !== null) {
-      node.dispatchEvent(
-        Object.assign(
-          new Event(event[TransferrableKeys.type], {
-            bubbles: event[TransferrableKeys.bubbles],
-            cancelable: event[TransferrableKeys.cancelable],
-          }),
-          {
-            cancelBubble: event[TransferrableKeys.cancelBubble],
-            defaultPrevented: event[TransferrableKeys.defaultPrevented],
-            eventPhase: event[TransferrableKeys.eventPhase],
-            isTrusted: event[TransferrableKeys.isTrusted],
-            returnValue: event[TransferrableKeys.returnValue],
-            target: targetFromTransfer(global.document, event),
-            timeStamp: event[TransferrableKeys.timeStamp],
-            scoped: event[TransferrableKeys.scoped],
-            keyCode: event[TransferrableKeys.keyCode],
-            pageX: event[TransferrableKeys.pageX],
-            pageY: event[TransferrableKeys.pageY],
-            offsetX: event[TransferrableKeys.offsetX],
-            offsetY: event[TransferrableKeys.offsetY],
-            touches: touchListFromTransfer(global.document, event, TransferrableKeys.touches),
-            changedTouches: touchListFromTransfer(global.document, event, TransferrableKeys.changedTouches),
-          },
-        ),
-      );
-    }
-  });
-}
+// export function propagate(global: WorkerDOMGlobalScope): void {
+//   const document = global.document;
+//   if (!document.addGlobalEventListener) {
+//     return;
+//   }
+//   document.addGlobalEventListener('message', ({ data }: { data: EventToWorker }) => {
+//     if (data[TransferrableKeys.type] !== MessageType.EVENT) {
+//       return;
+//     }
+//     const event = data[TransferrableKeys.event] as TransferrableEvent;
+//     const node = get(event[TransferrableKeys.index]);
+//     if (node !== null) {
+//       node.dispatchEvent(
+//         Object.assign(
+//           new Event(event[TransferrableKeys.type], {
+//             bubbles: event[TransferrableKeys.bubbles],
+//             cancelable: event[TransferrableKeys.cancelable]
+//           }),
+//           {
+//             cancelBubble: event[TransferrableKeys.cancelBubble],
+//             defaultPrevented: event[TransferrableKeys.defaultPrevented],
+//             eventPhase: event[TransferrableKeys.eventPhase],
+//             isTrusted: event[TransferrableKeys.isTrusted],
+//             returnValue: event[TransferrableKeys.returnValue],
+//             target: targetFromTransfer(global.document, event),
+//             timeStamp: event[TransferrableKeys.timeStamp],
+//             scoped: event[TransferrableKeys.scoped],
+//             keyCode: event[TransferrableKeys.keyCode],
+//             pageX: event[TransferrableKeys.pageX],
+//             pageY: event[TransferrableKeys.pageY],
+//             offsetX: event[TransferrableKeys.offsetX],
+//             offsetY: event[TransferrableKeys.offsetY],
+//             touches: touchListFromTransfer(global.document, event, TransferrableKeys.touches),
+//             changedTouches: touchListFromTransfer(global.document, event, TransferrableKeys.changedTouches)
+//           }
+//         )
+//       );
+//     }
+//   });
+// }

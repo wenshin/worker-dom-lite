@@ -47,20 +47,13 @@ import './HTMLTableRowElement';
 import './HTMLTableSectionElement';
 import './HTMLTimeElement';
 import { matchChildElement } from './matchElements';
-import { NamespaceURI, Node } from './Node';
+import { NamespaceURI } from './Node';
 import { Text } from './Text';
 import { Comment } from './Comment';
-import { toLower } from '../../utils';
 import { DocumentFragment } from './DocumentFragment';
 import { PostMessage } from '../worker-thread';
-import { NodeType, HTML_NAMESPACE, HydrateableNode } from '../../transfer/TransferrableNodes';
-import { Phase } from '../../transfer/Phase';
-import { propagate as propagateEvents } from '../Event';
-import { propagate as propagateSyncValues } from '../SyncValuePropagation';
-import { propagate as propagateResize } from '../ResizePropagation';
-import { TransferrableKeys } from '../../transfer/TransferrableKeys';
+import { NodeType, HTML_NAMESPACE } from '../TransferrableNodes';
 import { WorkerDOMGlobalScope, GlobalScope } from '../WorkerDOMGlobalScope';
-import { set as setPhase } from '../phase';
 
 const DOCUMENT_NAME = '#document';
 
@@ -73,7 +66,6 @@ export class Document extends Element {
   public postMessage: PostMessage;
   public addGlobalEventListener: Function;
   public removeGlobalEventListener: Function;
-  public [TransferrableKeys.allowTransfer]: boolean = true;
 
   constructor(global: GlobalScope) {
     super(NodeType.DOCUMENT_NODE, DOCUMENT_NAME, HTML_NAMESPACE, null);
@@ -82,57 +74,18 @@ export class Document extends Element {
     this.documentElement = this; // TODO(choumx): Should be the <html> element.
 
     this.defaultView = Object.assign(global, {
+      $cargo: global.$ipcObjectManager.addSource('Window', global),
       document: this,
       addEventListener: this.addEventListener.bind(this),
-      removeEventListener: this.removeEventListener.bind(this),
+      removeEventListener: this.removeEventListener.bind(this)
     });
-  }
-
-  /**
-   * Observing the Document indicates it's attached to a main thread
-   * version of the document.
-   *
-   * Each mutation needs to be transferred, synced values need to propagate.
-   */
-  public [TransferrableKeys.observe](): void {
-    setPhase(Phase.Hydrating);
-    propagateEvents(this.defaultView);
-    propagateSyncValues(this.defaultView);
-    propagateResize(this.defaultView);
-  }
-
-  /**
-   * Hydrate
-   * @param strings
-   * @param skeleton
-   */
-  public [TransferrableKeys.hydrateNode](strings: Array<string>, skeleton: HydrateableNode): Node {
-    switch (skeleton[TransferrableKeys.nodeType]) {
-      case NodeType.TEXT_NODE:
-        return new Text(strings[skeleton[TransferrableKeys.textContent] as number], this, skeleton[TransferrableKeys.index]);
-      case NodeType.COMMENT_NODE:
-        return new Comment(strings[skeleton[TransferrableKeys.textContent] as number], this, skeleton[TransferrableKeys.index]);
-      default:
-        const namespaceURI: string = strings[skeleton[TransferrableKeys.namespaceURI] as number] || HTML_NAMESPACE;
-        const localName: string = strings[skeleton[TransferrableKeys.localOrNodeName]];
-        const constructor = NS_NAME_TO_CLASS[`${namespaceURI}:${localName}`] || HTMLElement;
-        const node = new constructor(NodeType.ELEMENT_NODE, localName, namespaceURI, this, skeleton[TransferrableKeys.index]);
-
-        (skeleton[TransferrableKeys.attributes] || []).forEach((attribute) =>
-          // AttributeNamespaceURI = strings[attribute[0]] !== 'null' ? strings[attribute[0]] : HTML_NAMESPACE
-          node.setAttributeNS(
-            strings[attribute[0]] !== 'null' ? strings[attribute[0]] : HTML_NAMESPACE,
-            strings[attribute[1]],
-            strings[attribute[2]],
-          ),
-        );
-        (skeleton[TransferrableKeys.childNodes] || []).forEach((child) => node.appendChild(this[TransferrableKeys.hydrateNode](strings, child)));
-        return node;
-    }
+    this.$bridge = global.$bridge;
+    this.$ipcObjectManager = global.$ipcObjectManager;
+    this.$cargo = this.$ipcObjectManager.addSource('Document', this);
   }
 
   public createElement(name: string): Element {
-    return this.createElementNS(HTML_NAMESPACE, toLower(name));
+    return this.createElementNS(HTML_NAMESPACE, name.toLowerCase());
   }
 
   public createElementNS(namespaceURI: NamespaceURI, localName: string): Element {

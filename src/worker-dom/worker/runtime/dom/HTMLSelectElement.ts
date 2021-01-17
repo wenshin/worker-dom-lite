@@ -20,32 +20,32 @@ import { reflectProperties } from './enhanceElement';
 import { HTMLInputLabelsMixin } from './HTMLInputLabelsMixin';
 import { matchChildrenElements, matchChildElement, tagNameConditionPredicate } from './matchElements';
 import { HTMLOptionElement } from './HTMLOptionElement';
-import { TransferrableKeys } from '../../transfer/TransferrableKeys';
 import { Node } from './Node';
 
-const isOptionPredicate = tagNameConditionPredicate(['OPTION']);
-const isSelectedOptionPredicate = (element: Element): boolean => isOptionPredicate(element) && (element as HTMLOptionElement).selected === true;
+const isOptionPredicate = tagNameConditionPredicate([ 'OPTION' ]);
+const isSelectedOptionPredicate = (element: Element): boolean =>
+  isOptionPredicate(element) && (element as HTMLOptionElement).selected === true;
 
 const enum SizeDefaults {
   SINGLE = 1,
   MULTIPLE = 4,
-  UNMODIFIED = -1,
+  UNMODIFIED = -1
 }
 
 const enum TypeDefaults {
   SINGLE = 'select-multiple',
-  MULTIPLE = 'select-one',
+  MULTIPLE = 'select-one'
 }
 
 export class HTMLSelectElement extends HTMLElement {
-  private [TransferrableKeys.size]: number = SizeDefaults.UNMODIFIED;
+  private _size: number = SizeDefaults.UNMODIFIED;
 
   /**
    * Extend functionality after child insertion to make sure the correct option is selected.
    * @param child
    */
-  protected [TransferrableKeys.insertedNode](child: Node): void {
-    super[TransferrableKeys.insertedNode](child);
+  protected onNodeInserted(child: Node): void {
+    super.onNodeInserted(child);
 
     // When this singular value select is appending a child, set the value property for two cases.
     // 1. The inserted child is already selected.
@@ -59,8 +59,8 @@ export class HTMLSelectElement extends HTMLElement {
    * Extend functionality after child insertion to make sure the correct option is selected.
    * @param child
    */
-  protected [TransferrableKeys.removedNode](child: Node): void {
-    super[TransferrableKeys.removedNode](child);
+  protected onNodeRemoved(child: Node): void {
+    super.onNodeRemoved(child);
 
     // When this singular value select is removing a selected child
     // ... set the value property to the first valid option.
@@ -123,11 +123,9 @@ export class HTMLSelectElement extends HTMLElement {
    * @return size of the select element.
    */
   get size(): number {
-    return this[TransferrableKeys.size] === SizeDefaults.UNMODIFIED
-      ? this.multiple
-        ? SizeDefaults.MULTIPLE
-        : SizeDefaults.SINGLE
-      : this[TransferrableKeys.size];
+    return this._size === SizeDefaults.UNMODIFIED
+      ? this.multiple ? SizeDefaults.MULTIPLE : SizeDefaults.SINGLE
+      : this._size;
   }
 
   /**
@@ -136,7 +134,7 @@ export class HTMLSelectElement extends HTMLElement {
    * @param size number to set the size to.
    */
   set size(size: number) {
-    this[TransferrableKeys.size] = size > 0 ? size : this.multiple ? SizeDefaults.MULTIPLE : SizeDefaults.SINGLE;
+    this._size = size > 0 ? size : this.multiple ? SizeDefaults.MULTIPLE : SizeDefaults.SINGLE;
   }
 
   /**
@@ -162,7 +160,9 @@ export class HTMLSelectElement extends HTMLElement {
    */
   set value(value: any) {
     const stringValue = String(value);
-    this.children.forEach((element: Element) => isOptionPredicate(element) && (element.selected = element.value === stringValue));
+    this.children.forEach(
+      (element: Element) => isOptionPredicate(element) && (element.selected = element.value === stringValue)
+    );
   }
 }
 registerSubclass('select', HTMLSelectElement);
@@ -172,7 +172,7 @@ HTMLInputLabelsMixin(HTMLSelectElement);
 // HTMLSelectElement.multiple => boolean, reflected attribute
 // HTMLSelectElement.name => string, reflected attribute
 // HTMLSelectElement.required => boolean, reflected attribute
-reflectProperties([{ multiple: [false] }, { name: [''] }, { required: [false] }], HTMLSelectElement);
+reflectProperties([ { multiple: [ false ] }, { name: [ '' ] }, { required: [ false ] } ], HTMLSelectElement);
 
 // Implemented on HTMLElement
 // HTMLSelectElement.form => HTMLFormElement, readonly

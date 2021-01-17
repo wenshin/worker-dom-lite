@@ -18,12 +18,22 @@ import { HTMLElement } from './HTMLElement';
 import { HTMLInputLabelsMixin } from './HTMLInputLabelsMixin';
 import { reflectProperties } from './enhanceElement';
 import { registerSubclass } from './Element';
-import { TransferrableKeys } from '../../transfer/TransferrableKeys';
-import { TransferrableMutationType } from '../../transfer/TransferrableMutation';
-import { store as storeString } from '../strings';
-import { Document } from './Document';
-import { transfer } from '../MutationTransfer';
-import { NumericBoolean } from '../../utils';
+
+const valueAttributeDefaultMode = new Set([ 'hidden', 'submit', 'image', 'reset', 'button' ]);
+const valueAttributeDefaultOnMode = new Set([ 'checkbox', 'radio' ]);
+
+function valueAttributeMode(type: string) {
+  if (valueAttributeDefaultMode.has(type)) {
+    return 'default';
+  }
+  if (valueAttributeDefaultOnMode.has(type)) {
+    return 'default/on';
+  }
+  if (type === 'file') {
+    return 'filename';
+  }
+  return 'value';
+}
 
 export class HTMLInputElement extends HTMLElement {
   // Per spec, some attributes like 'value' and 'checked' change behavior based on dirty flags.
@@ -32,9 +42,9 @@ export class HTMLInputElement extends HTMLElement {
   // Alternative: Implement dirty flag checking in worker-dom, which would require listening for
   //     and forwarding interaction events to flag "dirtiness".
   // https://html.spec.whatwg.org/multipage/input.html#common-input-element-apis
-  private [TransferrableKeys.value]: string = '';
   private dirtyValue: boolean = false;
-  private [TransferrableKeys.checked]: boolean = false;
+  private _value: any = '';
+  private _checked: boolean = false;
 
   // TODO(willchou): There are a few interrelated issues with `value` property.
   //   1. "Dirtiness" caveat above.
@@ -46,17 +56,25 @@ export class HTMLInputElement extends HTMLElement {
   }
 
   set value(value: string) {
-    // Don't early-out if value doesn't appear to have changed.
-    // The worker may have a stale value since 'input' events aren't being forwarded.
-    this[TransferrableKeys.value] = String(value);
-    this.dirtyValue = true;
-    transfer(this.ownerDocument as Document, [
-      TransferrableMutationType.PROPERTIES,
-      this[TransferrableKeys.index],
-      storeString('value'),
-      NumericBoolean.FALSE,
-      storeString(value),
-    ]);
+    switch (valueAttributeMode(this.type)) {
+      // https://html.spec.whatwg.org/multipage/input.html#dom-input-value-value
+      case 'value': {
+        if (this.type === 'text') {
+          this._value = value;
+          this.dirtyValue = true;
+        }
+        break;
+      }
+
+      // https://html.spec.whatwg.org/multipage/input.html#dom-input-value-default
+      // https://html.spec.whatwg.org/multipage/input.html#dom-input-value-default-on
+      case 'default':
+      case 'default/on':
+        this.setAttributeNS('', 'value', value);
+        break;
+      default:
+        break;
+    }
   }
 
   get valueAsDate(): Date | null {
@@ -91,21 +109,11 @@ export class HTMLInputElement extends HTMLElement {
   }
 
   get checked(): boolean {
-    return this[TransferrableKeys.checked];
+    return this._checked;
   }
 
   set checked(value: boolean) {
-    if (this[TransferrableKeys.checked] === value) {
-      return;
-    }
-    this[TransferrableKeys.checked] = !!value;
-    transfer(this.ownerDocument as Document, [
-      TransferrableMutationType.PROPERTIES,
-      this[TransferrableKeys.index],
-      storeString('checked'),
-      NumericBoolean.TRUE,
-      value === true ? NumericBoolean.TRUE : NumericBoolean.FALSE,
-    ]);
+    this._checked = true;
   }
 
   /**
@@ -128,7 +136,7 @@ export class HTMLInputElement extends HTMLElement {
     if (components.length !== 3) {
       return null;
     }
-    const [y, m, d] = components;
+    const [ y, m, d ] = components;
     // Month is 0-index.
     return new Date(parseInt(y, 10), parseInt(m, 10) - 1, parseInt(d, 10));
   }
@@ -167,36 +175,36 @@ HTMLInputLabelsMixin(HTMLInputElement);
 // HTMLInputElement.autocapitalize => string, reflected attribute
 reflectProperties(
   [
-    { accept: [''] },
-    { alt: [''] },
-    { autocapitalize: [''] },
-    { autocomplete: [''] },
-    { autofocus: [false] },
-    { defaultChecked: [false, /* attr */ 'checked'] },
-    { defaultValue: ['', /* attr */ 'value'] },
-    { dirName: [''] },
-    { disabled: [false] },
-    { formAction: [''] },
-    { formEncType: [''] },
-    { formMethod: [''] },
-    { formTarget: [''] },
-    { height: [0] },
-    { max: [''] },
-    { maxLength: [0] },
-    { min: [''] },
-    { multiple: [false] },
-    { name: [''] },
-    { pattern: [''] },
-    { placeholder: [''] },
-    { readOnly: [false] },
-    { required: [false] },
-    { size: [0] },
-    { src: [''] },
-    { step: [''] },
-    { type: ['text'] },
-    { width: [0] },
+    { accept: [ '' ] },
+    { alt: [ '' ] },
+    { autocapitalize: [ '' ] },
+    { autocomplete: [ '' ] },
+    { autofocus: [ false ] },
+    { defaultChecked: [ false, /* attr */ 'checked' ] },
+    { defaultValue: [ '', /* attr */ 'value' ] },
+    { dirName: [ '' ] },
+    { disabled: [ false ] },
+    { formAction: [ '' ] },
+    { formEncType: [ '' ] },
+    { formMethod: [ '' ] },
+    { formTarget: [ '' ] },
+    { height: [ 0 ] },
+    { max: [ '' ] },
+    { maxLength: [ 0 ] },
+    { min: [ '' ] },
+    { multiple: [ false ] },
+    { name: [ '' ] },
+    { pattern: [ '' ] },
+    { placeholder: [ '' ] },
+    { readOnly: [ false ] },
+    { required: [ false ] },
+    { size: [ 0 ] },
+    { src: [ '' ] },
+    { step: [ '' ] },
+    { type: [ 'text' ] },
+    { width: [ 0 ] }
   ],
-  HTMLInputElement,
+  HTMLInputElement
 );
 
 // TODO(KB) Not Reflected Properties

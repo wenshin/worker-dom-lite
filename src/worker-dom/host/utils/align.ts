@@ -1,28 +1,7 @@
 import domAlign from 'dom-align';
+import { AlignConfig } from '../../interface';
 
 const LAYER_CONTAINER_CLASS = '__dom_align_layer_container__';
-
-export enum Point {
-  TL = 'tl',
-  TR = 'tr',
-  TC = 'tc',
-  CC = 'cc',
-  BL = 'bl',
-  BR = 'br',
-  BC = 'bc'
-}
-
-// is same to https://github.com/yiminghe/dom-align
-export interface AlignConfig {
-  points: Point[];
-  offset: number[];
-  targetOffset: number[];
-  overflow: {
-    adjustX: boolean;
-    adjustY: boolean;
-    alwaysByViewport?: boolean;
-  };
-}
 
 /**
  * 1. popup in scroll element

@@ -16,9 +16,9 @@ export interface BridgePayload {
 
 export type PayloadOptions = Omit<BridgePayload, 'id' | 'code'> & { code?: BridgeCode };
 
-export type InvokeCallback = (err: Error | null, data: any) => void;
+export type InvokeCallback<T = any> = (err: Error | null, data: T) => void;
 
-export type SubscribeCallback = (data: any) => void;
+export type SubscribeCallback<T = any> = (data: T) => void;
 
 export interface BridgeTransport {
   name: string;
@@ -67,14 +67,15 @@ export interface Bridge extends NodeJS.EventEmitter {
    * @param cb optional, 如果不传，返回 Promise 对象
    * @returns
    */
-  invoke(method: string, params: any, cb?: InvokeCallback): Promise<any> | undefined;
+  invoke<D = any>(method: string, params: any): Promise<D>;
+  invoke<D = any>(method: string, params: any, cb: InvokeCallback<D>): void;
 
   /**
    * 同步调用沙盒方法
    * @param method
    * @param params
    */
-  invokeSync(method: string, params: any): any;
+  invokeSync<D = any>(method: string, params: any): D;
 
   // 注册响应 bridge invoke 的方法
   registerInvokeHandlers(namespace: string, handlers: { [method: string]: Function }): this;
@@ -91,7 +92,7 @@ export interface Bridge extends NodeJS.EventEmitter {
   /**
    * 监听另一个线程或则进程的事件
    */
-  subscribe(name: string, cb: SubscribeCallback): this;
+  subscribe<T>(name: string, cb: SubscribeCallback<T>): this;
 
   /**
    * 取消监听另一个线程或则进程的事件
@@ -106,11 +107,33 @@ export interface Bridge extends NodeJS.EventEmitter {
   emit(name: string, payload: BridgePayload): boolean;
 
   // 多次监听 emit 触发的某个事件
-  on(name: string, cb: SubscribeCallback): this;
+  on<T>(name: string, cb: SubscribeCallback<T>): this;
 
   // 单次监听 emit 触发的事件
-  once(name: string, cb: SubscribeCallback): this;
+  once<T>(name: string, cb: SubscribeCallback<T>): this;
 
   // 取消 on 事件监听
   off(name: string, cb: SubscribeCallback): this;
+}
+
+export enum Point {
+  TL = 'tl',
+  TR = 'tr',
+  TC = 'tc',
+  CC = 'cc',
+  BL = 'bl',
+  BR = 'br',
+  BC = 'bc'
+}
+
+// is same to https://github.com/yiminghe/dom-align
+export interface AlignConfig {
+  points: Point[];
+  offset: number[];
+  targetOffset: number[];
+  overflow: {
+    adjustX: boolean;
+    adjustY: boolean;
+    alwaysByViewport?: boolean;
+  };
 }

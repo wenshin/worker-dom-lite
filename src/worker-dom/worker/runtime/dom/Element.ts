@@ -17,37 +17,30 @@
 import { Node, NodeName, NamespaceURI } from './Node';
 import { ParentNode } from './ParentNode';
 import { DOMTokenList, synchronizedAccessor } from './DOMTokenList';
-import { Attr, toString as attrsToString, matchPredicate as matchAttrPredicate } from './Attr';
-import { mutate } from '../MutationObserver';
-import { MutationRecordType } from '../MutationRecord';
-import { toLower, toUpper } from '../../utils';
+import { Attr, matchPredicate as matchAttrPredicate } from './Attr';
 import { CSSStyleDeclaration } from '../css/CSSStyleDeclaration';
 import { matchChildrenElements } from './matchElements';
 import { reflectProperties } from './enhanceElement';
-import { store as storeString } from '../strings';
-import { Document } from './Document';
-import { transfer } from '../MutationTransfer';
-import { TransferrableKeys } from '../../transfer/TransferrableKeys';
-import { NodeType, HTML_NAMESPACE } from '../../transfer/TransferrableNodes';
-import { TransferrableBoundingClientRect } from '../../transfer/TransferrableBoundClientRect';
-import { TransferrableMutationType } from '../../transfer/TransferrableMutation';
-import { MessageToWorker, MessageType, BoundingClientRectToWorker } from '../../transfer/Messages';
-import { parse } from '../../third_party/html-parser/html-parser';
-import { propagate } from './Node';
+// import { TransferrableKeys } from '../../transfer/TransferrableKeys';
+import { NodeType, HTML_NAMESPACE } from '../TransferrableNodes';
 import { Event } from '../Event';
+import { BridgeElementEvents, BridgeElementMethods, BridgeDocumentMethods } from '../../consts';
 
 export const NS_NAME_TO_CLASS: { [key: string]: typeof Element } = {};
-export const registerSubclass = (localName: string, subclass: typeof Element, namespace: string = HTML_NAMESPACE): any =>
-  (NS_NAME_TO_CLASS[`${namespace}:${localName}`] = subclass);
+export const registerSubclass = (
+  localName: string,
+  subclass: typeof Element,
+  namespace: string = HTML_NAMESPACE
+): any => (NS_NAME_TO_CLASS[`${namespace}:${localName}`] = subclass);
 
-interface PropertyBackedAttributes {
-  [key: string]: [(el: Element) => string | null, (el: Element, value: string) => string | boolean];
-}
+// interface PropertyBackedAttributes {
+//   [key: string]: [(el: Element) => string | null, (el: Element, value: string) => string | boolean];
+// }
 
-export function definePropertyBackedAttributes(defineOn: typeof Element, attributes: PropertyBackedAttributes) {
-  const sub = Object.create(defineOn[TransferrableKeys.propertyBackedAttributes]);
-  defineOn[TransferrableKeys.propertyBackedAttributes] = Object.assign(sub, attributes);
-}
+// export function definePropertyBackedAttributes(defineOn: typeof Element, attributes: PropertyBackedAttributes) {
+//   const sub = Object.create(defineOn[TransferrableKeys.propertyBackedAttributes]);
+//   defineOn[TransferrableKeys.propertyBackedAttributes] = Object.assign(sub, attributes);
+// }
 
 interface ClientRect {
   left: number;
@@ -66,7 +59,7 @@ interface ClientRect {
  */
 enum ElementKind {
   NORMAL,
-  VOID,
+  VOID
   // The following element kinds have no special handling in worker-dom yet
   // and are lumped into the NORMAL kind.
   /*
@@ -80,15 +73,25 @@ enum ElementKind {
 /**
  * @see https://html.spec.whatwg.org/multipage/syntax.html#void-elements
  */
-const VOID_ELEMENTS: string[] = ['AREA', 'BASE', 'BR', 'COL', 'EMBED', 'HR', 'IMG', 'INPUT', 'LINK', 'META', 'PARAM', 'SOURCE', 'TRACK', 'WBR'];
+const VOID_ELEMENTS: string[] = [
+  'AREA',
+  'BASE',
+  'BR',
+  'COL',
+  'EMBED',
+  'HR',
+  'IMG',
+  'INPUT',
+  'LINK',
+  'META',
+  'PARAM',
+  'SOURCE',
+  'TRACK',
+  'WBR'
+];
 
 export class Element extends ParentNode {
   private _classList: DOMTokenList;
-
-  public static [TransferrableKeys.propertyBackedAttributes]: PropertyBackedAttributes = {
-    class: [(el): string | null => el.classList.value, (el, value: string) => (el.classList.value = value)],
-    style: [(el): string | null => el.cssText, (el, value: string) => (el.cssText = value)],
-  };
 
   public localName: NodeName;
   public attributes: Attr[] = [];
@@ -101,19 +104,27 @@ export class Element extends ParentNode {
    */
   private kind: ElementKind;
 
-  constructor(nodeType: NodeType, localName: NodeName, namespaceURI: NamespaceURI, ownerDocument: Node | null, overrideIndex?: number) {
-    super(nodeType, toUpper(localName), ownerDocument, overrideIndex);
+  constructor(
+    nodeType: NodeType,
+    localName: NodeName,
+    namespaceURI: NamespaceURI,
+    ownerDocument: Node | null,
+    overrideIndex?: number
+  ) {
+    super(nodeType, localName.toUpperCase(), ownerDocument, overrideIndex);
     this.namespaceURI = namespaceURI || HTML_NAMESPACE;
     this.localName = localName;
     this.kind = VOID_ELEMENTS.includes(this.tagName) ? ElementKind.VOID : ElementKind.NORMAL;
-
-    this[TransferrableKeys.creationFormat] = [
-      this[TransferrableKeys.index],
-      this.nodeType,
-      storeString(this.localName),
-      0,
-      this.namespaceURI === null ? 0 : storeString(this.namespaceURI),
-    ];
+    this.$cargo = this.ownerDocument.$ipcObjectManager.addSource('Element', this);
+    this.$cargo.info = { nodeName: this.nodeName };
+    if ([ 'html', 'head', 'body' ].indexOf(localName.toLowerCase()) < 0) {
+      this.$hostCreated = false;
+      this.$bridge
+        .invoke(BridgeDocumentMethods.createElement, [ this.$cargo, localName ])
+        .then(() => (this.$hostCreated = true));
+    } else {
+      this.$hostCreated = true;
+    }
   }
 
   // Unimplemented properties
@@ -172,82 +183,19 @@ export class Element extends ParentNode {
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/outerHTML
    * @return string representation of serialized HTML describing the Element and its descendants.
    */
-  get outerHTML(): string {
-    const tag = this.localName || this.tagName;
-
-    const start = `<${[tag, attrsToString(this.attributes)].join(' ').trim()}>`;
-    const contents = this.innerHTML;
-
-    if (!contents) {
-      if (this.kind === ElementKind.VOID) {
-        // Void elements e.g. <input> only have a start tag (unless children are added programmatically).
-        // https://html.spec.whatwg.org/multipage/syntax.html#void-elements
-        return start;
-      }
-    }
-    return start + contents + `</${tag}>`;
-  }
+  // get outerHTML(): string {}
 
   /**
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/innerHTML
    * @return string representation of serialized HTML describing the Element's descendants.
    */
-  get innerHTML(): string {
-    const childNodes = this.childNodes;
-
-    if (childNodes.length) {
-      return childNodes
-        .map((child) => {
-          switch (child.nodeType) {
-            case NodeType.TEXT_NODE:
-              return child.textContent;
-            case NodeType.COMMENT_NODE:
-              return `<!--${child.textContent}-->`;
-            default:
-              return child.outerHTML;
-          }
-        })
-        .join('');
-    }
-    return '';
-  }
+  // get innerHTML(): string {}
 
   /**
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/innerHTML
    * @param html The raw html string to parse.
    */
-  set innerHTML(html: string) {
-    const root = parse(html, this);
-
-    // remove previous children
-    this.childNodes.forEach((n) => {
-      propagate(n, 'isConnected', false);
-      propagate(n, TransferrableKeys.scopingRoot, n);
-    });
-
-    mutate(
-      this.ownerDocument as Document,
-      {
-        removedNodes: this.childNodes,
-        type: MutationRecordType.CHILD_LIST,
-        target: this,
-      },
-      [
-        TransferrableMutationType.CHILD_LIST,
-        this[TransferrableKeys.index],
-        0,
-        0,
-        0,
-        this.childNodes.length,
-        ...this.childNodes.map((node) => node[TransferrableKeys.index]),
-      ],
-    );
-
-    this.childNodes = [];
-
-    // add new children
-    root.childNodes.forEach((child: Node) => this.appendChild(child));
-  }
+  // set innerHTML(html: string) {}
 
   /**
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent
@@ -335,55 +283,23 @@ export class Element extends ParentNode {
    * @param value attribute value
    */
   public setAttributeNS(namespaceURI: NamespaceURI, name: string, value: unknown): void {
-    const valueAsString = String(value);
-    const propertyBacked = (this.constructor as typeof Element)[TransferrableKeys.propertyBackedAttributes][name];
-    if (propertyBacked !== undefined) {
+    if (name) {
+      const valueAsString = String(value);
       if (!this.attributes.find(matchAttrPredicate(namespaceURI, name))) {
         this.attributes.push({
           namespaceURI,
           name,
-          value: valueAsString,
+          value: valueAsString
         });
       }
-      propertyBacked[1](this, valueAsString);
-      return;
-    }
 
-    const oldValue = this[TransferrableKeys.storeAttribute](namespaceURI, name, valueAsString);
-    mutate(
-      this.ownerDocument as Document,
-      {
-        type: MutationRecordType.ATTRIBUTES,
-        target: this,
-        attributeName: name,
-        attributeNamespace: namespaceURI,
-        value: valueAsString,
-        oldValue,
-      },
-      [
-        TransferrableMutationType.ATTRIBUTES,
-        this[TransferrableKeys.index],
-        storeString(name),
-        storeString(namespaceURI),
-        value !== null ? storeString(valueAsString) + 1 : 0,
-      ],
-    );
-  }
-
-  public [TransferrableKeys.storeAttribute](namespaceURI: NamespaceURI, name: string, value: string): string {
-    const attr = this.attributes.find(matchAttrPredicate(namespaceURI, name));
-    const oldValue = (attr && attr.value) || '';
-
-    if (attr) {
-      attr.value = value;
-    } else {
-      this.attributes.push({
-        namespaceURI,
+      this.$bridge.publish(BridgeElementEvents.setAttributeNS, {
+        elemCargo: this.$cargo,
+        namespace: namespaceURI,
         name,
-        value,
+        value: valueAsString
       });
     }
-    return oldValue;
   }
 
   /**
@@ -396,11 +312,7 @@ export class Element extends ParentNode {
    */
   public getAttributeNS(namespaceURI: NamespaceURI, name: string): string | null {
     const attr = this.attributes.find(matchAttrPredicate(namespaceURI, name));
-    if (attr) {
-      const propertyBacked = (this.constructor as typeof Element)[TransferrableKeys.propertyBackedAttributes][name];
-      return propertyBacked !== undefined ? propertyBacked[0](this) : attr.value;
-    }
-    return null;
+    return attr ? attr.value : null;
   }
 
   /**
@@ -413,28 +325,13 @@ export class Element extends ParentNode {
    */
   public removeAttributeNS(namespaceURI: NamespaceURI, name: string): void {
     const index = this.attributes.findIndex(matchAttrPredicate(namespaceURI, name));
-
     if (index >= 0) {
-      const oldValue = this.attributes[index].value;
       this.attributes.splice(index, 1);
-
-      mutate(
-        this.ownerDocument as Document,
-        {
-          type: MutationRecordType.ATTRIBUTES,
-          target: this,
-          attributeName: name,
-          attributeNamespace: namespaceURI,
-          oldValue,
-        },
-        [
-          TransferrableMutationType.ATTRIBUTES,
-          this[TransferrableKeys.index],
-          storeString(name),
-          storeString(namespaceURI),
-          0, // 0 means no value
-        ],
-      );
+      this.$bridge.publish(BridgeElementEvents.removeAttributeNS, {
+        elemCargo: this.$cargo,
+        namespace: namespaceURI,
+        localName: name
+      });
     }
   }
 
@@ -458,7 +355,9 @@ export class Element extends ParentNode {
     // TODO(KB) – Compare performance of [].some(value => DOMTokenList.contains(value)) and regex.
     // const classRegex = new RegExp(classNames.split(' ').map(name => `(?=.*${name})`).join(''));
 
-    return matchChildrenElements(this, (element) => inputClassList.some((inputClassName) => element.classList.contains(inputClassName)));
+    return matchChildrenElements(this, (element) =>
+      inputClassList.some((inputClassName) => element.classList.contains(inputClassName))
+    );
   }
 
   /**
@@ -467,12 +366,13 @@ export class Element extends ParentNode {
    * @return Element array with matching tagnames
    */
   public getElementsByTagName(tagName: string): Array<Element> {
-    const lowerTagName = toLower(tagName);
+    const lowerTagName = tagName.toLowerCase();
     return matchChildrenElements(
       this,
       tagName === '*'
         ? (_) => true
-        : (element) => (element.namespaceURI === HTML_NAMESPACE ? element.localName === lowerTagName : element.tagName === tagName),
+        : (element) =>
+            element.namespaceURI === HTML_NAMESPACE ? element.localName === lowerTagName : element.tagName === tagName
     );
   }
 
@@ -494,7 +394,7 @@ export class Element extends ParentNode {
   public cloneNode(deep: boolean = false): Element {
     const clone: Element = this.ownerDocument.createElementNS(
       this.namespaceURI,
-      this.namespaceURI === HTML_NAMESPACE ? toLower(this.tagName) : this.tagName,
+      this.namespaceURI === HTML_NAMESPACE ? this.tagName.toLowerCase() : this.tagName
     );
     this.attributes.forEach((attr) => clone.setAttribute(attr.name, attr.value));
     if (deep) {
@@ -511,47 +411,8 @@ export class Element extends ParentNode {
    * Note: Edge and IE11 do not return the x/y value, but top/left are equivalent. Normalize the values here.
    */
   public getBoundingClientRectAsync(): Promise<ClientRect> {
-    const defaultValue = {
-      left: 0,
-      top: 0,
-      right: 0,
-      bottom: 0,
-      x: 0,
-      y: 0,
-      width: 0,
-      height: 0,
-    };
-
-    return new Promise((resolve) => {
-      const messageHandler = ({ data }: { data: MessageToWorker }) => {
-        if (
-          data[TransferrableKeys.type] === MessageType.GET_BOUNDING_CLIENT_RECT &&
-          (data as BoundingClientRectToWorker)[TransferrableKeys.target][0] === this[TransferrableKeys.index]
-        ) {
-          this.ownerDocument.removeGlobalEventListener('message', messageHandler);
-          const transferredBoundingClientRect: TransferrableBoundingClientRect = (data as BoundingClientRectToWorker)[TransferrableKeys.data];
-          resolve({
-            top: transferredBoundingClientRect[0],
-            right: transferredBoundingClientRect[1],
-            bottom: transferredBoundingClientRect[2],
-            left: transferredBoundingClientRect[3],
-            width: transferredBoundingClientRect[4],
-            height: transferredBoundingClientRect[5],
-            x: transferredBoundingClientRect[0],
-            y: transferredBoundingClientRect[3],
-          });
-        }
-      };
-
-      if (!this.ownerDocument.addGlobalEventListener || !this.isConnected) {
-        // Elements run within Node runtimes are missing addEventListener as a global.
-        // In this case, treat the return value the same as a disconnected node.
-        resolve(defaultValue);
-      } else {
-        this.ownerDocument.addGlobalEventListener('message', messageHandler);
-        transfer(this.ownerDocument as Document, [TransferrableMutationType.GET_BOUNDING_CLIENT_RECT, this[TransferrableKeys.index]]);
-        setTimeout(resolve, 500, defaultValue); // TODO: Why a magical constant, define and explain.
-      }
+    return this.$bridge.invoke<ClientRect>(BridgeElementMethods.getBoundingClientRect, {
+      elemCargo: this.$cargo
     });
   }
 
@@ -565,6 +426,32 @@ export class Element extends ParentNode {
   public get classList(): DOMTokenList {
     return this._classList || (this._classList = new DOMTokenList(this, 'class'));
   }
+
+  /**
+   * custom methods
+   * @param param0
+   */
+  alignElement({
+    triggerElem,
+    alignConfig,
+    autoUseScrollContainer,
+    container
+  }: {
+    triggerElem: Element;
+    alignConfig: any;
+    autoUseScrollContainer: boolean;
+    container: Element;
+  }) {
+    return this.$bridge.invoke(BridgeElementMethods.alignElement, [
+      {
+        elemCargo: this.$cargo,
+        triggerElemCargo: triggerElem.$cargo,
+        alignConfig,
+        autoUseScrollContainer,
+        container: container && container.$cargo
+      }
+    ]);
+  }
 }
 synchronizedAccessor(Element, 'classList', 'className');
-reflectProperties([{ id: [''] }], Element);
+reflectProperties([ { id: [ '' ] } ], Element);

@@ -14,17 +14,11 @@
  * limitations under the License.
  */
 
-import { store as storeNodeMapping, storeOverride as storeOverrideNodeMapping } from '../nodes';
 import { Event, EventHandler, AddEventListenerOptions } from '../Event';
-import { toLower } from '../../utils';
-import { mutate } from '../MutationObserver';
-import { MutationRecordType } from '../MutationRecord';
-import { TransferrableKeys } from '../../transfer/TransferrableKeys';
-import { store as storeString } from '../strings';
-import { Document } from './Document';
-import { transfer } from '../MutationTransfer';
-import { TransferredNode, NodeType } from '../../transfer/TransferrableNodes';
-import { TransferrableMutationType } from '../../transfer/TransferrableMutation';
+import { NodeType } from '../TransferrableNodes';
+import { BridgeNodeMethods, BridgeNodeEvents, BridgeEventTargetMethods } from '../../consts';
+import { Bridge } from '../../../interface';
+import { IPCObjectManager, IPCCargo, IPCCargoType } from '../../../ipc-object';
 
 export type NodeName = '#comment' | '#document' | '#document-fragment' | '#text' | string;
 export type NamespaceURI = string;
@@ -40,6 +34,18 @@ export const propagate = (node: Node, property: string | number, value: any): vo
   node.childNodes.forEach((child) => propagate(child, property, value));
 };
 
+function isUseBridge(elem: Node, callback: Function) {
+  // react dev will create a custom element react just used internal
+  return (
+    callback &&
+    elem.$cargo &&
+    elem.$cargo.type !== 'EventTarget' &&
+    elem.$cargo.type !== 'Window' &&
+    elem.nodeName &&
+    elem.nodeName.toLowerCase() !== 'react'
+  );
+}
+
 // https://developer.mozilla.org/en-US/docs/Web/API/Node
 // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget
 //
@@ -50,29 +56,27 @@ export abstract class Node {
   [index: string]: any; // TODO(choumx): Remove this typing escape hatch.
   public ownerDocument: Node; // TODO(choumx): Should be a Document.
   // https://drafts.csswg.org/selectors-4/#scoping-root
-  public [TransferrableKeys.scopingRoot]: Node;
+  public scopingRoot: Node;
   public nodeType: NodeType;
   public nodeName: NodeName;
   public childNodes: Node[] = [];
   public parentNode: Node | null = null;
   public isConnected: boolean = false;
-  public [TransferrableKeys.index]: number;
-  public [TransferrableKeys.transferredFormat]: TransferredNode;
-  public [TransferrableKeys.creationFormat]: Array<number>;
+  public $bridge: Bridge;
+  public $ipcObjectManager: IPCObjectManager;
+  public $cargo: IPCCargo;
   public abstract cloneNode(deep: boolean): Node;
-  private [TransferrableKeys.handlers]: {
+  private eventHandlers: {
     [index: string]: EventHandler[];
   } = {};
 
   constructor(nodeType: NodeType, nodeName: NodeName, ownerDocument: Node | null, overrideIndex?: number) {
     this.nodeType = nodeType;
     this.nodeName = nodeName;
+    this.scopingRoot = this;
 
     this.ownerDocument = ownerDocument || this;
-    this[TransferrableKeys.scopingRoot] = this;
-
-    this[TransferrableKeys.index] = overrideIndex ? storeOverrideNodeMapping(this, overrideIndex) : storeNodeMapping(this);
-    this[TransferrableKeys.transferredFormat] = [this[TransferrableKeys.index]];
+    this.$cargo = this.ownerDocument.$ipcObjectManager.addSource('Node', this);
   }
 
   // Unimplemented Properties
@@ -195,38 +199,32 @@ export abstract class Node {
       // The new child cannot contain the parent.
       return child;
     }
+    // script is for safe case
+    const isNoNeedChildren = [ 'html', 'head', 'body', 'script' ].indexOf(child.nodeName.toLowerCase()) > -1;
+    const isNoNeedParent = [ '#document', 'html' ].indexOf(this.nodeName.toLowerCase()) > -1;
+    const isEmptyText = this.nodeName.toLowerCase() === 'body' && child.nodeName === '#text';
+    if (!isNoNeedParent && !isNoNeedChildren && !isEmptyText) {
+      this.$bridge.invoke(BridgeNodeMethods.insertBefore, [
+        this.$cargo,
+        child.$cargo,
+        referenceNode && referenceNode.$cargo
+      ]);
+    }
 
     if (child.nodeType === NodeType.DOCUMENT_FRAGMENT_NODE) {
       child.childNodes.slice().forEach((node: Node) => this.insertBefore(node, referenceNode));
-    } else if (referenceNode == null) {
-      // When a referenceNode is not valid, appendChild(child).
-      return this.appendChild(child);
+      return child;
+    } else if (!referenceNode) {
+      child.remove();
+      this.childNodes.push(child);
+      return child;
     } else if (this.childNodes.indexOf(referenceNode) >= 0) {
       // Should only insertBefore direct children of this Node.
       child.remove();
 
       // Removing a child can cause this.childNodes to change, meaning we need to splice from its updated location.
       this.childNodes.splice(this.childNodes.indexOf(referenceNode), 0, child);
-      this[TransferrableKeys.insertedNode](child);
-
-      mutate(
-        this.ownerDocument as Document,
-        {
-          addedNodes: [child],
-          nextSibling: referenceNode,
-          type: MutationRecordType.CHILD_LIST,
-          target: this,
-        },
-        [
-          TransferrableMutationType.CHILD_LIST,
-          this[TransferrableKeys.index],
-          referenceNode[TransferrableKeys.index],
-          0,
-          1,
-          0,
-          child[TransferrableKeys.index],
-        ],
-      );
+      this.onNodeInserted(child);
 
       return child;
     }
@@ -238,20 +236,20 @@ export abstract class Node {
    * When a Node is inserted, this method is called (and can be extended by other classes)
    * @param child
    */
-  protected [TransferrableKeys.insertedNode](child: Node): void {
+  protected onNodeInserted(child: Node): void {
     child.parentNode = this;
     propagate(child, 'isConnected', this.isConnected);
-    propagate(child, TransferrableKeys.scopingRoot, this[TransferrableKeys.scopingRoot]);
+    propagate(child, 'scopingRoot', this.scopingRoot);
   }
 
   /**
    * When a node is removed, this method is called (and can be extended by other classes)
    * @param child
    */
-  protected [TransferrableKeys.removedNode](child: Node): void {
+  protected onNodeRemoved(child: Node): void {
     child.parentNode = null;
     propagate(child, 'isConnected', false);
-    propagate(child, TransferrableKeys.scopingRoot, child);
+    propagate(child, 'scopingRoot', child);
   }
 
   /**
@@ -261,34 +259,7 @@ export abstract class Node {
    * @return Node the appended node.
    */
   public appendChild(child: Node): Node {
-    if (child.nodeType === NodeType.DOCUMENT_FRAGMENT_NODE) {
-      child.childNodes.slice().forEach(this.appendChild, this);
-    } else {
-      child.remove();
-      this.childNodes.push(child);
-      this[TransferrableKeys.insertedNode](child);
-
-      const previousSibling = this.childNodes[this.childNodes.length - 2];
-      mutate(
-        this.ownerDocument as Document,
-        {
-          addedNodes: [child],
-          previousSibling,
-          type: MutationRecordType.CHILD_LIST,
-          target: this,
-        },
-        [
-          TransferrableMutationType.CHILD_LIST,
-          this[TransferrableKeys.index],
-          0,
-          previousSibling ? previousSibling[TransferrableKeys.index] : 0,
-          1,
-          0,
-          child[TransferrableKeys.index],
-        ],
-      );
-    }
-    return child;
+    return this.insertBefore(child, null) as Node;
   }
 
   /**
@@ -303,17 +274,10 @@ export abstract class Node {
 
     if (exists) {
       this.childNodes.splice(index, 1);
-      this[TransferrableKeys.removedNode](child);
-
-      mutate(
-        this.ownerDocument as Document,
-        {
-          removedNodes: [child],
-          type: MutationRecordType.CHILD_LIST,
-          target: this,
-        },
-        [TransferrableMutationType.CHILD_LIST, this[TransferrableKeys.index], 0, 0, 0, 1, child[TransferrableKeys.index]],
-      );
+      this.$bridge.publish(BridgeNodeEvents.removeChild, {
+        elemCargo: this.$cargo,
+        childElemCargo: child.$cargo
+      });
 
       return child;
     }
@@ -344,31 +308,10 @@ export abstract class Node {
     newChild.remove();
 
     const index = this.childNodes.indexOf(oldChild);
-    this.childNodes.splice(index, 1, newChild);
-    this[TransferrableKeys.removedNode](oldChild);
-    this[TransferrableKeys.insertedNode](newChild);
-
-    mutate(
-      this.ownerDocument as Document,
-      {
-        addedNodes: [newChild],
-        removedNodes: [oldChild],
-        type: MutationRecordType.CHILD_LIST,
-        nextSibling: this.childNodes[index + 1],
-        target: this,
-      },
-      [
-        TransferrableMutationType.CHILD_LIST,
-        this[TransferrableKeys.index],
-        this.childNodes[index + 1] ? this.childNodes[index + 1][TransferrableKeys.index] : 0,
-        0,
-        1,
-        1,
-        newChild[TransferrableKeys.index],
-        oldChild[TransferrableKeys.index],
-      ],
-    );
-
+    const nextSibling = this.childNodes[index + 1];
+    // remove oldChild
+    oldChild.remove();
+    this.insertBefore(newChild, nextSibling);
     return oldChild;
   }
 
@@ -388,29 +331,28 @@ export abstract class Node {
    * @param type Event Type (i.e 'click')
    * @param handler Function called when event is dispatched.
    */
-  public addEventListener(type: string, handler: EventHandler, options: AddEventListenerOptions | undefined = {}): void {
-    const lowerType = toLower(type);
-    const storedType = storeString(lowerType);
-    const handlers: EventHandler[] = this[TransferrableKeys.handlers][lowerType];
-    let index: number = 0;
+  public addEventListener(
+    type: string,
+    handler: EventHandler,
+    options: AddEventListenerOptions | undefined = {}
+  ): void {
+    const lowerType = type.toLowerCase();
+    const handlers: EventHandler[] = this.eventHandlers[lowerType];
     if (handlers) {
-      index = handlers.push(handler);
+      handlers.push(handler);
     } else {
-      this[TransferrableKeys.handlers][lowerType] = [handler];
+      this.eventHandlers[lowerType] = [ handler ];
     }
 
-    transfer(this.ownerDocument as Document, [
-      TransferrableMutationType.EVENT_SUBSCRIPTION,
-      this[TransferrableKeys.index],
-      0,
-      1,
-      storedType,
-      index,
-      Number(Boolean(options.capture)),
-      Number(Boolean(options.once)),
-      Number(Boolean(options.passive)),
-      Number(Boolean(options.workerDOMPreventDefault)),
-    ]);
+    if (isUseBridge(this, handler)) {
+      const cb = this.$ipcObjectManager.addSource(IPCCargoType.EVENT_CALLBACK, handler);
+      console.debug('Worker addEventListener', type, cb);
+      this.$bridge.invoke(BridgeEventTargetMethods.addEventListener, [ this.$cargo, type, cb, options ], (err) => {
+        if (err) {
+          this.$ipcObjectManager.removeByObject(handler);
+        }
+      });
+    }
   }
 
   /**
@@ -420,20 +362,17 @@ export abstract class Node {
    * @param handler Function to stop calling when event is dispatched.
    */
   public removeEventListener(type: string, handler: EventHandler): void {
-    const lowerType = toLower(type);
-    const handlers = this[TransferrableKeys.handlers][lowerType];
+    const lowerType = type.toLowerCase();
+    const handlers = this.eventHandlers[lowerType];
     const index = !!handlers ? handlers.indexOf(handler) : -1;
 
     if (index >= 0) {
       handlers.splice(index, 1);
-      transfer(this.ownerDocument as Document, [
-        TransferrableMutationType.EVENT_SUBSCRIPTION,
-        this[TransferrableKeys.index],
-        1,
-        0,
-        storeString(lowerType),
-        index,
-      ]);
+      this.$bridge.invoke(BridgeEventTargetMethods.removeEventListener, [ this.$cargo, type, handler ], (err) => {
+        if (err) {
+          this.$ipcObjectManager.removeByObject(handler);
+        }
+      });
     }
   }
 
@@ -448,15 +387,15 @@ export abstract class Node {
     let iterator: number;
 
     do {
-      handlers = target && target[TransferrableKeys.handlers] && target[TransferrableKeys.handlers][toLower(event.type)];
+      handlers = target && target.eventHandlers && target.eventHandlers[event.type.toLowerCase()];
       if (handlers) {
         for (iterator = handlers.length; iterator--; ) {
-          if ((handlers[iterator].call(target, event) === false || event[TransferrableKeys.end]) && event.cancelable) {
+          if ((handlers[iterator].call(target, event) === false || event.ended) && event.cancelable) {
             break;
           }
         }
       }
-    } while (event.bubbles && !(event.cancelable && event[TransferrableKeys.stop]) && (target = target && target.parentNode));
+    } while (event.bubbles && !(event.cancelable && event.stopped) && (target = target && target.parentNode));
     return !event.defaultPrevented;
   }
 }

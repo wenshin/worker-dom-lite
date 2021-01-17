@@ -65,7 +65,7 @@ const sassModuleRegex = /\.module\.(scss|sass)$/;
 module.exports = function(webpackEnv) {
   const isEnvDevelopment = webpackEnv === 'development';
   const isEnvProduction = webpackEnv === 'production';
-  const isEnvProductionTest = webpackEnv === 'development';
+  const isEnvProductionTest = webpackEnv === 'production';
 
   // Variable used for enabling profiling in Production
   // passed into alias object. Uses a flag if passed into the build command
@@ -529,7 +529,9 @@ module.exports = function(webpackEnv) {
       ]
     },
     plugins: [
-      // new BundleAnalyzerPlugin(),
+      // new BundleAnalyzerPlugin({
+      //   generateStatsFile: true
+      // }),
       // Generates an `index.html` file with the <script> injected.
       new HtmlWebpackPlugin(
         Object.assign(
